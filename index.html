@@ -1,132 +1,1375 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>家計・ライフプラン管理アプリ</title>
-<style>
-  :root { --bg:#f6f7fb; --card:#fff; --main:#2563eb; --text:#111827; --muted:#6b7280; --bad:#dc2626; --good:#16a34a; --warn:#f59e0b; }
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
-  header{background:linear-gradient(135deg,#2563eb,#0f766e);color:#fff;padding:18px 16px 22px;border-radius:0 0 22px 22px}
-  h1{font-size:22px;margin:0 0 6px} .sub{font-size:13px;opacity:.9}
-  main{padding:14px;max-width:920px;margin:auto}.grid{display:grid;gap:12px}.card{background:var(--card);border-radius:18px;padding:14px;box-shadow:0 3px 14px rgba(0,0,0,.06)}
-  h2{font-size:17px;margin:0 0 12px}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-  label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px} input,select,button{width:100%;font-size:16px;border-radius:12px;border:1px solid #d1d5db;padding:10px;background:#fff}
-  button{border:0;background:var(--main);color:#fff;font-weight:700}.btn2{background:#374151}.btnBad{background:#dc2626}.pill{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;background:#eef2ff;color:#1d4ed8}
-  .summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}.box{background:#f9fafb;border-radius:14px;padding:12px}.box b{font-size:19px}.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted);font-size:13px}
-  table{width:100%;border-collapse:collapse;font-size:13px} th,td{padding:8px;border-bottom:1px solid #eee;text-align:left} th{color:var(--muted);font-weight:600}.right{text-align:right}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.tab{padding:10px 4px;border-radius:12px;background:#e5e7eb;color:#111;font-size:13px}.tab.active{background:var(--main);color:white}.hidden{display:none}.bar{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:var(--main);width:0}.danger span{background:var(--bad)}.ok span{background:var(--good)}
-  canvas{width:100%;height:220px;border:1px solid #eee;border-radius:14px;background:#fff}.small{font-size:12px;color:#6b7280}.actions{display:flex;gap:8px}.actions button{font-size:13px;padding:8px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>家計・ライフプラン管理アプリ</title>
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --main: #2563eb;
+      --main-dark: #1d4ed8;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --warn: #f59e0b;
+      --soft-blue: #eff6ff;
+      --soft-green: #ecfdf5;
+      --soft-red: #fef2f2;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2563eb, #0f766e);
+      color: #ffffff;
+      padding: 20px 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 21px;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px;
+      padding-bottom: 90px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tab-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 4px;
+      background: #e5e7eb;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      background: var(--main);
+      color: #ffffff;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(229, 231, 235, 0.8);
+    }
+
+    .card-title {
+      margin: 0 0 12px;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .summary-box {
+      border-radius: 16px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      background: #f9fafb;
+    }
+
+    .summary-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .summary-box strong {
+      display: block;
+      font-size: 20px;
+      word-break: break-all;
+    }
+
+    .summary-box.income {
+      background: var(--soft-blue);
+    }
+
+    .summary-box.expense {
+      background: var(--soft-red);
+    }
+
+    .summary-box.good-box {
+      background: var(--soft-green);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 16px;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--main);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background: var(--main-dark);
+    }
+
+    .btn-secondary {
+      background: #374151;
+    }
+
+    .btn-danger {
+      background: var(--bad);
+    }
+
+    .btn-good {
+      background: var(--good);
+    }
+
+    .btn-small {
+      padding: 7px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      width: auto;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .amount-good {
+      color: var(--good);
+    }
+
+    .amount-bad {
+      color: var(--bad);
+    }
+
+    .amount-warn {
+      color: var(--warn);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 4px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge-income {
+      background: var(--soft-blue);
+      color: var(--main);
+    }
+
+    .badge-expense {
+      background: var(--soft-red);
+      color: var(--bad);
+    }
+
+    .bar-wrap {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      background: var(--main);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .bar.over {
+      background: var(--bad);
+    }
+
+    .list-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #ffffff;
+    }
+
+    .list-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    canvas {
+      width: 100%;
+      height: 260px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #ffffff;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .tabs {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+      }
+
+      .tab-button {
+        font-size: 11px;
+        padding: 9px 2px;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .summary-box strong {
+        font-size: 18px;
+      }
+
+      table {
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <h1>家計・ライフプラン管理</h1>
-  <div class="sub">支出・予算・積立・将来資産をまとめて管理</div>
-</header>
-<main>
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('home',this)">ホーム</button>
-    <button class="tab" onclick="showTab('input',this)">入力</button>
-    <button class="tab" onclick="showTab('plan',this)">予算</button>
-    <button class="tab" onclick="showTab('life',this)">ライフ</button>
-  </div>
+  <header>
+    <h1>家計・ライフプラン管理</h1>
+    <p>収入・支出・予算・積立・将来資産をまとめて管理</p>
+  </header>
 
-  <section id="home" class="grid">
-    <div class="card">
-      <h2>今月のまとめ <span class="pill" id="monthLabel"></span></h2>
-      <div class="summary">
-        <div class="box">収入<br><b id="sumIncome">0円</b></div>
-        <div class="box">支出<br><b id="sumExpense" class="bad">0円</b></div>
-        <div class="box">残り<br><b id="sumBalance">0円</b></div>
-        <div class="box">貯金率<br><b id="saveRate">0%</b></div>
+  <main>
+    <nav class="tabs">
+      <button class="tab-button active" data-tab="dashboard">ホーム</button>
+      <button class="tab-button" data-tab="input">入力</button>
+      <button class="tab-button" data-tab="budget">予算</button>
+      <button class="tab-button" data-tab="saving">積立</button>
+      <button class="tab-button" data-tab="lifeplan">ライフ</button>
+    </nav>
+
+    <!-- ホーム -->
+    <section id="dashboard" class="tab-page">
+      <div class="card">
+        <h2 class="card-title">
+          今月の家計
+          <span id="currentMonthLabel" class="small"></span>
+        </h2>
+
+        <div class="grid-2">
+          <div class="summary-box income">
+            <span>収入</span>
+            <strong id="dashboardIncome">0円</strong>
+          </div>
+
+          <div class="summary-box expense">
+            <span>支出</span>
+            <strong id="dashboardExpense">0円</strong>
+          </div>
+
+          <div class="summary-box good-box">
+            <span>残り</span>
+            <strong id="dashboardBalance">0円</strong>
+          </div>
+
+          <div class="summary-box">
+            <span>貯金率</span>
+            <strong id="dashboardSavingRate">0%</strong>
+          </div>
+        </div>
+
+        <p class="small">給料や支出を入力すると、この画面にすぐ反映されます。</p>
       </div>
-    </div>
-    <div class="card">
-      <h2>カテゴリー別支出</h2>
-      <div id="categoryBars"></div>
-    </div>
-    <div class="card">
-      <h2>履歴</h2>
-      <table><thead><tr><th>日付</th><th>分類</th><th>内容</th><th class="right">金額</th></tr></thead><tbody id="history"></tbody></table>
-    </div>
-  </section>
 
-  <section id="input" class="grid hidden">
-    <div class="card">
-      <h2>収入・支出を入力</h2>
-      <div class="row">
-        <div><label>日付</label><input type="date" id="date"></div>
-        <div><label>種類</label><select id="type"><option value="expense">支出</option><option value="income">収入</option></select></div>
-      </div><br>
-      <div class="row">
-        <div><label>カテゴリー</label><select id="category"></select></div>
-        <div><label>金額</label><input type="number" id="amount" placeholder="例 3500"></div>
-      </div><br>
-      <label>メモ</label><input id="memo" placeholder="例 スーパー、ガソリン、給料など"><br><br>
-      <button onclick="addRecord()">追加する</button>
-    </div>
-    <div class="card">
-      <h2>データ管理</h2>
-      <div class="row">
-        <button class="btn2" onclick="exportData()">バックアップ</button>
-        <button class="btnBad" onclick="clearAll()">全削除</button>
+      <div class="card">
+        <h2 class="card-title">カテゴリー別支出</h2>
+        <div id="categoryExpenseList"></div>
       </div>
-      <p class="small">データはこのスマホ/ブラウザ内に保存されます。</p>
-    </div>
-  </section>
 
-  <section id="plan" class="grid hidden">
-    <div class="card">
-      <h2>月の予算設定</h2>
-      <div id="budgetInputs"></div><br>
-      <button onclick="saveBudgets()">予算を保存</button>
-    </div>
-    <div class="card">
-      <h2>予算との差</h2>
-      <div id="budgetResult"></div>
-    </div>
-  </section>
+      <div class="card">
+        <h2 class="card-title">最近の記録</h2>
+        <div id="recentRecords"></div>
+      </div>
+    </section>
 
-  <section id="life" class="grid hidden">
-    <div class="card">
-      <h2>ライフプラン簡易シミュレーション</h2>
-      <div class="row">
-        <div><label>現在の貯金・投資</label><input type="number" id="asset" value="3300000"></div>
-        <div><label>毎月の積立</label><input type="number" id="monthlySave" value="50000"></div>
-      </div><br>
-      <div class="row">
-        <div><label>年間特別支出</label><input type="number" id="yearExpense" value="600000"></div>
-        <div><label>年利（%）</label><input type="number" id="rate" value="3"></div>
-      </div><br>
-      <button onclick="drawLifePlan()">10年シミュレーション</button>
-      <br><br><canvas id="chart" width="800" height="300"></canvas>
-      <p class="small">※ざっくり計算です。教育費・車買替・住宅ローンなどは次版で細かく入れられるようにできます。</p>
-    </div>
-  </section>
-</main>
-<script>
-const cats = ['食費','日用品','住宅ローン','水道光熱','通信','保険','車','教育','外食','旅行/帰省','医療','その他'];
-const incomeCats = ['給料','副業','ボーナス','その他収入'];
-let records = JSON.parse(localStorage.getItem('records')||'[]');
-let budgets = JSON.parse(localStorage.getItem('budgets')||'{}');
-const yen = n => (Number(n)||0).toLocaleString('ja-JP')+'円';
-function today(){return new Date().toISOString().slice(0,10)}
-document.getElementById('date').value=today();
-function fillCats(){ const sel=document.getElementById('category'); const arr=document.getElementById('type').value==='income'?incomeCats:cats; sel.innerHTML=arr.map(c=>`<option>${c}</option>`).join(''); }
-document.getElementById('type').addEventListener('change',fillCats); fillCats();
-function showTab(id,btn){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active'); render();}
-function addRecord(){ const r={id:Date.now(),date:date.value||today(),type:type.value,category:category.value,amount:Number(amount.value),memo:memo.value}; if(!r.amount)return alert('金額を入れてください'); records.unshift(r); localStorage.setItem('records',JSON.stringify(records)); amount.value=''; memo.value=''; render(); alert('追加しました'); }
-function thisMonthRecords(){const ym=today().slice(0,7); monthLabel.textContent=ym; return records.filter(r=>r.date.slice(0,7)===ym)}
-function render(){ const ms=thisMonthRecords(); const inc=ms.filter(r=>r.type==='income').reduce((a,b)=>a+b.amount,0); const exp=ms.filter(r=>r.type==='expense').reduce((a,b)=>a+b.amount,0); sumIncome.textContent=yen(inc); sumExpense.textContent=yen(exp); sumBalance.textContent=yen(inc-exp); sumBalance.className=(inc-exp)>=0?'good':'bad'; saveRate.textContent=inc?Math.round((inc-exp)/inc*100)+'%':'0%'; renderHistory(ms); renderBars(ms); renderBudgetInputs(); renderBudgetResult(ms);}
-function renderHistory(ms){history.innerHTML=ms.slice(0,30).map(r=>`<tr><td>${r.date}</td><td>${r.category}</td><td>${r.memo||''}</td><td class="right ${r.type==='expense'?'bad':'good'}">${r.type==='expense'?'-':'+'}${yen(r.amount)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">まだ記録がありません</td></tr>'}
-function renderBars(ms){ const sums={}; cats.forEach(c=>sums[c]=0); ms.filter(r=>r.type==='expense').forEach(r=>sums[r.category]=(sums[r.category]||0)+r.amount); const max=Math.max(...Object.values(sums),1); categoryBars.innerHTML=cats.filter(c=>sums[c]>0).map(c=>`<div style="margin:10px 0"><div class="row"><span>${c}</span><b class="right">${yen(sums[c])}</b></div><div class="bar"><span style="width:${Math.min(100,sums[c]/max*100)}%"></span></div></div>`).join('')||'<p class="muted">支出を入力すると表示されます</p>'}
-function renderBudgetInputs(){ budgetInputs.innerHTML=cats.map(c=>`<div class="row" style="margin-bottom:8px"><label>${c}</label><input type="number" data-cat="${c}" value="${budgets[c]||''}" placeholder="予算"></div>`).join('')}
-function saveBudgets(){ document.querySelectorAll('[data-cat]').forEach(i=>budgets[i.dataset.cat]=Number(i.value)||0); localStorage.setItem('budgets',JSON.stringify(budgets)); render(); alert('保存しました');}
-function renderBudgetResult(ms){ const spent={}; cats.forEach(c=>spent[c]=0); ms.filter(r=>r.type==='expense').forEach(r=>spent[r.category]=(spent[r.category]||0)+r.amount); budgetResult.innerHTML=cats.map(c=>{const b=budgets[c]||0;if(!b)return'';const p=Math.min(100,spent[c]/b*100);const cls=spent[c]>b?'danger':'ok';return `<div style="margin:12px 0"><div class="row"><span>${c}</span><b class="right">${yen(spent[c])} / ${yen(b)}</b></div><div class="bar ${cls}"><span style="width:${p}%"></span></div><div class="small">残り ${yen(b-spent[c])}</div></div>`}).join('')||'<p class="muted">予算を設定してください</p>'}
-function drawLifePlan(){ const c=chart,ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); let a=Number(asset.value)||0, m=Number(monthlySave.value)||0, y=Number(yearExpense.value)||0, r=(Number(rate.value)||0)/100; const data=[]; for(let i=0;i<=10;i++){data.push(a); a=(a+m*12-y)*(1+r);} const max=Math.max(...data,1); ctx.beginPath(); data.forEach((v,i)=>{const x=40+i*(720/10), yy=260-(v/max*220); if(i===0)ctx.moveTo(x,yy); else ctx.lineTo(x,yy); ctx.fillText(i+'年',x-8,285); ctx.fillText(Math.round(v/10000)+'万',x-12,yy-8);}); ctx.stroke(); ctx.fillText('10年後: '+yen(data[10]),40,25); }
-function exportData(){ const blob=new Blob([JSON.stringify({records,budgets},null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='kakeibo-backup.json'; a.click(); }
-function clearAll(){ if(confirm('本当に全データを削除しますか？')){localStorage.clear();records=[];budgets={};render();}}
-render(); drawLifePlan();
-</script>
+    <!-- 入力 -->
+    <section id="input" class="tab-page hidden">
+      <div class="card">
+        <h2 class="card-title">収入・支出を追加</h2>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="recordDate">日付</label>
+            <input id="recordDate" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="recordType">種別</label>
+            <select id="recordType">
+              <option value="income">収入</option>
+              <option value="expense">支出</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="recordCategory">カテゴリー</label>
+            <select id="recordCategory"></select>
+          </div>
+
+          <div class="field">
+            <label for="recordAmount">金額</label>
+            <input id="recordAmount" type="number" inputmode="numeric" placeholder="例：300000" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="recordMemo">メモ</label>
+          <input id="recordMemo" type="text" placeholder="例：給料、スーパー、ガソリン" />
+        </div>
+
+        <button class="btn" id="addRecordButton">追加する</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">すべての記録</h2>
+        <div id="allRecords"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">データ管理</h2>
+
+        <div class="button-row">
+          <button class="btn btn-secondary" id="exportButton">バックアップ</button>
+          <button class="btn btn-good" id="importButton">復元</button>
+        </div>
+
+        <input id="importFile" type="file" accept="application/json" class="hidden" />
+
+        <div class="button-row">
+          <button class="btn btn-danger" id="clearButton">全データ削除</button>
+        </div>
+
+        <p class="small">
+          データはこのスマホ・このブラウザ内に保存されます。機種変更前はバックアップしてください。
+        </p>
+      </div>
+    </section>
+
+    <!-- 予算 -->
+    <section id="budget" class="tab-page hidden">
+      <div class="card">
+        <h2 class="card-title">月の予算</h2>
+        <p class="small">カテゴリーごとに予算を設定できます。</p>
+        <div id="budgetInputs"></div>
+        <button class="btn" id="saveBudgetButton">予算を保存</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">予算チェック</h2>
+        <div id="budgetResult"></div>
+      </div>
+    </section>
+
+    <!-- 積立 -->
+    <section id="saving" class="tab-page hidden">
+      <div class="card">
+        <h2 class="card-title">積立を追加</h2>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="savingName">積立名</label>
+            <input id="savingName" type="text" placeholder="例：車買替、教育費、旅行" />
+          </div>
+
+          <div class="field">
+            <label for="savingTarget">目標額</label>
+            <input id="savingTarget" type="number" inputmode="numeric" placeholder="例：2000000" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="savingNow">現在額</label>
+            <input id="savingNow" type="number" inputmode="numeric" placeholder="例：500000" />
+          </div>
+
+          <div class="field">
+            <label for="savingMonthly">毎月積立</label>
+            <input id="savingMonthly" type="number" inputmode="numeric" placeholder="例：20000" />
+          </div>
+        </div>
+
+        <button class="btn" id="addSavingButton">積立を追加</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">積立一覧</h2>
+        <div id="savingList"></div>
+      </div>
+    </section>
+
+    <!-- ライフプラン -->
+    <section id="lifeplan" class="tab-page hidden">
+      <div class="card">
+        <h2 class="card-title">ライフプラン簡易シミュレーション</h2>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="assetNow">現在の資産</label>
+            <input id="assetNow" type="number" inputmode="numeric" value="4000000" />
+          </div>
+
+          <div class="field">
+            <label for="monthlySave">毎月の積立</label>
+            <input id="monthlySave" type="number" inputmode="numeric" value="50000" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="yearlyCost">年間特別支出</label>
+            <input id="yearlyCost" type="number" inputmode="numeric" value="300000" />
+          </div>
+
+          <div class="field">
+            <label for="interestRate">年利（%）</label>
+            <input id="interestRate" type="number" inputmode="decimal" value="3" />
+          </div>
+        </div>
+
+        <button class="btn" id="calculateLifeButton">計算する</button>
+
+        <br /><br />
+
+        <canvas id="lifeCanvas" width="700" height="280"></canvas>
+        <div id="lifeResult"></div>
+
+        <p class="small">※ざっくり計算です。投資成果を保証するものではありません。</p>
+      </div>
+    </section>
+
+    <p class="footer-note">
+      家計・ライフプラン管理アプリ / index.html 完全版
+    </p>
+  </main>
+
+  <script>
+    // ==================================================
+    // 家計・ライフプラン管理アプリ
+    // データ保存キー
+    // ==================================================
+
+    const STORAGE_KEY = "lifeplan_app_v2_data";
+
+    // ==================================================
+    // カテゴリー
+    // ==================================================
+
+    const incomeCategories = [
+      "給料",
+      "ボーナス",
+      "副業",
+      "児童手当",
+      "その他収入"
+    ];
+
+    const expenseCategories = [
+      "食費",
+      "日用品",
+      "住宅ローン",
+      "水道光熱費",
+      "通信費",
+      "保険",
+      "車",
+      "教育",
+      "外食",
+      "旅行/帰省",
+      "医療",
+      "趣味",
+      "その他"
+    ];
+
+    // ==================================================
+    // 初期データ
+    // ==================================================
+
+    const defaultData = {
+      records: [],
+      budgets: {
+        "食費": 100000,
+        "日用品": 20000,
+        "住宅ローン": 74324,
+        "水道光熱費": 25000,
+        "通信費": 12000,
+        "保険": 15000,
+        "車": 30000,
+        "教育": 20000,
+        "外食": 20000,
+        "旅行/帰省": 10000,
+        "医療": 5000,
+        "趣味": 10000,
+        "その他": 20000
+      },
+      savings: [
+        {
+          id: 1,
+          name: "車買替",
+          target: 2000000,
+          current: 0,
+          monthly: 20000
+        },
+        {
+          id: 2,
+          name: "教育費",
+          target: 4000000,
+          current: 0,
+          monthly: 30000
+        },
+        {
+          id: 3,
+          name: "旅行/帰省",
+          target: 300000,
+          current: 0,
+          monthly: 10000
+        }
+      ]
+    };
+
+    let appData = loadData();
+
+    // ==================================================
+    // 基本関数
+    // ==================================================
+
+    function loadData() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) {
+          return structuredClone(defaultData);
+        }
+
+        const parsed = JSON.parse(saved);
+
+        return {
+          records: parsed.records || [],
+          budgets: parsed.budgets || structuredClone(defaultData.budgets),
+          savings: parsed.savings || structuredClone(defaultData.savings)
+        };
+      } catch (error) {
+        console.error(error);
+        return structuredClone(defaultData);
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    function yen(value) {
+      return Number(value || 0).toLocaleString("ja-JP") + "円";
+    }
+
+    function percent(value) {
+      return Number(value || 0).toFixed(1) + "%";
+    }
+
+    function todayText() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function currentYearMonth() {
+      return todayText().slice(0, 7);
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getThisMonthRecords() {
+      const ym = currentYearMonth();
+      return appData.records.filter(record => String(record.date).slice(0, 7) === ym);
+    }
+
+    function getExpenseTotal(records) {
+      return records
+        .filter(record => record.type === "expense")
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    }
+
+    function getIncomeTotal(records) {
+      return records
+        .filter(record => record.type === "income")
+        .reduce((sum, record) => sum + Number(record.amount || 0), 0);
+    }
+
+    // ==================================================
+    // タブ
+    // ==================================================
+
+    function setupTabs() {
+      document.querySelectorAll(".tab-button").forEach(button => {
+        button.addEventListener("click", () => {
+          const tabId = button.dataset.tab;
+
+          document.querySelectorAll(".tab-button").forEach(btn => {
+            btn.classList.remove("active");
+          });
+
+          document.querySelectorAll(".tab-page").forEach(page => {
+            page.classList.add("hidden");
+          });
+
+          button.classList.add("active");
+          document.getElementById(tabId).classList.remove("hidden");
+
+          renderAll();
+        });
+      });
+    }
+
+    // ==================================================
+    // 入力
+    // ==================================================
+
+    function setupInputForm() {
+      document.getElementById("recordDate").value = todayText();
+
+      document.getElementById("recordType").addEventListener("change", () => {
+        updateCategoryOptions();
+      });
+
+      document.getElementById("addRecordButton").addEventListener("click", () => {
+        addRecord();
+      });
+
+      updateCategoryOptions();
+    }
+
+    function updateCategoryOptions() {
+      const type = document.getElementById("recordType").value;
+      const categorySelect = document.getElementById("recordCategory");
+      const categories = type === "income" ? incomeCategories : expenseCategories;
+
+      categorySelect.innerHTML = categories
+        .map(category => `<option value="${category}">${category}</option>`)
+        .join("");
+    }
+
+    function addRecord() {
+      const date = document.getElementById("recordDate").value || todayText();
+      const type = document.getElementById("recordType").value;
+      const category = document.getElementById("recordCategory").value;
+      const amount = Number(document.getElementById("recordAmount").value || 0);
+      const memo = document.getElementById("recordMemo").value.trim();
+
+      if (!amount || amount <= 0) {
+        alert("金額を入力してください");
+        return;
+      }
+
+      appData.records.push({
+        id: Date.now(),
+        date,
+        type,
+        category,
+        amount,
+        memo
+      });
+
+      document.getElementById("recordAmount").value = "";
+      document.getElementById("recordMemo").value = "";
+
+      saveData();
+      renderAll();
+
+      alert("追加しました");
+    }
+
+    function deleteRecord(id) {
+      const ok = confirm("この記録を削除しますか？");
+      if (!ok) return;
+
+      appData.records = appData.records.filter(record => record.id !== id);
+
+      saveData();
+      renderAll();
+    }
+
+    // ==================================================
+    // ホーム表示
+    // ==================================================
+
+    function renderDashboard() {
+      const monthRecords = getThisMonthRecords();
+
+      const income = getIncomeTotal(monthRecords);
+      const expense = getExpenseTotal(monthRecords);
+      const balance = income - expense;
+      const savingRate = income > 0 ? (balance / income) * 100 : 0;
+
+      document.getElementById("currentMonthLabel").textContent = currentYearMonth();
+
+      document.getElementById("dashboardIncome").textContent = yen(income);
+      document.getElementById("dashboardExpense").textContent = yen(expense);
+
+      const balanceElement = document.getElementById("dashboardBalance");
+      balanceElement.textContent = yen(balance);
+      balanceElement.className = balance >= 0 ? "amount-good" : "amount-bad";
+
+      const rateElement = document.getElementById("dashboardSavingRate");
+      rateElement.textContent = percent(savingRate);
+      rateElement.className = savingRate >= 15 ? "amount-good" : savingRate >= 0 ? "amount-warn" : "amount-bad";
+
+      renderCategoryExpenseList(monthRecords);
+      renderRecentRecords();
+      renderAllRecords();
+    }
+
+    function renderCategoryExpenseList(records) {
+      const area = document.getElementById("categoryExpenseList");
+      const expenses = records.filter(record => record.type === "expense");
+      const total = getExpenseTotal(records);
+
+      if (expenses.length === 0) {
+        area.innerHTML = `<p class="small">今月の支出はまだありません。</p>`;
+        return;
+      }
+
+      const map = {};
+
+      expenses.forEach(record => {
+        map[record.category] = (map[record.category] || 0) + Number(record.amount || 0);
+      });
+
+      const rows = Object.entries(map)
+        .sort((a, b) => b[1] - a[1])
+        .map(([category, amount]) => {
+          const rate = total > 0 ? Math.round((amount / total) * 100) : 0;
+
+          return `
+            <div class="list-item">
+              <div class="list-head">
+                <span>${escapeHtml(category)}</span>
+                <span>${yen(amount)} / ${rate}%</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="width:${rate}%"></div>
+              </div>
+            </div>
+          `;
+        });
+
+      area.innerHTML = rows.join("");
+    }
+
+    function renderRecentRecords() {
+      const area = document.getElementById("recentRecords");
+      const list = [...appData.records]
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+        .slice(0, 8);
+
+      if (list.length === 0) {
+        area.innerHTML = `<p class="small">まだ記録がありません。</p>`;
+        return;
+      }
+
+      area.innerHTML = list.map(record => {
+        const badgeClass = record.type === "income" ? "badge-income" : "badge-expense";
+        const typeLabel = record.type === "income" ? "収入" : "支出";
+
+        return `
+          <div class="list-item">
+            <div class="list-head">
+              <span>${escapeHtml(record.category)}</span>
+              <span class="${record.type === "income" ? "amount-good" : "amount-bad"}">${yen(record.amount)}</span>
+            </div>
+            <div class="small">
+              <span class="badge ${badgeClass}">${typeLabel}</span>
+              ${escapeHtml(record.date)}
+              ${record.memo ? " / " + escapeHtml(record.memo) : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAllRecords() {
+      const area = document.getElementById("allRecords");
+      const list = [...appData.records]
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+      if (list.length === 0) {
+        area.innerHTML = `<p class="small">まだ記録がありません。</p>`;
+        return;
+      }
+
+      area.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>種別</th>
+              <th>カテゴリ</th>
+              <th class="right">金額</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(record => {
+              const typeLabel = record.type === "income" ? "収入" : "支出";
+              const badgeClass = record.type === "income" ? "badge-income" : "badge-expense";
+
+              return `
+                <tr>
+                  <td>${escapeHtml(record.date)}</td>
+                  <td><span class="badge ${badgeClass}">${typeLabel}</span></td>
+                  <td>
+                    ${escapeHtml(record.category)}
+                    ${record.memo ? `<div class="small">${escapeHtml(record.memo)}</div>` : ""}
+                  </td>
+                  <td class="right">${yen(record.amount)}</td>
+                  <td class="right">
+                    <button class="btn btn-danger btn-small" onclick="deleteRecord(${record.id})">削除</button>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // ==================================================
+    // 予算
+    // ==================================================
+
+    function setupBudget() {
+      document.getElementById("saveBudgetButton").addEventListener("click", () => {
+        saveBudgets();
+      });
+    }
+
+    function renderBudgetInputs() {
+      const area = document.getElementById("budgetInputs");
+
+      area.innerHTML = expenseCategories.map(category => {
+        const value = appData.budgets[category] || "";
+
+        return `
+          <div class="field">
+            <label>${escapeHtml(category)}</label>
+            <input type="number" inputmode="numeric" data-budget-category="${escapeHtml(category)}" value="${value}" />
+          </div>
+        `;
+      }).join("");
+    }
+
+    function saveBudgets() {
+      document.querySelectorAll("[data-budget-category]").forEach(input => {
+        const category = input.dataset.budgetCategory;
+        appData.budgets[category] = Number(input.value || 0);
+      });
+
+      saveData();
+      renderAll();
+
+      alert("予算を保存しました");
+    }
+
+    function renderBudgetResult() {
+      const area = document.getElementById("budgetResult");
+      const monthRecords = getThisMonthRecords();
+      const expenses = monthRecords.filter(record => record.type === "expense");
+
+      const spentMap = {};
+
+      expenses.forEach(record => {
+        spentMap[record.category] = (spentMap[record.category] || 0) + Number(record.amount || 0);
+      });
+
+      area.innerHTML = expenseCategories.map(category => {
+        const budget = Number(appData.budgets[category] || 0);
+        const spent = Number(spentMap[category] || 0);
+        const rate = budget > 0 ? Math.min(100, Math.round((spent / budget) * 100)) : 0;
+        const over = budget > 0 && spent > budget;
+        const diff = budget - spent;
+
+        return `
+          <div class="list-item">
+            <div class="list-head">
+              <span>${escapeHtml(category)}</span>
+              <span class="${over ? "amount-bad" : "amount-good"}">
+                ${yen(spent)} / ${budget ? yen(budget) : "未設定"}
+              </span>
+            </div>
+            <div class="bar-wrap">
+              <div class="bar ${over ? "over" : ""}" style="width:${rate}%"></div>
+            </div>
+            <div class="small">
+              ${budget ? (diff >= 0 ? `残り ${yen(diff)}` : `超過 ${yen(Math.abs(diff))}`) : "予算を設定してください"}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // ==================================================
+    // 積立
+    // ==================================================
+
+    function setupSaving() {
+      document.getElementById("addSavingButton").addEventListener("click", () => {
+        addSaving();
+      });
+    }
+
+    function addSaving() {
+      const name = document.getElementById("savingName").value.trim();
+      const target = Number(document.getElementById("savingTarget").value || 0);
+      const current = Number(document.getElementById("savingNow").value || 0);
+      const monthly = Number(document.getElementById("savingMonthly").value || 0);
+
+      if (!name) {
+        alert("積立名を入力してください");
+        return;
+      }
+
+      if (!target || target <= 0) {
+        alert("目標額を入力してください");
+        return;
+      }
+
+      appData.savings.push({
+        id: Date.now(),
+        name,
+        target,
+        current,
+        monthly
+      });
+
+      document.getElementById("savingName").value = "";
+      document.getElementById("savingTarget").value = "";
+      document.getElementById("savingNow").value = "";
+      document.getElementById("savingMonthly").value = "";
+
+      saveData();
+      renderAll();
+
+      alert("積立を追加しました");
+    }
+
+    function deleteSaving(id) {
+      const ok = confirm("この積立を削除しますか？");
+      if (!ok) return;
+
+      appData.savings = appData.savings.filter(item => item.id !== id);
+
+      saveData();
+      renderAll();
+    }
+
+    function renderSavingList() {
+      const area = document.getElementById("savingList");
+
+      if (appData.savings.length === 0) {
+        area.innerHTML = `<p class="small">積立がありません。</p>`;
+        return;
+      }
+
+      area.innerHTML = appData.savings.map(item => {
+        const rate = item.target > 0 ? Math.min(100, Math.round((item.current / item.target) * 100)) : 0;
+        const remaining = Math.max(0, item.target - item.current);
+        const months = item.monthly > 0 ? Math.ceil(remaining / item.monthly) : null;
+
+        return `
+          <div class="list-item">
+            <div class="list-head">
+              <span>${escapeHtml(item.name)}</span>
+              <span>${rate}%</span>
+            </div>
+
+            <div class="small">
+              現在 ${yen(item.current)} / 目標 ${yen(item.target)}
+            </div>
+
+            <div class="bar-wrap" style="margin:8px 0;">
+              <div class="bar" style="width:${rate}%"></div>
+            </div>
+
+            <div class="small">
+              残り ${yen(remaining)}
+              ${months !== null ? ` / 達成まで約 ${months}か月` : " / 毎月積立を設定してください"}
+            </div>
+
+            <div class="button-row">
+              <button class="btn btn-danger btn-small" onclick="deleteSaving(${item.id})">削除</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // ==================================================
+    // ライフプラン
+    // ==================================================
+
+    function setupLifePlan() {
+      document.getElementById("calculateLifeButton").addEventListener("click", () => {
+        drawLifePlan();
+      });
+    }
+
+    function drawLifePlan() {
+      const canvas = document.getElementById("lifeCanvas");
+      const ctx = canvas.getContext("2d");
+
+      const assetNow = Number(document.getElementById("assetNow").value || 0);
+      const monthlySave = Number(document.getElementById("monthlySave").value || 0);
+      const yearlyCost = Number(document.getElementById("yearlyCost").value || 0);
+      const rate = Number(document.getElementById("interestRate").value || 0) / 100;
+
+      const startYear = new Date().getFullYear();
+      let asset = assetNow;
+      const data = [];
+
+      for (let i = 0; i <= 20; i++) {
+        if (i > 0) {
+          asset = asset * (1 + rate) + monthlySave * 12 - yearlyCost;
+        }
+
+        data.push({
+          year: startYear + i,
+          asset
+        });
+      }
+
+      drawLineChart(canvas, ctx, data);
+      renderLifeResult(data);
+    }
+
+    function drawLineChart(canvas, ctx, data) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const paddingLeft = 56;
+      const paddingRight = 24;
+      const paddingTop = 24;
+      const paddingBottom = 42;
+
+      const chartWidth = canvas.width - paddingLeft - paddingRight;
+      const chartHeight = canvas.height - paddingTop - paddingBottom;
+
+      const values = data.map(item => item.asset);
+      const max = Math.max(...values);
+      const min = Math.min(...values);
+      const range = Math.max(1, max - min);
+
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      ctx.moveTo(paddingLeft, paddingTop);
+      ctx.lineTo(paddingLeft, paddingTop + chartHeight);
+      ctx.lineTo(paddingLeft + chartWidth, paddingTop + chartHeight);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#2563eb";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+
+      data.forEach((item, index) => {
+        const x = paddingLeft + (index / (data.length - 1)) * chartWidth;
+        const y = paddingTop + chartHeight - ((item.asset - min) / range) * chartHeight;
+
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+
+      ctx.stroke();
+
+      ctx.fillStyle = "#111827";
+      ctx.font = "12px sans-serif";
+
+      data.forEach((item, index) => {
+        const x = paddingLeft + (index / (data.length - 1)) * chartWidth;
+        const y = paddingTop + chartHeight - ((item.asset - min) / range) * chartHeight;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (index % 5 === 0) {
+          ctx.fillText(String(item.year), x - 14, paddingTop + chartHeight + 22);
+          ctx.fillText(Math.round(item.asset / 10000) + "万", x - 20, y - 10);
+        }
+      });
+    }
+
+    function renderLifeResult(data) {
+      const area = document.getElementById("lifeResult");
+      const last = data[data.length - 1];
+
+      area.innerHTML = `
+        <div class="card" style="box-shadow:none;margin-top:12px;background:#f9fafb;">
+          <div class="summary-box">
+            <span>${last.year}年の予想資産</span>
+            <strong>${yen(Math.round(last.asset))}</strong>
+          </div>
+        </div>
+      `;
+    }
+
+    // ==================================================
+    // バックアップ・復元
+    // ==================================================
+
+    function setupBackup() {
+      document.getElementById("exportButton").addEventListener("click", () => {
+        exportData();
+      });
+
+      document.getElementById("importButton").addEventListener("click", () => {
+        document.getElementById("importFile").click();
+      });
+
+      document.getElementById("importFile").addEventListener("change", event => {
+        importData(event);
+      });
+
+      document.getElementById("clearButton").addEventListener("click", () => {
+        clearAllData();
+      });
+    }
+
+    function exportData() {
+      const exportObject = {
+        app: "lifeplan_app",
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        data: appData
+      };
+
+      const blob = new Blob([JSON.stringify(exportObject, null, 2)], {
+        type: "application/json"
+      });
+
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "lifeplan-backup.json";
+      link.click();
+
+      URL.revokeObjectURL(link.href);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const importedData = parsed.data || parsed;
+
+          if (!importedData.records || !importedData.budgets) {
+            alert("バックアップファイルの形式が違います");
+            return;
+          }
+
+          appData = {
+            records: importedData.records || [],
+            budgets: importedData.budgets || {},
+            savings: importedData.savings || []
+          };
+
+          saveData();
+          renderAll();
+
+          alert("復元しました");
+        } catch (error) {
+          alert("読み込みに失敗しました");
+          console.error(error);
+        }
+      };
+
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function clearAllData() {
+      const ok = confirm("本当にすべてのデータを削除しますか？");
+      if (!ok) return;
+
+      appData = structuredClone(defaultData);
+      saveData();
+      renderAll();
+
+      alert("初期状態に戻しました");
+    }
+
+    // ==================================================
+    // 全体描画
+    // ==================================================
+
+    function renderAll() {
+      renderDashboard();
+      renderBudgetInputs();
+      renderBudgetResult();
+      renderSavingList();
+      drawLifePlan();
+    }
+
+    function init() {
+      setupTabs();
+      setupInputForm();
+      setupBudget();
+      setupSaving();
+      setupLifePlan();
+      setupBackup();
+      renderAll();
+    }
+
+    init();
+  </script>
 </body>
 </html>
