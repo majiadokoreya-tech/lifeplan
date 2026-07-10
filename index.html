@@ -482,6 +482,27 @@
       background: #ffffff;
     }
 
+    .category-action-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .move-button {
+      min-width: 38px;
+      padding-left: 9px;
+      padding-right: 9px;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .move-button:disabled {
+      cursor: default;
+      opacity: 0.35;
+    }
+
     .category-manage-name {
       min-width: 0;
       font-weight: 900;
@@ -813,6 +834,10 @@
         <div class="card-title-row">
           <h2 class="card-title">項目を追加</h2>
           <span class="small">自由に追加可能</span>
+        </div>
+
+        <div class="notice" style="margin-bottom:12px;">
+          既存項目も削除できます。項目一覧の「↑」「↓」で表示順を変更できます。
         </div>
 
         <div class="form-grid">
@@ -1677,11 +1702,6 @@
 
       if (!category) return;
 
-      if (category.builtIn) {
-        alert("最初からある項目は削除できません");
-        return;
-      }
-
       if (!confirm(`「${category.name}」を削除しますか？\n過去月のこの項目の金額も削除されます。`)) {
         return;
       }
@@ -1694,12 +1714,48 @@
         }
       });
 
+      normalizeCategoryOrder(category.type);
       saveAppData();
 
       renderCategorySettings();
       renderMonthlyInputs();
       renderHome();
       renderHistory();
+    }
+
+    function normalizeCategoryOrder(type) {
+      getCategories(type).forEach((category, index) => {
+        category.order = index + 1;
+      });
+    }
+
+    function moveCategory(categoryId, direction) {
+      const category = appData.categories.find(item => item.id === categoryId);
+
+      if (!category) return;
+
+      const categories = getCategories(category.type);
+      const currentIndex = categories.findIndex(item => item.id === categoryId);
+      const nextIndex = currentIndex + direction;
+
+      if (currentIndex < 0 || nextIndex < 0 || nextIndex >= categories.length) {
+        return;
+      }
+
+      const currentCategory = categories[currentIndex];
+      const nextCategory = categories[nextIndex];
+      const currentOrder = Number(currentCategory.order || currentIndex + 1);
+      const nextOrder = Number(nextCategory.order || nextIndex + 1);
+
+      currentCategory.order = nextOrder;
+      nextCategory.order = currentOrder;
+
+      normalizeCategoryOrder(category.type);
+      saveAppData();
+
+      renderCategorySettings();
+      renderMonthlyInputs();
+      renderHome();
     }
 
     function renderCategorySettings() {
@@ -1727,7 +1783,10 @@
         return;
       }
 
-      list.innerHTML = categories.map(category => {
+      list.innerHTML = categories.map((category, index) => {
+        const isFirst = index === 0;
+        const isLast = index === categories.length - 1;
+
         return `
           <div class="category-manage-item">
             <div
@@ -1743,26 +1802,53 @@
               </div>
               <div class="category-manage-type">
                 ${type === "income" ? "収入" : "支出"}
-                ${category.builtIn ? " / 標準項目" : " / 追加項目"}
+                ${category.builtIn ? " / 初期項目" : " / 追加項目"}
               </div>
             </div>
 
-            ${
-              category.builtIn
-                ? `<span class="small">固定</span>`
-                : `
-                  <button
-                    class="btn btn-danger btn-small"
-                    type="button"
-                    data-delete-category="${escapeHtml(category.id)}"
-                  >
-                    削除
-                  </button>
-                `
-            }
+            <div class="category-action-buttons">
+              <button
+                class="btn btn-outline btn-small move-button"
+                type="button"
+                data-move-category="${escapeHtml(category.id)}"
+                data-move-direction="-1"
+                aria-label="上へ移動"
+                ${isFirst ? "disabled" : ""}
+              >
+                ↑
+              </button>
+
+              <button
+                class="btn btn-outline btn-small move-button"
+                type="button"
+                data-move-category="${escapeHtml(category.id)}"
+                data-move-direction="1"
+                aria-label="下へ移動"
+                ${isLast ? "disabled" : ""}
+              >
+                ↓
+              </button>
+
+              <button
+                class="btn btn-danger btn-small"
+                type="button"
+                data-delete-category="${escapeHtml(category.id)}"
+              >
+                削除
+              </button>
+            </div>
           </div>
         `;
       }).join("");
+
+      list.querySelectorAll("[data-move-category]").forEach(button => {
+        button.addEventListener("click", () => {
+          moveCategory(
+            button.dataset.moveCategory,
+            Number(button.dataset.moveDirection)
+          );
+        });
+      });
 
       list.querySelectorAll("[data-delete-category]").forEach(button => {
         button.addEventListener("click", () => {
