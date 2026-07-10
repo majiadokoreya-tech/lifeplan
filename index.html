@@ -66,7 +66,7 @@
 
     .tabs {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 8px;
       margin-bottom: 14px;
     }
@@ -326,6 +326,67 @@
       background: #ffffff;
     }
 
+
+
+    .period-nav {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .period-button {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 12px;
+      min-height: 42px;
+      font-size: 20px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .period-center {
+      text-align: center;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px;
+    }
+
+    .period-center strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .quick-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .quick-button {
+      border: 1px solid #bfdbfe;
+      background: var(--soft-blue);
+      color: var(--main-dark);
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .setting-note {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
     .footer-note {
       text-align: center;
       color: var(--muted);
@@ -335,8 +396,8 @@
 
     @media (max-width: 640px) {
       .tabs {
-        grid-template-columns: repeat(5, 1fr);
-        gap: 6px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 7px;
       }
 
       .tab-button {
@@ -376,15 +437,22 @@
       <button class="tab-button" data-tab="budget">予算</button>
       <button class="tab-button" data-tab="saving">積立</button>
       <button class="tab-button" data-tab="lifeplan">ライフ</button>
+      <button class="tab-button" data-tab="settings">設定</button>
     </nav>
 
     <!-- ホーム -->
     <section id="dashboard" class="tab-page">
       <div class="card">
-        <h2 class="card-title">
-          今月の家計
-          <span id="currentMonthLabel" class="small"></span>
-        </h2>
+        <h2 class="card-title">家計の集計</h2>
+
+        <div class="period-nav">
+          <button class="period-button" id="previousPeriodButton" aria-label="前の期間">‹</button>
+          <button class="period-center" id="currentPeriodButton" type="button">
+            <strong id="currentMonthLabel">集計期間</strong>
+            <span class="small">タップで現在期間へ戻る</span>
+          </button>
+          <button class="period-button" id="nextPeriodButton" aria-label="次の期間">›</button>
+        </div>
 
         <div class="grid-2">
           <div class="summary-box income">
@@ -408,7 +476,7 @@
           </div>
         </div>
 
-        <p class="small">給料や支出を入力すると、この画面にすぐ反映されます。</p>
+        <p class="small" id="periodStartHint">給料日基準で集計します。</p>
       </div>
 
       <div class="card">
@@ -426,6 +494,11 @@
     <section id="input" class="tab-page hidden">
       <div class="card">
         <h2 class="card-title">収入・支出を追加</h2>
+
+        <div class="quick-row">
+          <button class="quick-button" id="quickSalaryButton">給料を入力</button>
+          <button class="quick-button" id="quickExpenseButton">支出を入力</button>
+        </div>
 
         <div class="grid-2">
           <div class="field">
@@ -463,7 +536,10 @@
       </div>
 
       <div class="card">
-        <h2 class="card-title">すべての記録</h2>
+        <h2 class="card-title">
+          期間内の記録
+          <span id="allRecordsLabel" class="small"></span>
+        </h2>
         <div id="allRecords"></div>
       </div>
 
@@ -580,8 +656,37 @@
       </div>
     </section>
 
+
+
+    <!-- 設定 -->
+    <section id="settings" class="tab-page hidden">
+      <div class="card">
+        <h2 class="card-title">家計の集計設定</h2>
+
+        <div class="setting-note">
+          給料日が25日の場合は「25日」に設定すると、毎月25日から翌月24日までを1か月として集計します。
+        </div>
+
+        <div class="field">
+          <label for="periodStartDay">家計の開始日</label>
+          <select id="periodStartDay"></select>
+        </div>
+
+        <button class="btn" id="saveSettingsButton">設定を保存</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">現在の設定</h2>
+        <div class="summary-box">
+          <span>集計ルール</span>
+          <strong id="settingsSummary">毎月25日開始</strong>
+        </div>
+        <p class="small">設定変更後も、すでに入力した記録の日付は変わりません。集計する期間だけが変わります。</p>
+      </div>
+    </section>
+
     <p class="footer-note">
-      家計・ライフプラン管理アプリ / index.html 完全版
+      家計・ライフプラン管理アプリ / v3 完全版
     </p>
   </main>
 
@@ -591,7 +696,8 @@
     // データ保存キー
     // ==================================================
 
-    const STORAGE_KEY = "lifeplan_app_v2_data";
+    const STORAGE_KEY = "lifeplan_app_v3_data";
+    const LEGACY_STORAGE_KEY = "lifeplan_app_v2_data";
 
     // ==================================================
     // カテゴリー
@@ -642,6 +748,9 @@
         "趣味": 10000,
         "その他": 20000
       },
+      settings: {
+        periodStartDay: 25
+      },
       savings: [
         {
           id: 1,
@@ -675,18 +784,24 @@
 
     function loadData() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
         if (!saved) {
           return structuredClone(defaultData);
         }
 
         const parsed = JSON.parse(saved);
 
-        return {
+        const loaded = {
           records: parsed.records || [],
-          budgets: parsed.budgets || structuredClone(defaultData.budgets),
-          savings: parsed.savings || structuredClone(defaultData.savings)
+          budgets: { ...structuredClone(defaultData.budgets), ...(parsed.budgets || {}) },
+          savings: parsed.savings || structuredClone(defaultData.savings),
+          settings: {
+            ...structuredClone(defaultData.settings),
+            ...(parsed.settings || {})
+          }
         };
+
+        return loaded;
       } catch (error) {
         console.error(error);
         return structuredClone(defaultData);
@@ -705,12 +820,15 @@
       return Number(value || 0).toFixed(1) + "%";
     }
 
-    function todayText() {
-      return new Date().toISOString().slice(0, 10);
+    function toDateText(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     }
 
-    function currentYearMonth() {
-      return todayText().slice(0, 7);
+    function todayText() {
+      return toDateText(new Date());
     }
 
     function escapeHtml(text) {
@@ -722,9 +840,47 @@
         .replaceAll("'", "&#039;");
     }
 
+    let selectedPeriodOffset = 0;
+
+    function getPeriodRange(offset = selectedPeriodOffset) {
+      const startDay = Math.min(28, Math.max(1, Number(appData.settings?.periodStartDay || 25)));
+      const now = new Date();
+
+      let startYear = now.getFullYear();
+      let startMonth = now.getMonth();
+
+      if (now.getDate() < startDay) {
+        startMonth -= 1;
+      }
+
+      const baseStart = new Date(startYear, startMonth + offset, startDay);
+      const nextStart = new Date(baseStart.getFullYear(), baseStart.getMonth() + 1, startDay);
+      const end = new Date(nextStart);
+      end.setDate(end.getDate() - 1);
+
+      return {
+        start: baseStart,
+        end,
+        startText: toDateText(baseStart),
+        endText: toDateText(end)
+      };
+    }
+
+    function formatJapaneseDate(date) {
+      return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+    }
+
+    function getPeriodLabel(offset = selectedPeriodOffset) {
+      const range = getPeriodRange(offset);
+      return `${formatJapaneseDate(range.start)}〜${formatJapaneseDate(range.end)}`;
+    }
+
     function getThisMonthRecords() {
-      const ym = currentYearMonth();
-      return appData.records.filter(record => String(record.date).slice(0, 7) === ym);
+      const range = getPeriodRange();
+      return appData.records.filter(record => {
+        const date = String(record.date || "");
+        return date >= range.startText && date <= range.endText;
+      });
     }
 
     function getExpenseTotal(records) {
@@ -777,6 +933,20 @@
 
       document.getElementById("addRecordButton").addEventListener("click", () => {
         addRecord();
+      });
+
+      document.getElementById("quickSalaryButton").addEventListener("click", () => {
+        document.getElementById("recordType").value = "income";
+        updateCategoryOptions();
+        document.getElementById("recordCategory").value = "給料";
+        document.getElementById("recordAmount").focus();
+      });
+
+      document.getElementById("quickExpenseButton").addEventListener("click", () => {
+        document.getElementById("recordType").value = "expense";
+        updateCategoryOptions();
+        document.getElementById("recordCategory").value = "食費";
+        document.getElementById("recordAmount").focus();
       });
 
       updateCategoryOptions();
@@ -844,7 +1014,8 @@
       const balance = income - expense;
       const savingRate = income > 0 ? (balance / income) * 100 : 0;
 
-      document.getElementById("currentMonthLabel").textContent = currentYearMonth();
+      document.getElementById("currentMonthLabel").textContent = getPeriodLabel();
+      document.getElementById("periodStartHint").textContent = `毎月${appData.settings.periodStartDay}日から翌月${appData.settings.periodStartDay - 1 || 31}日までを集計しています。`;
 
       document.getElementById("dashboardIncome").textContent = yen(income);
       document.getElementById("dashboardExpense").textContent = yen(expense);
@@ -901,7 +1072,7 @@
 
     function renderRecentRecords() {
       const area = document.getElementById("recentRecords");
-      const list = [...appData.records]
+      const list = [...getThisMonthRecords()]
         .sort((a, b) => String(b.date).localeCompare(String(a.date)))
         .slice(0, 8);
 
@@ -932,7 +1103,8 @@
 
     function renderAllRecords() {
       const area = document.getElementById("allRecords");
-      const list = [...appData.records]
+      document.getElementById("allRecordsLabel").textContent = getPeriodLabel();
+      const list = [...getThisMonthRecords()]
         .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
       if (list.length === 0) {
@@ -1259,6 +1431,53 @@
     }
 
     // ==================================================
+    // 集計期間・設定
+    // ==================================================
+
+    function setupPeriodNavigation() {
+      document.getElementById("previousPeriodButton").addEventListener("click", () => {
+        selectedPeriodOffset -= 1;
+        renderAll();
+      });
+
+      document.getElementById("nextPeriodButton").addEventListener("click", () => {
+        selectedPeriodOffset += 1;
+        renderAll();
+      });
+
+      document.getElementById("currentPeriodButton").addEventListener("click", () => {
+        selectedPeriodOffset = 0;
+        renderAll();
+      });
+    }
+
+    function setupSettings() {
+      const select = document.getElementById("periodStartDay");
+      select.innerHTML = Array.from({ length: 28 }, (_, index) => index + 1)
+        .map(day => `<option value="${day}">${day}日</option>`)
+        .join("");
+
+      select.value = String(appData.settings.periodStartDay || 25);
+
+      document.getElementById("saveSettingsButton").addEventListener("click", () => {
+        appData.settings.periodStartDay = Number(select.value || 25);
+        selectedPeriodOffset = 0;
+        saveData();
+        renderAll();
+        alert("集計開始日を保存しました");
+      });
+    }
+
+    function renderSettings() {
+      const startDay = Number(appData.settings.periodStartDay || 25);
+      const endDate = new Date(2026, 1, startDay);
+      endDate.setDate(endDate.getDate() - 1);
+      const endDay = endDate.getDate();
+      document.getElementById("settingsSummary").textContent = `毎月${startDay}日〜翌月${endDay}日`;
+      document.getElementById("periodStartDay").value = String(startDay);
+    }
+
+    // ==================================================
     // バックアップ・復元
     // ==================================================
 
@@ -1319,7 +1538,11 @@
           appData = {
             records: importedData.records || [],
             budgets: importedData.budgets || {},
-            savings: importedData.savings || []
+            savings: importedData.savings || [],
+            settings: {
+              ...structuredClone(defaultData.settings),
+              ...(importedData.settings || {})
+            }
           };
 
           saveData();
@@ -1356,15 +1579,18 @@
       renderBudgetInputs();
       renderBudgetResult();
       renderSavingList();
+      renderSettings();
       drawLifePlan();
     }
 
     function init() {
       setupTabs();
+      setupPeriodNavigation();
       setupInputForm();
       setupBudget();
       setupSaving();
       setupLifePlan();
+      setupSettings();
       setupBackup();
       renderAll();
     }
