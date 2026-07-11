@@ -121,7 +121,7 @@
     </div>
     <div class="card">
       <div class="title-row"><h2 class="title">項目一覧</h2><span id="itemCount" class="small"></span></div>
-      <div class="notice" style="margin-bottom:10px;">左の「≡」を長押しして上下に動かすと並び替えできます。指を離すと自動保存されます。</div>
+      <div class="notice" style="margin-bottom:10px;">左の「≡」を約0.2秒押してから上下へ動かしてください。大きく動かした場合はすぐ移動を開始します。指を離すと自動保存されます。</div>
       <div id="manageList" class="manage-list"></div>
     </div>
     <div class="card">
@@ -274,11 +274,154 @@ function renderSettings(){
   setupDragSorting();
 }
 function setupDragSorting(){
-  const container=manageList;let dragged=null,pointerId=null,holdTimer=null,dragging=false,startX=0,startY=0;
-  const clearTimer=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
-  const beginDrag=(item,handle,event)=>{dragged=item;pointerId=event.pointerId;dragging=true;item.classList.add("dragging");handle.setPointerCapture?.(pointerId);document.body.style.userSelect="none";document.body.style.webkitUserSelect="none";if(navigator.vibrate)navigator.vibrate(25)};
-  const finishDrag=()=>{clearTimer();if(!dragged)return;document.querySelectorAll(".manage-item").forEach(item=>item.classList.remove("dragging","drag-target"));if(dragging){const ids=[...container.querySelectorAll("[data-sort-item]")].map(el=>el.dataset.sortItem);ids.forEach((itemId,index)=>{const item=data.items.find(entry=>entry.id===itemId);if(item)item.order=index+1});save();renderInputs();renderHome();renderAnnual();if(navigator.vibrate)navigator.vibrate(15)}dragged=null;pointerId=null;dragging=false;document.body.style.userSelect="";document.body.style.webkitUserSelect=""};
-  container.querySelectorAll("[data-drag-handle]").forEach(handle=>{const item=handle.closest("[data-sort-item]");handle.addEventListener("pointerdown",event=>{if(event.button!==undefined&&event.button!==0)return;clearTimer();startX=event.clientX;startY=event.clientY;dragged=item;pointerId=event.pointerId;holdTimer=setTimeout(()=>beginDrag(item,handle,event),220)});handle.addEventListener("pointermove",event=>{if(event.pointerId!==pointerId)return;if(!dragging){const moved=Math.hypot(event.clientX-startX,event.clientY-startY);if(moved>10){clearTimer();dragged=null;pointerId=null}return}event.preventDefault();const target=document.elementFromPoint(event.clientX,event.clientY)?.closest("[data-sort-item]");document.querySelectorAll(".manage-item").forEach(el=>el.classList.remove("drag-target"));if(!target||target===dragged||!container.contains(target))return;target.classList.add("drag-target");const rect=target.getBoundingClientRect();if(event.clientY>rect.top+rect.height/2)target.after(dragged);else target.before(dragged);const edge=70;if(event.clientY<edge)window.scrollBy({top:-12,left:0,behavior:"auto"});else if(event.clientY>window.innerHeight-edge)window.scrollBy({top:12,left:0,behavior:"auto"})});handle.addEventListener("pointerup",event=>{if(event.pointerId===pointerId)finishDrag()});handle.addEventListener("pointercancel",finishDrag);handle.addEventListener("lostpointercapture",()=>{if(dragging)finishDrag()});handle.addEventListener("contextmenu",event=>event.preventDefault())});
+  const container=manageList;
+  let dragged=null;
+  let activeHandle=null;
+  let pointerId=null;
+  let holdTimer=null;
+  let dragging=false;
+  let startX=0;
+  let startY=0;
+
+  const clearTimer=()=>{
+    if(holdTimer){
+      clearTimeout(holdTimer);
+      holdTimer=null;
+    }
+  };
+
+  const beginDrag=()=>{
+    if(!dragged||dragging)return;
+    dragging=true;
+    dragged.classList.add("dragging");
+    document.body.style.userSelect="none";
+    document.body.style.webkitUserSelect="none";
+    document.body.style.overflowX="hidden";
+    if(navigator.vibrate)navigator.vibrate(25);
+  };
+
+  const saveCurrentOrder=()=>{
+    const ids=[...container.querySelectorAll("[data-sort-item]")].map(el=>el.dataset.sortItem);
+    ids.forEach((itemId,index)=>{
+      const item=data.items.find(entry=>entry.id===itemId);
+      if(item)item.order=index+1;
+    });
+    save();
+    renderInputs();
+    renderHome();
+    renderAnnual();
+  };
+
+  const finishDrag=()=>{
+    clearTimer();
+
+    document.querySelectorAll(".manage-item").forEach(item=>{
+      item.classList.remove("dragging","drag-target");
+    });
+
+    if(dragging){
+      saveCurrentOrder();
+      if(navigator.vibrate)navigator.vibrate(15);
+    }
+
+    if(activeHandle&&pointerId!==null){
+      try{
+        if(activeHandle.hasPointerCapture?.(pointerId)){
+          activeHandle.releasePointerCapture(pointerId);
+        }
+      }catch(error){
+        console.debug(error);
+      }
+    }
+
+    dragged=null;
+    activeHandle=null;
+    pointerId=null;
+    dragging=false;
+    document.body.style.userSelect="";
+    document.body.style.webkitUserSelect="";
+    document.body.style.overflowX="";
+  };
+
+  container.querySelectorAll("[data-drag-handle]").forEach(handle=>{
+    const item=handle.closest("[data-sort-item]");
+
+    handle.addEventListener("pointerdown",event=>{
+      if(event.pointerType==="mouse"&&event.button!==0)return;
+
+      event.preventDefault();
+      clearTimer();
+
+      dragged=item;
+      activeHandle=handle;
+      pointerId=event.pointerId;
+      startX=event.clientX;
+      startY=event.clientY;
+
+      try{
+        handle.setPointerCapture(pointerId);
+      }catch(error){
+        console.debug(error);
+      }
+
+      holdTimer=setTimeout(beginDrag,180);
+    });
+
+    handle.addEventListener("pointermove",event=>{
+      if(event.pointerId!==pointerId||!dragged)return;
+
+      event.preventDefault();
+
+      if(!dragging){
+        const moved=Math.hypot(event.clientX-startX,event.clientY-startY);
+
+        // 指の自然なブレは許容する。大きく動かした場合は即ドラッグ開始。
+        if(moved>18){
+          clearTimer();
+          beginDrag();
+        }
+
+        return;
+      }
+
+      const target=document
+        .elementFromPoint(event.clientX,event.clientY)
+        ?.closest("[data-sort-item]");
+
+      document.querySelectorAll(".manage-item").forEach(el=>{
+        el.classList.remove("drag-target");
+      });
+
+      if(!target||target===dragged||!container.contains(target))return;
+
+      target.classList.add("drag-target");
+      const rect=target.getBoundingClientRect();
+      const after=event.clientY>rect.top+rect.height/2;
+
+      if(after){
+        target.after(dragged);
+      }else{
+        target.before(dragged);
+      }
+
+      const edge=90;
+      if(event.clientY<edge){
+        window.scrollBy(0,-18);
+      }else if(event.clientY>window.innerHeight-edge){
+        window.scrollBy(0,18);
+      }
+    });
+
+    handle.addEventListener("pointerup",event=>{
+      if(event.pointerId===pointerId)finishDrag();
+    });
+
+    handle.addEventListener("pointercancel",finishDrag);
+
+    handle.addEventListener("contextmenu",event=>{
+      event.preventDefault();
+    });
+  });
 }
 function editItem(itemId){const i=data.items.find(x=>x.id===itemId);editId.value=i.id;newType.value=i.type;newGroup.value=i.group;newDetail.value=i.detail||"";newClass.value=i.classification;newIcon.value=i.icon||"●";newColor.value=i.color||"#64748b";saveItem.textContent="変更を保存";cancelEdit.classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
 function delItem(itemId){const i=data.items.find(x=>x.id===itemId);if(!confirm(`「${i.group} / ${i.detail||""}」を削除しますか？\n過去の金額も削除されます。`))return;data.items=data.items.filter(x=>x.id!==itemId);Object.values(data.monthly).forEach(v=>delete v[itemId]);data.items.forEach((x,n)=>x.order=n+1);save();renderSettings();renderInputs();renderHome();renderAnnual()}
