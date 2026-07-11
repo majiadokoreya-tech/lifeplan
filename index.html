@@ -38,11 +38,52 @@
     .input-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,155px);gap:10px;padding:10px 12px;border-top:1px solid #f1f5f9;align-items:center}.money{position:relative}.money:before{content:"¥";position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:900}.money input{padding-left:27px;text-align:right;font-weight:900}
     .btn-row{display:flex;gap:8px;margin-top:12px}.btn{width:100%;border:0;border-radius:13px;padding:12px;background:var(--main);color:#fff;font-size:14px;font-weight:900}.btn.secondary{background:#404040}.btn.danger{background:var(--bad)}.btn.outline{background:#fff;color:#404040;border:1px solid var(--line)}.btn.small-btn{width:auto;padding:7px 9px;font-size:12px}
     .field{margin-bottom:12px}.field label{display:block;margin-bottom:5px;color:var(--muted);font-size:12px;font-weight:800}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .manage-item{display:grid;grid-template-columns:42px 38px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,opacity .16s ease}.manage-item.dragging{opacity:.92;transform:scale(1.02);box-shadow:0 14px 32px rgba(15,23,42,.18);border-color:var(--main);z-index:50}.manage-item.drag-target{box-shadow:inset 0 3px 0 var(--main)}.drag-handle{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:#f8fafc;color:#737373;font-size:22px;font-weight:900;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}.drag-handle:active{cursor:grabbing;background:var(--main-soft);color:var(--main-dark);border-color:#fdba74}.icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:18px}.manage-name{font-weight:900}.manage-meta{font-size:11px;color:var(--muted)}.actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+    .manage-item{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fff}.icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:18px}.manage-name{font-weight:900}.manage-meta{font-size:11px;color:var(--muted)}.actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
     .annual-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.annual{border-collapse:collapse;min-width:1550px;width:100%;font-size:12px;background:#fff}.annual th,.annual td{padding:8px;border-bottom:1px solid var(--line);border-right:1px solid #f1f5f9;text-align:right;white-space:nowrap}.annual th{position:sticky;top:0;background:#fafafa;z-index:2}.annual th:first-child,.annual td:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1;min-width:125px}.annual th:nth-child(2),.annual td:nth-child(2){text-align:left;position:sticky;left:125px;background:#fff;z-index:1;min-width:130px}.annual tr.group-total td{font-weight:900;background:#fff7ed}.annual tr.income-total td{font-weight:900;background:#eff6ff}.annual tr.grand-total td{font-weight:900;background:#f0fdf4}
     .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
+
+    .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
+    .move-overlay{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding:16px;
+      background:rgba(15,23,42,.42);
+      backdrop-filter:blur(3px);
+    }
+    .move-overlay.hidden{display:none!important}
+    .move-sheet{
+      width:min(100%,520px);
+      padding:16px;
+      border-radius:22px 22px 16px 16px;
+      background:#fff;
+      box-shadow:0 20px 50px rgba(15,23,42,.28);
+      animation:moveSheetIn .18s ease-out;
+    }
+    @keyframes moveSheetIn{
+      from{transform:translateY(24px);opacity:0}
+      to{transform:translateY(0);opacity:1}
+    }
+    .move-sheet-title{margin:0;font-size:18px;font-weight:900}
+    .move-sheet-name{margin:4px 0 14px;color:var(--muted);font-size:13px;font-weight:700}
+    .move-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .move-choice{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:13px 10px;
+      background:#fff;
+      color:#262626;
+      font-weight:900;
+    }
+    .move-choice:disabled{opacity:.38;cursor:not-allowed}
+    .move-choice.primary{background:var(--main-soft);color:var(--main-dark);border-color:#fdba74}
+    .move-close{margin-top:10px}
+
     @media(max-width:720px){.chart-layout{grid-template-columns:1fr}.chart-wrap{width:230px}.form-grid{grid-template-columns:1fr}}
-    @media(max-width:520px){.tabs{top:68px}.tab{font-size:11px;padding:9px 2px}.input-row{grid-template-columns:1fr}.summary strong{font-size:18px}.manage-item{grid-template-columns:42px 36px minmax(0,1fr)}.manage-item .actions{grid-column:1/-1;justify-content:flex-end}.actions{justify-content:flex-start}}
+    @media(max-width:520px){.tabs{top:68px}.tab{font-size:11px;padding:9px 2px}.input-row{grid-template-columns:1fr}.summary strong{font-size:18px}.manage-item{grid-template-columns:36px minmax(0,1fr)}.manage-item .actions{grid-column:1/-1;justify-content:flex-end}.actions{justify-content:flex-start}}
   </style>
 </head>
 <body>
@@ -131,6 +172,23 @@
       <div class="btn-row"><button id="resetBtn" class="btn danger">すべて初期化</button></div>
     </div>
   </section>
+
+  <div id="moveOverlay" class="move-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="moveSheetTitle">
+    <div class="move-sheet">
+      <h2 id="moveSheetTitle" class="move-sheet-title">項目を移動</h2>
+      <p id="moveSheetName" class="move-sheet-name"></p>
+
+      <div class="move-choice-grid">
+        <button id="moveTopButton" class="move-choice primary" type="button">一番上へ</button>
+        <button id="moveUpButton" class="move-choice" type="button">1つ上へ</button>
+        <button id="moveDownButton" class="move-choice" type="button">1つ下へ</button>
+        <button id="moveBottomButton" class="move-choice primary" type="button">一番下へ</button>
+      </div>
+
+      <button id="moveCloseButton" class="btn outline move-close" type="button">閉じる</button>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -266,163 +324,128 @@ saveItem.onclick=()=>{
   save();resetForm();renderSettings();renderInputs();renderHome();
 };
 cancelEdit.onclick=resetForm;
+let movingItemId=null;
+
 function renderSettings(){
-  const items=sortedItems();itemCount.textContent=`${items.length}項目`;
-  manageList.innerHTML=items.map(i=>`<div class="manage-item" data-sort-item="${esc(i.id)}"><div class="drag-handle" data-drag-handle="${esc(i.id)}" title="長押しして移動" aria-label="長押しして並び替え">≡</div><div class="icon" style="background:${esc(i.color)}">${esc(i.icon)}</div><div><div class="manage-name">${esc(i.group)}${i.detail?` / ${esc(i.detail)}`:""}</div><div class="manage-meta">${i.type==="income"?"収入":i.type==="investment"?"投資":"支出"}・${esc(i.classification)}</div></div><div class="actions"><button class="btn outline small-btn" data-edit="${esc(i.id)}">編集</button><button class="btn danger small-btn" data-del="${esc(i.id)}">削除</button></div></div>`).join("");
-  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
-  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>delItem(b.dataset.del));
-  setupDragSorting();
-}
-function setupDragSorting(){
-  const container=manageList;
-  let dragged=null;
-  let activeHandle=null;
-  let pointerId=null;
-  let holdTimer=null;
-  let dragging=false;
-  let startX=0;
-  let startY=0;
+  const items=sortedItems();
+  itemCount.textContent=`${items.length}項目`;
 
-  const clearTimer=()=>{
-    if(holdTimer){
-      clearTimeout(holdTimer);
-      holdTimer=null;
-    }
-  };
+  manageList.innerHTML=items.map(i=>`
+    <div class="manage-item">
+      <div class="icon" style="background:${esc(i.color)}">${esc(i.icon)}</div>
 
-  const beginDrag=()=>{
-    if(!dragged||dragging)return;
-    dragging=true;
-    dragged.classList.add("dragging");
-    document.body.style.userSelect="none";
-    document.body.style.webkitUserSelect="none";
-    document.body.style.overflowX="hidden";
-    if(navigator.vibrate)navigator.vibrate(25);
-  };
+      <div>
+        <div class="manage-name">
+          ${esc(i.group)}${i.detail?` / ${esc(i.detail)}`:""}
+        </div>
+        <div class="manage-meta">
+          ${i.type==="income"?"収入":i.type==="investment"?"投資":"支出"}・${esc(i.classification)}
+        </div>
+      </div>
 
-  const saveCurrentOrder=()=>{
-    const ids=[...container.querySelectorAll("[data-sort-item]")].map(el=>el.dataset.sortItem);
-    ids.forEach((itemId,index)=>{
-      const item=data.items.find(entry=>entry.id===itemId);
-      if(item)item.order=index+1;
-    });
-    save();
-    renderInputs();
-    renderHome();
-    renderAnnual();
-  };
+      <div class="actions">
+        <button class="btn small-btn move-button" data-move="${esc(i.id)}">移動</button>
+        <button class="btn outline small-btn" data-edit="${esc(i.id)}">編集</button>
+        <button class="btn danger small-btn" data-del="${esc(i.id)}">削除</button>
+      </div>
+    </div>
+  `).join("");
 
-  const finishDrag=()=>{
-    clearTimer();
+  document.querySelectorAll("[data-move]").forEach(button=>{
+    button.onclick=()=>openMoveMenu(button.dataset.move);
+  });
 
-    document.querySelectorAll(".manage-item").forEach(item=>{
-      item.classList.remove("dragging","drag-target");
-    });
+  document.querySelectorAll("[data-edit]").forEach(button=>{
+    button.onclick=()=>editItem(button.dataset.edit);
+  });
 
-    if(dragging){
-      saveCurrentOrder();
-      if(navigator.vibrate)navigator.vibrate(15);
-    }
-
-    if(activeHandle&&pointerId!==null){
-      try{
-        if(activeHandle.hasPointerCapture?.(pointerId)){
-          activeHandle.releasePointerCapture(pointerId);
-        }
-      }catch(error){
-        console.debug(error);
-      }
-    }
-
-    dragged=null;
-    activeHandle=null;
-    pointerId=null;
-    dragging=false;
-    document.body.style.userSelect="";
-    document.body.style.webkitUserSelect="";
-    document.body.style.overflowX="";
-  };
-
-  container.querySelectorAll("[data-drag-handle]").forEach(handle=>{
-    const item=handle.closest("[data-sort-item]");
-
-    handle.addEventListener("pointerdown",event=>{
-      if(event.pointerType==="mouse"&&event.button!==0)return;
-
-      event.preventDefault();
-      clearTimer();
-
-      dragged=item;
-      activeHandle=handle;
-      pointerId=event.pointerId;
-      startX=event.clientX;
-      startY=event.clientY;
-
-      try{
-        handle.setPointerCapture(pointerId);
-      }catch(error){
-        console.debug(error);
-      }
-
-      holdTimer=setTimeout(beginDrag,180);
-    });
-
-    handle.addEventListener("pointermove",event=>{
-      if(event.pointerId!==pointerId||!dragged)return;
-
-      event.preventDefault();
-
-      if(!dragging){
-        const moved=Math.hypot(event.clientX-startX,event.clientY-startY);
-
-        // 指の自然なブレは許容する。大きく動かした場合は即ドラッグ開始。
-        if(moved>18){
-          clearTimer();
-          beginDrag();
-        }
-
-        return;
-      }
-
-      const target=document
-        .elementFromPoint(event.clientX,event.clientY)
-        ?.closest("[data-sort-item]");
-
-      document.querySelectorAll(".manage-item").forEach(el=>{
-        el.classList.remove("drag-target");
-      });
-
-      if(!target||target===dragged||!container.contains(target))return;
-
-      target.classList.add("drag-target");
-      const rect=target.getBoundingClientRect();
-      const after=event.clientY>rect.top+rect.height/2;
-
-      if(after){
-        target.after(dragged);
-      }else{
-        target.before(dragged);
-      }
-
-      const edge=90;
-      if(event.clientY<edge){
-        window.scrollBy(0,-18);
-      }else if(event.clientY>window.innerHeight-edge){
-        window.scrollBy(0,18);
-      }
-    });
-
-    handle.addEventListener("pointerup",event=>{
-      if(event.pointerId===pointerId)finishDrag();
-    });
-
-    handle.addEventListener("pointercancel",finishDrag);
-
-    handle.addEventListener("contextmenu",event=>{
-      event.preventDefault();
-    });
+  document.querySelectorAll("[data-del]").forEach(button=>{
+    button.onclick=()=>delItem(button.dataset.del);
   });
 }
+
+function openMoveMenu(itemId){
+  const items=sortedItems();
+  const index=items.findIndex(item=>item.id===itemId);
+  const item=items[index];
+
+  if(!item)return;
+
+  movingItemId=itemId;
+  moveSheetName.textContent=`${item.group}${item.detail?` / ${item.detail}`:""}`;
+
+  moveTopButton.disabled=index===0;
+  moveUpButton.disabled=index===0;
+  moveDownButton.disabled=index===items.length-1;
+  moveBottomButton.disabled=index===items.length-1;
+
+  moveOverlay.classList.remove("hidden");
+  document.body.style.overflow="hidden";
+}
+
+function closeMoveMenu(){
+  movingItemId=null;
+  moveOverlay.classList.add("hidden");
+  document.body.style.overflow="";
+}
+
+function moveSelectedItem(destination){
+  if(!movingItemId)return;
+
+  const items=sortedItems();
+  const currentIndex=items.findIndex(item=>item.id===movingItemId);
+
+  if(currentIndex<0){
+    closeMoveMenu();
+    return;
+  }
+
+  let targetIndex=currentIndex;
+
+  if(destination==="top")targetIndex=0;
+  if(destination==="up")targetIndex=Math.max(0,currentIndex-1);
+  if(destination==="down")targetIndex=Math.min(items.length-1,currentIndex+1);
+  if(destination==="bottom")targetIndex=items.length-1;
+
+  if(targetIndex===currentIndex){
+    closeMoveMenu();
+    return;
+  }
+
+  const [movingItem]=items.splice(currentIndex,1);
+  items.splice(targetIndex,0,movingItem);
+
+  items.forEach((item,index)=>{
+    const original=data.items.find(entry=>entry.id===item.id);
+    if(original)original.order=index+1;
+  });
+
+  save();
+  closeMoveMenu();
+  renderSettings();
+  renderInputs();
+  renderHome();
+  renderAnnual();
+
+  if(navigator.vibrate)navigator.vibrate(15);
+}
+
+moveTopButton.onclick=()=>moveSelectedItem("top");
+moveUpButton.onclick=()=>moveSelectedItem("up");
+moveDownButton.onclick=()=>moveSelectedItem("down");
+moveBottomButton.onclick=()=>moveSelectedItem("bottom");
+moveCloseButton.onclick=closeMoveMenu;
+
+moveOverlay.onclick=event=>{
+  if(event.target===moveOverlay)closeMoveMenu();
+};
+
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&!moveOverlay.classList.contains("hidden")){
+    closeMoveMenu();
+  }
+});
+
 function editItem(itemId){const i=data.items.find(x=>x.id===itemId);editId.value=i.id;newType.value=i.type;newGroup.value=i.group;newDetail.value=i.detail||"";newClass.value=i.classification;newIcon.value=i.icon||"●";newColor.value=i.color||"#64748b";saveItem.textContent="変更を保存";cancelEdit.classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
 function delItem(itemId){const i=data.items.find(x=>x.id===itemId);if(!confirm(`「${i.group} / ${i.detail||""}」を削除しますか？\n過去の金額も削除されます。`))return;data.items=data.items.filter(x=>x.id!==itemId);Object.values(data.monthly).forEach(v=>delete v[itemId]);data.items.forEach((x,n)=>x.order=n+1);save();renderSettings();renderInputs();renderHome();renderAnnual()}
 exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:3,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
