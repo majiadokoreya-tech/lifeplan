@@ -149,13 +149,74 @@
   <section id="settings" class="page hidden">
     <div class="card">
       <div class="title-row"><h2 class="title">項目を追加・編集</h2><span class="small">費目＋詳細＋分類</span></div>
+      <div class="notice" style="margin-bottom:12px;">家計向けアイコンを50種類以上から選べます。「自分で入力」を選ぶと好きな絵文字も使えます。</div>
       <input id="editId" type="hidden">
       <div class="form-grid">
         <div class="field"><label>種類</label><select id="newType"><option value="expense">支出</option><option value="income">収入</option><option value="investment">投資</option></select></div>
         <div class="field"><label>費目</label><input id="newGroup" placeholder="例：食費"></div>
         <div class="field"><label>詳細</label><input id="newDetail" placeholder="例：外食"></div>
         <div class="field"><label>分類</label><select id="newClass"><option>毎月・固定</option><option>毎月・変動</option><option>不定・固定</option><option>不定・変動</option><option>収入・予算内</option><option>収入・予算外</option><option>投資</option></select></div>
-        <div class="field"><label>アイコン</label><input id="newIcon" value="●" maxlength="4"></div>
+        <div class="field">
+          <label>アイコン</label>
+          <select id="newIcon">
+            <option value="💰">💰 給料・収入</option>
+            <option value="🎁">🎁 ボーナス・贈り物</option>
+            <option value="🏠">🏠 住宅</option>
+            <option value="🏡">🏡 家・住まい</option>
+            <option value="🍚">🍚 食費</option>
+            <option value="🍽️">🍽️ 外食</option>
+            <option value="🍜">🍜 長距離外食</option>
+            <option value="🥤">🥤 飲み物</option>
+            <option value="🚗">🚗 自動車</option>
+            <option value="⛽">⛽ ガソリン</option>
+            <option value="🔧">🔧 車検・整備</option>
+            <option value="🛣️">🛣️ 高速代</option>
+            <option value="🧴">🧴 日用品</option>
+            <option value="🧹">🧹 掃除・日用品</option>
+            <option value="💊">💊 薬・ドラッグストア</option>
+            <option value="📱">📱 スマホ</option>
+            <option value="🛜">🛜 インターネット</option>
+            <option value="▶️">▶️ サブスク</option>
+            <option value="💡">💡 電気</option>
+            <option value="🚰">🚰 水道</option>
+            <option value="🔥">🔥 ガス</option>
+            <option value="📚">📚 教育</option>
+            <option value="🎓">🎓 学費</option>
+            <option value="🏊">🏊 習い事</option>
+            <option value="👕">👕 衣服</option>
+            <option value="✂️">✂️ 美容・ヘアカット</option>
+            <option value="🏥">🏥 病院</option>
+            <option value="🏋️">🏋️ ジム</option>
+            <option value="🛡️">🛡️ 保険</option>
+            <option value="🚃">🚃 電車</option>
+            <option value="🚌">🚌 バス</option>
+            <option value="🅿️">🅿️ 駐車場</option>
+            <option value="⭐">⭐ 趣味</option>
+            <option value="🎮">🎮 ゲーム</option>
+            <option value="🎵">🎵 音楽</option>
+            <option value="📺">📺 動画・テレビ</option>
+            <option value="☕">☕ 交際費</option>
+            <option value="🍺">🍺 飲み会</option>
+            <option value="✈️">✈️ 旅行</option>
+            <option value="🏨">🏨 ホテル</option>
+            <option value="🎡">🎡 レジャー</option>
+            <option value="📈">📈 投資</option>
+            <option value="🏦">🏦 貯金</option>
+            <option value="💳">💳 カード</option>
+            <option value="🧾">🧾 税金・請求</option>
+            <option value="🎂">🎂 イベント</option>
+            <option value="🐶">🐶 ペット</option>
+            <option value="👶">👶 子ども</option>
+            <option value="🛒">🛒 買い物</option>
+            <option value="📦">📦 その他</option>
+            <option value="●">● シンプル</option>
+            <option value="custom">✏️ 自分で入力</option>
+          </select>
+        </div>
+        <div class="field hidden" id="customIconField">
+          <label>カスタムアイコン</label>
+          <input id="customIconInput" maxlength="4" placeholder="例：🎯">
+        </div>
         <div class="field"><label>色</label><input id="newColor" type="color" value="#64748b"></div>
       </div>
       <div class="btn-row"><button id="saveItem" class="btn">項目を追加</button><button id="cancelEdit" class="btn outline hidden">編集を取消</button></div>
@@ -316,11 +377,37 @@ function renderAnnual(){
   const totalRow=(label,arr,cls)=>`<tr class="${cls}"><td>${label}</td><td></td>${arr.map(v=>`<td>${yen(v)}</td>`).join("")}<td>${yen(Math.round(arr.reduce((a,b)=>a+b,0)/12))}</td><td>${yen(arr.reduce((a,b)=>a+b,0))}</td></tr>`;
   annualTable.innerHTML=`<div class="annual-wrap"><table class="annual"><thead><tr><th>費目</th><th>詳細</th>${months.map((_,i)=>`<th>${i+1}月</th>`).join("")}<th>平均</th><th>年間合計</th></tr></thead><tbody>${totalRow("収入合計",incomeMonths,"income-total")}${totalRow("支出・投資合計",expenseMonths,"group-total")}${totalRow("収支",balanceMonths,"grand-total")}${rows.join("")}</tbody></table></div>`;
 }
-function resetForm(){editId.value="";newType.value="expense";newGroup.value="";newDetail.value="";newClass.value="毎月・変動";newIcon.value="●";newColor.value="#64748b";saveItem.textContent="項目を追加";cancelEdit.classList.add("hidden")}
+function resetForm(){
+  editId.value="";
+  newType.value="expense";
+  newGroup.value="";
+  newDetail.value="";
+  newClass.value="毎月・変動";
+  newIcon.value="●";
+  customIconInput.value="";
+  customIconField.classList.add("hidden");
+  newColor.value="#64748b";
+  saveItem.textContent="項目を追加";
+  cancelEdit.classList.add("hidden");
+}
+
+newIcon.onchange=()=>{
+  const isCustom=newIcon.value==="custom";
+  customIconField.classList.toggle("hidden",!isCustom);
+  if(isCustom)customIconInput.focus();
+};
+
+function selectedIconValue(){
+  if(newIcon.value==="custom"){
+    return customIconInput.value.trim()||"●";
+  }
+  return newIcon.value||"●";
+}
+
 saveItem.onclick=()=>{
   const group=newGroup.value.trim(),detail=newDetail.value.trim();if(!group){alert("費目を入力してください");return}
-  if(editId.value){const i=data.items.find(x=>x.id===editId.value);Object.assign(i,{type:newType.value,group,detail,classification:newClass.value,icon:newIcon.value||"●",color:newColor.value})}
-  else data.items.push({id:id(),type:newType.value,group,detail,classification:newClass.value,icon:newIcon.value||"●",color:newColor.value,order:data.items.length+1});
+  if(editId.value){const i=data.items.find(x=>x.id===editId.value);Object.assign(i,{type:newType.value,group,detail,classification:newClass.value,icon:selectedIconValue(),color:newColor.value})}
+  else data.items.push({id:id(),type:newType.value,group,detail,classification:newClass.value,icon:selectedIconValue(),color:newColor.value,order:data.items.length+1});
   save();resetForm();renderSettings();renderInputs();renderHome();
 };
 cancelEdit.onclick=resetForm;
@@ -446,7 +533,30 @@ document.addEventListener("keydown",event=>{
   }
 });
 
-function editItem(itemId){const i=data.items.find(x=>x.id===itemId);editId.value=i.id;newType.value=i.type;newGroup.value=i.group;newDetail.value=i.detail||"";newClass.value=i.classification;newIcon.value=i.icon||"●";newColor.value=i.color||"#64748b";saveItem.textContent="変更を保存";cancelEdit.classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
+function editItem(itemId){
+  const i=data.items.find(x=>x.id===itemId);
+  editId.value=i.id;
+  newType.value=i.type;
+  newGroup.value=i.group;
+  newDetail.value=i.detail||"";
+  newClass.value=i.classification;
+
+  const availableIcons=[...newIcon.options].map(option=>option.value);
+  if(availableIcons.includes(i.icon||"●")){
+    newIcon.value=i.icon||"●";
+    customIconInput.value="";
+    customIconField.classList.add("hidden");
+  }else{
+    newIcon.value="custom";
+    customIconInput.value=i.icon||"●";
+    customIconField.classList.remove("hidden");
+  }
+
+  newColor.value=i.color||"#64748b";
+  saveItem.textContent="変更を保存";
+  cancelEdit.classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 function delItem(itemId){const i=data.items.find(x=>x.id===itemId);if(!confirm(`「${i.group} / ${i.detail||""}」を削除しますか？\n過去の金額も削除されます。`))return;data.items=data.items.filter(x=>x.id!==itemId);Object.values(data.monthly).forEach(v=>delete v[itemId]);data.items.forEach((x,n)=>x.order=n+1);save();renderSettings();renderInputs();renderHome();renderAnnual()}
 exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:3,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
