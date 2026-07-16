@@ -453,7 +453,7 @@
         </div>
         <div class="field"><label>色</label><input id="newColor" type="color" value="#64748b"></div>
       </div>
-      <div class="btn-row"><button id="saveItem" class="btn">項目を追加</button><button id="cancelEdit" class="btn outline hidden">編集を取消</button></div>
+      <div class="btn-row"><button id="saveItem" class="btn" type="button">項目を追加</button><button id="cancelEdit" class="btn outline hidden">編集を取消</button></div>
     </div>
     <div class="card">
       <div class="title-row"><h2 class="title">項目一覧</h2><span id="itemCount" class="small"></span></div>
@@ -776,11 +776,143 @@ function selectedIconValue(){
   return newIcon.value||"●";
 }
 
+
+let itemSaveInProgress=false;
+
+function itemSignature(item){
+  return [
+    String(item.type||"").trim(),
+    String(item.group||"").trim(),
+    String(item.detail||"").trim(),
+    String(item.classification||"").trim()
+  ].join("||").toLowerCase();
+}
+
+function itemHasMonthlyData(itemId){
+  return Object.values(data.monthly||{}).some(monthValues=>{
+    return normalize(monthValues?.[itemId])>0;
+  });
+}
+
+function cleanupEmptyDuplicateItems(){
+  const seen=new Map();
+  const kept=[];
+  let removedCount=0;
+
+  sortedItems().forEach(item=>{
+    const signature=itemSignature(item);
+    const first=seen.get(signature);
+
+    if(!first){
+      seen.set(signature,item);
+      kept.push(item);
+      return;
+    }
+
+    const firstHasData=itemHasMonthlyData(first.id);
+    const currentHasData=itemHasMonthlyData(item.id);
+
+    if(!currentHasData){
+      removedCount++;
+      return;
+    }
+
+    if(!firstHasData&&currentHasData){
+      const firstIndex=kept.findIndex(entry=>entry.id===first.id);
+      if(firstIndex>=0)kept[firstIndex]=item;
+      seen.set(signature,item);
+      removedCount++;
+      return;
+    }
+
+    kept.push(item);
+  });
+
+  if(removedCount>0){
+    kept.forEach((item,index)=>{
+      item.order=index+1;
+    });
+    data.items=kept;
+    save();
+  }
+
+  return removedCount;
+}
+
 saveItem.onclick=()=>{
-  const group=newGroup.value.trim(),detail=newDetail.value.trim();if(!group){alert("費目を入力してください");return}
-  if(editId.value){const i=data.items.find(x=>x.id===editId.value);Object.assign(i,{type:newType.value,group,detail,classification:newClass.value,icon:selectedIconValue(),color:newColor.value})}
-  else data.items.push({id:id(),type:newType.value,group,detail,classification:newClass.value,icon:selectedIconValue(),color:newColor.value,order:data.items.length+1});
-  save();resetForm();renderSettings();renderInputs();renderHome();
+  if(itemSaveInProgress)return;
+
+  itemSaveInProgress=true;
+  saveItem.disabled=true;
+
+  try{
+    const group=newGroup.value.trim();
+    const detail=newDetail.value.trim();
+
+    if(!group){
+      alert("費目を入力してください");
+      return;
+    }
+
+    const values={
+      type:newType.value,
+      group,
+      detail,
+      classification:newClass.value,
+      icon:selectedIconValue(),
+      color:newColor.value
+    };
+
+    if(editId.value){
+      const item=data.items.find(entry=>entry.id===editId.value);
+
+      if(!item){
+        alert("編集する項目が見つかりません");
+        resetForm();
+        return;
+      }
+
+      const duplicate=data.items.find(entry=>{
+        return entry.id!==editId.value&&
+          itemSignature(entry)===itemSignature(values);
+      });
+
+      if(duplicate){
+        alert("同じ種類・費目・詳細・分類の項目がすでにあります");
+        return;
+      }
+
+      Object.assign(item,values);
+    }else{
+      const duplicate=data.items.find(entry=>{
+        return itemSignature(entry)===itemSignature(values);
+      });
+
+      if(duplicate){
+        alert("同じ項目はすでに登録されています");
+        return;
+      }
+
+      data.items.push({
+        id:id(),
+        ...values,
+        order:data.items.length+1
+      });
+    }
+
+    save();
+    resetForm();
+    renderSettings();
+    renderInputs();
+    renderHome();
+    renderAnnual();
+    renderBudget();
+  }finally{
+    setTimeout(()=>{
+      itemSaveInProgress=false;
+      saveItem.disabled=false;
+    },350);
+  }
 };
 cancelEdit.onclick=resetForm;
 let movingItemId=null;
@@ -1372,6 +1504,7 @@ importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.targe
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
 function initRender(){
+  cleanupEmptyDuplicateItems();
   homeMonth.value=data.selectedMonth;
   inputMonth.value=data.selectedMonth;
   annualYear.value=data.annualYear;
@@ -1385,5 +1518,15 @@ function initRender(){
 }
 initRender();
 </script>
+
+<!--
+変更履歴 v7
+- 項目追加ボタンの二重実行を防止
+- 保存中はボタンを一時的に無効化
+- 同一の種類・費目・詳細・分類の重複登録を防止
+- 既存の空データ重複項目を起動時に自動整理
+- 項目追加後に予算・年間・ホームへ即時反映
+-->
+
 </body>
 </html>
