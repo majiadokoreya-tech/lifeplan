@@ -22,7 +22,7 @@
     .app-title{margin:0;font-size:23px;font-weight:900}.app-sub{margin:2px 0 0;color:var(--muted);font-size:12px}
     .month-chip{border:0;border-radius:999px;padding:9px 12px;background:var(--main-soft);color:var(--main-dark);font-size:13px;font-weight:900}
     main{width:min(100%,1100px);margin:auto;padding:14px 14px 100px}
-    .tabs{position:sticky;top:71px;z-index:30;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;padding:8px;background:rgba(245,246,248,.96);backdrop-filter:blur(10px);border-radius:16px}
+    .tabs{position:sticky;top:71px;z-index:30;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:14px;padding:8px;background:rgba(245,246,248,.96);backdrop-filter:blur(10px);border-radius:16px}
     .tab{border:0;border-radius:12px;padding:10px 4px;background:#e5e7eb;color:#525252;font-size:12px;font-weight:900}
     .tab.active{background:var(--main);color:#fff;box-shadow:0 5px 12px rgba(249,115,22,.25)}
     .hidden{display:none!important}.card{margin-bottom:14px;padding:16px;background:var(--card);border:1px solid rgba(229,231,235,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -109,7 +109,34 @@
     .filter-row{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.filter-btn{border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:#fff;font-size:11px;font-weight:900}.filter-btn.active{background:var(--main);border-color:var(--main);color:#fff}
     .timeline-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.timeline{min-width:1050px;width:100%;border-collapse:collapse;font-size:11px;background:#fff}.timeline th,.timeline td{padding:8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}.timeline th:first-child,.timeline td:first-child{position:sticky;left:0;background:#fff;z-index:2;text-align:left;min-width:110px}.milestone{display:inline-block;margin-top:3px;padding:3px 6px;border-radius:999px;background:var(--main-soft);color:#9a3412;font-size:9px;font-weight:900}
 
-    .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
+
+    .asset-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+    .asset-summary-card{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fafafa}
+    .asset-summary-card span{display:block;color:var(--muted);font-size:10px;font-weight:800}
+    .asset-summary-card strong{display:block;margin-top:2px;font-size:18px;font-weight:900;overflow-wrap:anywhere}
+    .account-list{display:grid;gap:12px}
+    .account-card{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:#fff}
+    .account-head{padding:13px;background:#fafafa;border-bottom:1px solid var(--line)}
+    .account-title-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+    .account-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:var(--main-soft);font-size:21px}
+    .account-name{font-size:15px;font-weight:900}
+    .account-meta{color:var(--muted);font-size:10px}
+    .account-balance{text-align:right;font-size:18px;font-weight:900;white-space:nowrap}
+    .account-purpose-list{padding:4px 12px 12px}
+    .purpose-item{padding:11px 0;border-bottom:1px solid #f1f5f9}
+    .purpose-item:last-child{border-bottom:0}
+    .purpose-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+    .purpose-name{font-size:13px;font-weight:900}
+    .purpose-meta{color:var(--muted);font-size:10px}
+    .purpose-amount{text-align:right;font-size:14px;font-weight:900;white-space:nowrap}
+    .purpose-progress{height:8px;margin-top:7px;overflow:hidden;border-radius:999px;background:#e5e7eb}
+    .purpose-progress-bar{height:100%;border-radius:999px;background:var(--main);transition:width .2s ease}
+    .account-footer{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fff}
+    .account-unallocated{font-size:11px;font-weight:900}
+    .quick-purpose-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
+    .quick-purpose{border:1px solid #fed7aa;border-radius:999px;padding:7px 10px;background:var(--main-soft);color:#9a3412;font-size:11px;font-weight:900}
+
+        .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
     .move-overlay{
@@ -169,6 +196,7 @@
     <button class="tab" data-tab="budget">予算</button>
     <button class="tab" data-tab="annual">年間</button>
     <button class="tab" data-tab="lifeplan">プラン</button>
+    <button class="tab" data-tab="assets">資産</button>
     <button class="tab" data-tab="settings">設定</button>
   </nav>
 
@@ -380,7 +408,65 @@
     </div>
   </section>
 
-  <section id="settings" class="page hidden">
+  
+  <section id="assets" class="page hidden">
+    <div class="card">
+      <div class="title-row"><h2 class="title">通帳・口座残高</h2><span class="small">口座ごとに目的別管理</span></div>
+
+      <div id="assetSummary" class="asset-summary"></div>
+    </div>
+
+    <div class="card">
+      <div class="title-row"><h2 class="title">口座を追加・編集</h2><span class="small">残高だけ簡単入力</span></div>
+
+      <input id="accountEditId" type="hidden">
+
+      <div class="life-controls">
+        <div class="field"><label>口座名</label><input id="accountName" placeholder="例：ママゆうちょ"></div>
+        <div class="field"><label>現在の残高</label><input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：7600000"></div>
+        <div class="field"><label>アイコン</label><select id="accountIcon"><option>🏦</option><option>💳</option><option>💰</option><option>🏧</option><option>📮</option><option>👛</option></select></div>
+        <div class="field"><label>メモ</label><input id="accountMemo" placeholder="例：生活防衛資金用"></div>
+      </div>
+
+      <div class="btn-row">
+        <button id="saveAccountButton" class="btn" type="button">口座を追加</button>
+        <button id="cancelAccountEdit" class="btn outline hidden" type="button">編集取消</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title-row"><h2 class="title">目的を追加・編集</h2><span class="small">何のためのお金かを分ける</span></div>
+
+      <div class="quick-purpose-row">
+        <button class="quick-purpose" data-purpose-preset="生活防衛費" type="button">＋生活防衛費</button>
+        <button class="quick-purpose" data-purpose-preset="家電買い替え" type="button">＋家電</button>
+        <button class="quick-purpose" data-purpose-preset="車買い替え" type="button">＋車</button>
+        <button class="quick-purpose" data-purpose-preset="教育費" type="button">＋教育費</button>
+        <button class="quick-purpose" data-purpose-preset="旅行費" type="button">＋旅行</button>
+      </div>
+
+      <input id="purposeEditId" type="hidden">
+
+      <div class="life-controls">
+        <div class="field"><label>口座</label><select id="purposeAccountId"></select></div>
+        <div class="field"><label>目的名</label><input id="purposeName" placeholder="例：生活防衛費"></div>
+        <div class="field"><label>現在確保している金額</label><input id="purposeAmount" type="number" min="0" inputmode="numeric" placeholder="例：3300000"></div>
+        <div class="field"><label>目標金額（任意）</label><input id="purposeTarget" type="number" min="0" inputmode="numeric" placeholder="例：3300000"></div>
+      </div>
+
+      <div class="btn-row">
+        <button id="savePurposeButton" class="btn" type="button">目的を追加</button>
+        <button id="cancelPurposeEdit" class="btn outline hidden" type="button">編集取消</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title-row"><h2 class="title">目的別の残高</h2><span id="accountCount" class="small"></span></div>
+      <div id="accountList" class="account-list"></div>
+    </div>
+  </section>
+
+<section id="settings" class="page hidden">
     <div class="card">
       <div class="title-row"><h2 class="title">項目設定</h2><span class="small">追加・編集・削除</span></div>
       <div class="notice" style="margin-bottom:12px;">家計向けアイコンを50種類以上から選べます。「自分で入力」を選ぶと好きな絵文字も使えます。</div>
@@ -558,7 +644,22 @@ const DEFAULT={
     ],
     events:[]
   },
-  budgetPlan:{startYear:new Date().getFullYear(),endYear:new Date().getFullYear()+30,viewYear:new Date().getFullYear(),entries:[]}
+  budgetPlan:{startYear:new Date().getFullYear(),endYear:new Date().getFullYear()+30,viewYear:new Date().getFullYear(),entries:[]},
+  bankAccounts:[
+    {
+      id:"account_mama_yucho",
+      name:"ママゆうちょ",
+      balance:7600000,
+      icon:"📮",
+      memo:"",
+      purposes:[
+        {id:"purpose_defense",name:"生活防衛費",amount:3300000,target:3300000},
+        {id:"purpose_car",name:"車買い替え",amount:2000000,target:2000000},
+        {id:"purpose_appliance",name:"家電買い替え",amount:300000,target:300000},
+        {id:"purpose_education",name:"上の子大学費用",amount:2000000,target:2000000}
+      ]
+    }
+  ]
 };
 let data=load();
 
@@ -585,13 +686,27 @@ function load(){
 function migrate(v){
   const sourceLife=v.lifePlan&&typeof v.lifePlan==="object"?v.lifePlan:{};
   const sourceBudget=v.budgetPlan&&typeof v.budgetPlan==="object"?v.budgetPlan:{};
+  const sourceAccounts=Array.isArray(v.bankAccounts)?v.bankAccounts:clone(DEFAULT.bankAccounts);
   return {
     items:Array.isArray(v.items)&&v.items.length?v.items:clone(DEFAULT_ITEMS),
     monthly:v.monthly&&typeof v.monthly==="object"?v.monthly:{},
     selectedMonth:v.selectedMonth||currentMonth(),
     annualYear:Number(v.annualYear)||new Date().getFullYear(),
     lifePlan:{...clone(DEFAULT.lifePlan),...sourceLife,family:Array.isArray(sourceLife.family)&&sourceLife.family.length?sourceLife.family:clone(DEFAULT.lifePlan.family),events:Array.isArray(sourceLife.events)?sourceLife.events:[]},
-    budgetPlan:{...clone(DEFAULT.budgetPlan),...sourceBudget,entries:Array.isArray(sourceBudget.entries)?sourceBudget.entries:[]}
+    budgetPlan:{...clone(DEFAULT.budgetPlan),...sourceBudget,entries:Array.isArray(sourceBudget.entries)?sourceBudget.entries:[]},
+    bankAccounts:sourceAccounts.map(account=>({
+      id:account.id||id(),
+      name:String(account.name||"口座"),
+      balance:normalize(account.balance),
+      icon:account.icon||"🏦",
+      memo:String(account.memo||""),
+      purposes:Array.isArray(account.purposes)?account.purposes.map(purpose=>({
+        id:purpose.id||id(),
+        name:String(purpose.name||"目的"),
+        amount:normalize(purpose.amount),
+        target:normalize(purpose.target)
+      })):[]
+    }))
   };
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
@@ -615,6 +730,7 @@ function activate(tab){
   if(tab==="budget")renderBudget();
   if(tab==="annual")renderAnnual();
   if(tab==="lifeplan")renderLifePlan();
+  if(tab==="assets")renderAssets();
   if(tab==="settings")renderSettings();
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -915,6 +1031,324 @@ saveItem.onclick=()=>{
   }
 };
 cancelEdit.onclick=resetForm;
+
+// ==========================================================
+// 通帳残高・目的別資金
+// ==========================================================
+
+let accountSaveLocked=false;
+let purposeSaveLocked=false;
+
+function totalPurposeAmount(account){
+  return (account.purposes||[]).reduce((sum,purpose)=>sum+normalize(purpose.amount),0);
+}
+
+function resetAccountForm(){
+  accountEditId.value="";
+  accountName.value="";
+  accountBalance.value="";
+  accountIcon.value="🏦";
+  accountMemo.value="";
+  saveAccountButton.textContent="口座を追加";
+  cancelAccountEdit.classList.add("hidden");
+}
+
+function resetPurposeForm(){
+  purposeEditId.value="";
+  purposeName.value="";
+  purposeAmount.value="";
+  purposeTarget.value="";
+  savePurposeButton.textContent="目的を追加";
+  cancelPurposeEdit.classList.add("hidden");
+}
+
+function fillPurposeAccountOptions(){
+  const currentValue=purposeAccountId.value;
+
+  purposeAccountId.innerHTML=(data.bankAccounts||[]).map(account=>{
+    return `<option value="${esc(account.id)}">${esc(account.icon||"🏦")} ${esc(account.name)}</option>`;
+  }).join("");
+
+  if((data.bankAccounts||[]).some(account=>account.id===currentValue)){
+    purposeAccountId.value=currentValue;
+  }
+}
+
+saveAccountButton.onclick=()=>{
+  if(accountSaveLocked)return;
+
+  accountSaveLocked=true;
+  saveAccountButton.disabled=true;
+
+  try{
+    const name=accountName.value.trim();
+    const balance=normalize(accountBalance.value);
+
+    if(!name){
+      alert("口座名を入力してください");
+      return;
+    }
+
+    const duplicate=(data.bankAccounts||[]).find(account=>{
+      return account.id!==accountEditId.value&&account.name.trim().toLowerCase()===name.toLowerCase();
+    });
+
+    if(duplicate){
+      alert("同じ口座名がすでにあります");
+      return;
+    }
+
+    const values={
+      name,
+      balance,
+      icon:accountIcon.value||"🏦",
+      memo:accountMemo.value.trim()
+    };
+
+    if(accountEditId.value){
+      const account=data.bankAccounts.find(item=>item.id===accountEditId.value);
+      if(account)Object.assign(account,values);
+    }else{
+      data.bankAccounts.push({
+        id:"account_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+        ...values,
+        purposes:[]
+      });
+    }
+
+    save();
+    resetAccountForm();
+    renderAssets();
+  }finally{
+    setTimeout(()=>{
+      accountSaveLocked=false;
+      saveAccountButton.disabled=false;
+    },300);
+  }
+};
+
+cancelAccountEdit.onclick=resetAccountForm;
+
+function editAccount(accountId){
+  const account=data.bankAccounts.find(item=>item.id===accountId);
+  if(!account)return;
+
+  accountEditId.value=account.id;
+  accountName.value=account.name;
+  accountBalance.value=account.balance;
+  accountIcon.value=account.icon||"🏦";
+  accountMemo.value=account.memo||"";
+  saveAccountButton.textContent="変更を保存";
+  cancelAccountEdit.classList.remove("hidden");
+  accountName.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function deleteAccount(accountId){
+  const account=data.bankAccounts.find(item=>item.id===accountId);
+  if(!account)return;
+
+  if(!confirm(`「${account.name}」と目的別残高を削除しますか？`))return;
+
+  data.bankAccounts=data.bankAccounts.filter(item=>item.id!==accountId);
+  save();
+  resetPurposeForm();
+  renderAssets();
+}
+
+document.querySelectorAll("[data-purpose-preset]").forEach(button=>{
+  button.onclick=()=>{
+    purposeName.value=button.dataset.purposePreset;
+    purposeName.focus();
+  };
+});
+
+savePurposeButton.onclick=()=>{
+  if(purposeSaveLocked)return;
+
+  purposeSaveLocked=true;
+  savePurposeButton.disabled=true;
+
+  try{
+    const accountId=purposeAccountId.value;
+    const account=data.bankAccounts.find(item=>item.id===accountId);
+    const name=purposeName.value.trim();
+    const amount=normalize(purposeAmount.value);
+    const target=normalize(purposeTarget.value);
+
+    if(!account){
+      alert("先に口座を追加してください");
+      return;
+    }
+
+    if(!name){
+      alert("目的名を入力してください");
+      return;
+    }
+
+    const duplicate=(account.purposes||[]).find(purpose=>{
+      return purpose.id!==purposeEditId.value&&purpose.name.trim().toLowerCase()===name.toLowerCase();
+    });
+
+    if(duplicate){
+      alert("同じ目的名がこの口座にあります");
+      return;
+    }
+
+    const values={name,amount,target};
+
+    if(purposeEditId.value){
+      let found=false;
+
+      data.bankAccounts.forEach(item=>{
+        const purpose=item.purposes.find(entry=>entry.id===purposeEditId.value);
+
+        if(purpose){
+          if(item.id!==accountId){
+            item.purposes=item.purposes.filter(entry=>entry.id!==purposeEditId.value);
+            account.purposes.push({...purpose,...values});
+          }else{
+            Object.assign(purpose,values);
+          }
+          found=true;
+        }
+      });
+
+      if(!found)account.purposes.push({id:purposeEditId.value,...values});
+    }else{
+      account.purposes.push({
+        id:"purpose_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+        ...values
+      });
+    }
+
+    save();
+    resetPurposeForm();
+    renderAssets();
+  }finally{
+    setTimeout(()=>{
+      purposeSaveLocked=false;
+      savePurposeButton.disabled=false;
+    },300);
+  }
+};
+
+cancelPurposeEdit.onclick=resetPurposeForm;
+
+function editPurpose(accountId,purposeId){
+  const account=data.bankAccounts.find(item=>item.id===accountId);
+  const purpose=account?.purposes.find(item=>item.id===purposeId);
+
+  if(!account||!purpose)return;
+
+  purposeEditId.value=purpose.id;
+  purposeAccountId.value=account.id;
+  purposeName.value=purpose.name;
+  purposeAmount.value=purpose.amount;
+  purposeTarget.value=purpose.target||"";
+  savePurposeButton.textContent="変更を保存";
+  cancelPurposeEdit.classList.remove("hidden");
+  purposeName.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function deletePurpose(accountId,purposeId){
+  const account=data.bankAccounts.find(item=>item.id===accountId);
+  const purpose=account?.purposes.find(item=>item.id===purposeId);
+
+  if(!account||!purpose)return;
+
+  if(!confirm(`「${purpose.name}」を削除しますか？`))return;
+
+  account.purposes=account.purposes.filter(item=>item.id!==purposeId);
+  save();
+  renderAssets();
+}
+
+function renderAssets(){
+  if(!Array.isArray(data.bankAccounts))data.bankAccounts=clone(DEFAULT.bankAccounts);
+
+  fillPurposeAccountOptions();
+
+  const totalBalance=data.bankAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
+  const totalAllocated=data.bankAccounts.reduce((sum,account)=>sum+totalPurposeAmount(account),0);
+  const totalUnallocated=totalBalance-totalAllocated;
+  const totalTarget=data.bankAccounts.reduce((sum,account)=>{
+    return sum+(account.purposes||[]).reduce((purposeSum,purpose)=>purposeSum+normalize(purpose.target),0);
+  },0);
+
+  assetSummary.innerHTML=`
+    <div class="asset-summary-card"><span>通帳残高の合計</span><strong>${yen(totalBalance)}</strong></div>
+    <div class="asset-summary-card"><span>目的別に確保済み</span><strong>${yen(totalAllocated)}</strong></div>
+    <div class="asset-summary-card"><span>まだ振り分けていない金額</span><strong class="${totalUnallocated>=0?"positive":"negative"}">${yen(totalUnallocated)}</strong></div>
+    <div class="asset-summary-card"><span>目標金額の合計</span><strong>${yen(totalTarget)}</strong></div>
+  `;
+
+  accountCount.textContent=`${data.bankAccounts.length}口座`;
+
+  if(!data.bankAccounts.length){
+    accountList.innerHTML='<div class="empty">口座を追加すると、目的別の残高を管理できます。</div>';
+    return;
+  }
+
+  accountList.innerHTML=data.bankAccounts.map(account=>{
+    const allocated=totalPurposeAmount(account);
+    const unallocated=normalize(account.balance)-allocated;
+
+    const purposes=(account.purposes||[]).length
+      ?account.purposes.map(purpose=>{
+        const target=normalize(purpose.target);
+        const rate=target?Math.min(100,(normalize(purpose.amount)/target)*100):0;
+
+        return `
+          <div class="purpose-item">
+            <div class="purpose-top">
+              <div>
+                <div class="purpose-name">・${esc(purpose.name)}</div>
+                <div class="purpose-meta">${target?`目標 ${yen(target)}・達成 ${pct(rate)}`:"目標金額なし"}</div>
+              </div>
+              <div class="purpose-amount">${yen(purpose.amount)}</div>
+            </div>
+
+            ${target?`<div class="purpose-progress"><div class="purpose-progress-bar" style="width:${rate}%"></div></div>`:""}
+
+            <div class="actions" style="margin-top:7px;">
+              <button class="btn outline small-btn" onclick="editPurpose('${esc(account.id)}','${esc(purpose.id)}')">編集</button>
+              <button class="btn danger small-btn" onclick="deletePurpose('${esc(account.id)}','${esc(purpose.id)}')">削除</button>
+            </div>
+          </div>
+        `;
+      }).join("")
+      :'<div class="empty">目的別の金額はまだありません。</div>';
+
+    return `
+      <div class="account-card">
+        <div class="account-head">
+          <div class="account-title-row">
+            <div class="account-icon">${esc(account.icon||"🏦")}</div>
+            <div>
+              <div class="account-name">${esc(account.name)}</div>
+              <div class="account-meta">${account.memo?esc(account.memo):`${(account.purposes||[]).length}目的`}</div>
+            </div>
+            <div class="account-balance">${yen(account.balance)}</div>
+          </div>
+
+          <div class="actions" style="margin-top:8px;">
+            <button class="btn outline small-btn" onclick="editAccount('${esc(account.id)}')">残高編集</button>
+            <button class="btn danger small-btn" onclick="deleteAccount('${esc(account.id)}')">口座削除</button>
+          </div>
+        </div>
+
+        <div class="account-purpose-list">${purposes}</div>
+
+        <div class="account-footer">
+          <span class="small">目的別合計 ${yen(allocated)}</span>
+          <span class="account-unallocated ${unallocated>=0?"positive":"negative"}">未振分 ${yen(unallocated)}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+
 let movingItemId=null;
 
 function renderSettings(){
@@ -1499,7 +1933,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:6,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:8,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -1514,6 +1948,7 @@ function initRender(){
   renderBudget();
   renderAnnual();
   renderLifePlan();
+  renderAssets();
   renderSettings();
 }
 initRender();
@@ -1526,6 +1961,19 @@ initRender();
 - 同一の種類・費目・詳細・分類の重複登録を防止
 - 既存の空データ重複項目を起動時に自動整理
 - 項目追加後に予算・年間・ホームへ即時反映
+-->
+
+
+<!--
+変更履歴 v8
+- 資産タブを追加
+- 通帳・銀行口座ごとの残高入力を追加
+- 口座内を生活防衛費・家電・車・教育費など目的別に管理
+- 目的ごとの現在額・目標額・達成率を表示
+- 口座ごとの未振分金額を自動計算
+- 口座・目的の追加、編集、削除に対応
+- 二重登録と連打を防止
+- 既存の月次、予算、年間、ライフプラン、設定機能を維持
 -->
 
 </body>
