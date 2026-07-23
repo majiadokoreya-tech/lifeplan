@@ -397,6 +397,7 @@
       <div class="title-row"><h2 class="title">マネーフォワードから入力</h2><span class="small">CSVを選ぶだけ</span></div>
       <div class="import-explanation">
         マネーフォワード MEからダウンロードしたCSVを選ぶと、上の集計期間に含まれる収入・支出を自動集計します。
+        <br>収入は「トウアコウギョウ＝パパ」「入浴介護センタ＝ママ」「トウアコウギョウの賞与＝パパ賞与」、それ以外はその他収入へ入ります。
       </div>
 
       <label class="btn file-select-button" for="moneyForwardCsvFile">CSVを選んで自動入力</label>
@@ -414,6 +415,7 @@
 
       <div class="import-explanation">
         マネーフォワード MEの費目と金額が見えるスクショを読み取ります。反映前に、項目と金額を確認・修正できます。
+        <br>給与・賞与の振り分けも、登録済みの勤務先名から自動判定します。
       </div>
 
       <div id="screenshotDropZone" class="screenshot-drop-zone" tabindex="0" role="button">
@@ -885,7 +887,7 @@ const DEFAULT_ITEMS=[
 ["income_overtime","income","残業","パパ","収入・予算内","💰","#0ea5e9"],
 ["income_mama","income","収入","ママ","収入・予算内","💰","#3b82f6"],
 ["income_side","income","副業","","収入・予算外","💰","#64748b"],
-["income_temp","income","臨時収入","","収入・予算外","💰","#64748b"],
+["income_temp","income","その他収入","","収入・予算外","💰","#64748b"],
 ["income_bonus","income","賞与","ボーナス","収入・予算外","🎁","#0284c7"],
 ["housing_loan","expense","住宅","住宅ローン","毎月・固定","🏠","#34a77b"],
 ["food_grocery","expense","食費","食料品","毎月・変動","🍚","#ef4444"],
@@ -1332,6 +1334,18 @@ function correctMisassignedPeriodData(){
     targetKey
   };
 }
+function migrateIncomeLabels(){
+  const otherIncome=data.items.find(item=>item.id==="income_temp");
+
+  if(otherIncome){
+    otherIncome.group="その他収入";
+    otherIncome.detail="";
+    otherIncome.type="income";
+    otherIncome.classification="収入・予算外";
+    otherIncome.icon=otherIncome.icon||"💰";
+  }
+}
+
 function sortedItems(){return [...data.items].sort((a,b)=>(a.order||0)-(b.order||0))}
 function values(month){return data.monthly[month]||{}}
 function amount(month,itemId){return normalize(values(month)[itemId]||0)}
@@ -1765,15 +1779,28 @@ function findMoneyForwardItem({major,middle,content,amount}){
 
   if(exactDetail)return {item:exactDetail,fallback:false};
 
-  const rules=isIncome
-    ?[
-      [/賞与|ボーナス/,"income_bonus"],
-      [/副業|せどり|メルカリ/,"income_side"],
-      [/臨時|還付|返金/,"income_temp"],
-      [/ママ|妻/,"income_mama"],
-      [/給与|給料|振込/,"income_papa"]
-    ]
-    :[
+  if(isIncome){
+    const isToaIndustry=/トウアコウギョウ|東亜工業/.test(fullText);
+    const isBathCareCenter=/入浴介護センタ|入浴介護センター/.test(fullText);
+    const isSalary=/給与|給料/.test(fullText);
+    const isBonus=/賞与|ボーナス/.test(fullText);
+
+    if(isBonus&&isToaIndustry){
+      return {item:findItemById("income_bonus"),fallback:false};
+    }
+
+    if(isSalary&&isToaIndustry){
+      return {item:findItemById("income_papa"),fallback:false};
+    }
+
+    if(isSalary&&isBathCareCenter){
+      return {item:findItemById("income_mama"),fallback:false};
+    }
+
+    return {item:findItemById("income_temp"),fallback:true};
+  }
+
+  const rules=[
       [/外食|カフェ|レストラン|ファストフード/,"food_eatout"],
       [/食料品|食品|スーパー|コンビニ|食材/,"food_grocery"],
       [/長距離外食/,"food_long"],
@@ -3643,14 +3670,16 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:15,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:16,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
 function initRender(){
   const correction=correctMisassignedPeriodData();
 
+  migrateIncomeLabels();
   cleanupEmptyDuplicateItems();
+  save();
 
   homeMonth.value=data.selectedMonth;
   inputMonth.value=data.selectedMonth;
@@ -3793,6 +3822,19 @@ initRender();
 - 読み取り行の除外に対応
 - スクショ取込前へ戻す機能を追加
 - CSV取込、土日祝日設定、月次、資産、予算、年間、ライフプラン、設定を維持
+-->
+
+
+<!--
+変更履歴 v16
+- 「給与 トウアコウギョウ」をパパ給料へ自動分類
+- 「給与 入浴介護センタ」をママ給料へ自動分類
+- 「賞与 トウアコウギョウ」をパパボーナスへ自動分類
+- 上記以外の収入をすべて「その他収入」へ自動分類
+- 既存の「臨時収入」項目を「その他収入」へ自動名称変更
+- CSV取込とスクショ取込の両方に同じ収入分類ルールを適用
+- 既存の入力済み金額と項目IDを維持
+- タブ、集計期間、資産、予算、年間、ライフプラン、設定機能を維持
 -->
 
 </body>
