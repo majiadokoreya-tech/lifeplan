@@ -193,6 +193,16 @@
     .input-period-range{margin-top:4px;color:#7c2d12;font-size:28px;font-weight:950;line-height:1.25;text-align:center;letter-spacing:-.03em}
     .period-change-label{margin:15px 0 7px;padding-top:12px;border-top:1px dashed #fdba74;color:#57534e;font-size:11px;font-weight:900;text-align:center}
 
+    
+    .period-setting-card{border:2px solid #fed7aa;background:linear-gradient(180deg,#fff,#fff7ed)}
+    .setting-preview{margin:12px 0;padding:12px;border:1px solid #fdba74;border-radius:13px;background:#fff;color:#7c2d12;font-size:12px;font-weight:900;line-height:1.7}
+    .setting-preview span{display:block;color:var(--muted);font-size:10px;font-weight:700}
+    .import-card{border:2px solid #bfdbfe;background:linear-gradient(180deg,#fff,#eff6ff)}
+    .import-explanation{margin-bottom:12px;color:#475569;font-size:11px;font-weight:700;line-height:1.7}
+    .file-select-button{display:block;text-align:center;cursor:pointer}
+    .import-result{margin-top:11px;padding:11px;border-radius:13px;background:#fff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:11px;font-weight:800;line-height:1.7}
+    .import-result strong{display:block;font-size:14px}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -356,13 +366,27 @@
       <div class="period-change-label">別の期間に変更</div>
       <div class="month-nav"><button id="inputPrev" type="button">‹</button><input id="inputMonth" type="month"><button id="inputNext" type="button">›</button></div>
     </div>
+
+    <div class="card import-card">
+      <div class="title-row"><h2 class="title">マネーフォワードから入力</h2><span class="small">CSVを選ぶだけ</span></div>
+      <div class="import-explanation">
+        マネーフォワード MEからダウンロードしたCSVを選ぶと、上の集計期間に含まれる収入・支出を自動集計します。
+      </div>
+
+      <label class="btn file-select-button" for="moneyForwardCsvFile">CSVを選んで自動入力</label>
+      <input id="moneyForwardCsvFile" class="hidden" type="file" accept=".csv,text/csv">
+
+      <div id="moneyForwardImportResult" class="import-result hidden"></div>
+      <button id="undoMoneyForwardImport" class="btn outline hidden" type="button">CSV取込前に戻す</button>
+    </div>
+
     <div class="card">
       <div class="title-row"><h2 id="inputPeriodTitle" class="title">給与期間を入力</h2><span class="small">項目別の合計額だけ</span></div>
       <div id="inputGroups" class="input-groups"></div>
       <div class="btn-row"><button id="saveMonth" class="btn" type="button">この給与期間を保存</button></div>
       <div class="btn-row"><button id="clearMonth" class="btn danger" type="button">この給与期間を削除</button></div>
     </div>
-    <div class="notice">マネーフォワードなどで25日〜翌月24日の金額を確認し、各項目の合計額だけ入力してください。項目変更はメニュー内の「項目設定」からできます。</div>
+    <div class="notice">CSVを使わない場合は、上に表示された集計期間の合計額を手入力してください。</div>
   </section>
 
 
@@ -567,6 +591,29 @@
 
 
   <section id="menu" class="page hidden">
+    <div class="card period-setting-card">
+      <div class="title-row"><h2 class="title">集計期間の設定</h2><span class="small">給料日に合わせる</span></div>
+
+      <div class="life-controls">
+        <div class="field">
+          <label>毎月の開始日</label>
+          <select id="periodStartDay"></select>
+        </div>
+
+        <div class="field">
+          <label>開始日が土日祝日の場合</label>
+          <select id="periodHolidayRule">
+            <option value="previousBusinessDay">前の平日にする</option>
+            <option value="nextBusinessDay">次の平日にする</option>
+            <option value="noChange">変更しない</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="periodSettingPreview" class="setting-preview"></div>
+      <button id="savePeriodSettings" class="btn" type="button">集計期間を保存</button>
+    </div>
+
     <div class="card">
       <div class="title-row"><h2 class="title">このアプリの使い方</h2><span class="small">全部を毎月使う必要なし</span></div>
 
@@ -738,6 +785,11 @@
 <script>
 "use strict";
 const KEY="household_detail_v3";
+const DEFAULT_PERIOD_SETTINGS={
+  startDay:25,
+  holidayRule:"previousBusinessDay"
+};
+let runtimePeriodSettings={...DEFAULT_PERIOD_SETTINGS};
 const GROUP_COLORS={"収入":"#2563eb","住宅":"#34a77b","食費":"#ef4444","水道光熱費":"#eab308","教養・教育":"#6b82c4","自動車":"#52525b","日用品":"#86c995","保険":"#0f766e","通信費":"#9333ea","衣服・美容":"#f8b84e","健康・医療":"#ec4899","交通費":"#64748b","趣味・娯楽":"#db3f82","交際費":"#f97316","その他":"#a8a29e","株式投資":"#16a34a"};
 const DEFAULT_ITEMS=[
 ["income_papa","income","収入","パパ","収入・予算内","💰","#2563eb"],
@@ -823,21 +875,37 @@ const DEFAULT={
       ]
     }
   ],
+  periodSettings:{
+    startDay:25,
+    holidayRule:"previousBusinessDay"
+  },
   usage:{
     lastAssetsUpdatedMonth:"",
     periodCorrectionV12Done:false,
-    periodCorrectionV12Backup:null
+    periodCorrectionV12Backup:null,
+    lastCsvImportBackup:null
   }
 };
 let data=load();
 
 function currentMonth(){
   const today=new Date();
-  const periodBase=today.getDate()>=25
-    ?new Date(today.getFullYear(),today.getMonth(),1)
-    :new Date(today.getFullYear(),today.getMonth()-1,1);
+  today.setHours(12,0,0,0);
 
-  return `${periodBase.getFullYear()}-${String(periodBase.getMonth()+1).padStart(2,"0")}`;
+  const candidates=[];
+
+  for(let offset=-2;offset<=1;offset++){
+    const candidateDate=new Date(today.getFullYear(),today.getMonth()+offset,1);
+    const key=`${candidateDate.getFullYear()}-${String(candidateDate.getMonth()+1).padStart(2,"0")}`;
+    candidates.push(key);
+  }
+
+  const matched=candidates.find(key=>{
+    const {start,end}=salaryPeriodDates(key);
+    return today>=start&&today<=end;
+  });
+
+  return matched||candidates[1];
 }
 
 function clone(v){return JSON.parse(JSON.stringify(v))}
@@ -850,11 +918,167 @@ function shiftMonth(key,n){
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}`;
 }
 
+function addDays(date,days){
+  const result=new Date(date);
+  result.setDate(result.getDate()+days);
+  result.setHours(12,0,0,0);
+  return result;
+}
+
+function dateKey(date){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+
+function nthWeekdayOfMonth(year,month,weekday,nth){
+  const first=new Date(year,month-1,1,12);
+  const offset=(weekday-first.getDay()+7)%7;
+  return 1+offset+(nth-1)*7;
+}
+
+function vernalEquinoxDay(year){
+  return Math.floor(20.8431+0.242194*(year-1980)-Math.floor((year-1980)/4));
+}
+
+function autumnalEquinoxDay(year){
+  return Math.floor(23.2488+0.242194*(year-1980)-Math.floor((year-1980)/4));
+}
+
+const japaneseHolidayCache=new Map();
+
+function buildJapaneseHolidaySet(year){
+  if(japaneseHolidayCache.has(year))return japaneseHolidayCache.get(year);
+
+  const holidays=new Set();
+  const originalHolidays=[];
+
+  const addHoliday=(month,day)=>{
+    const date=new Date(year,month-1,day,12);
+    const key=dateKey(date);
+    holidays.add(key);
+    originalHolidays.push(date);
+  };
+
+  addHoliday(1,1);
+
+  if(year>=2000)addHoliday(1,nthWeekdayOfMonth(year,1,1,2));
+  else if(year>=1949)addHoliday(1,15);
+
+  addHoliday(2,11);
+
+  if(year>=2020)addHoliday(2,23);
+  else if(year>=1989&&year<=2018)addHoliday(12,23);
+
+  if(year>=1949)addHoliday(3,vernalEquinoxDay(year));
+
+  addHoliday(4,29);
+  addHoliday(5,3);
+  addHoliday(5,4);
+  addHoliday(5,5);
+
+  if(year===2020){
+    addHoliday(7,23);
+    addHoliday(7,24);
+    addHoliday(8,10);
+  }else if(year===2021){
+    addHoliday(7,22);
+    addHoliday(7,23);
+    addHoliday(8,8);
+  }else{
+    if(year>=2003)addHoliday(7,nthWeekdayOfMonth(year,7,1,3));
+    else if(year>=1996)addHoliday(7,20);
+
+    if(year>=2016)addHoliday(8,11);
+
+    if(year>=2000)addHoliday(10,nthWeekdayOfMonth(year,10,1,2));
+    else if(year>=1966)addHoliday(10,10);
+  }
+
+  if(year>=2003)addHoliday(9,nthWeekdayOfMonth(year,9,1,3));
+  else if(year>=1966)addHoliday(9,15);
+
+  if(year>=1948)addHoliday(9,autumnalEquinoxDay(year));
+
+  addHoliday(11,3);
+  addHoliday(11,23);
+
+  if(year===2019){
+    addHoliday(5,1);
+    addHoliday(10,22);
+  }
+
+  // 国民の休日：祝日に挟まれた平日。
+  for(let month=1;month<=12;month++){
+    const daysInMonth=new Date(year,month,0).getDate();
+
+    for(let day=2;day<daysInMonth;day++){
+      const date=new Date(year,month-1,day,12);
+      const key=dateKey(date);
+
+      if(holidays.has(key))continue;
+
+      if(holidays.has(dateKey(addDays(date,-1)))&&holidays.has(dateKey(addDays(date,1)))){
+        holidays.add(key);
+      }
+    }
+  }
+
+  // 振替休日。
+  originalHolidays.forEach(holiday=>{
+    if(holiday.getDay()!==0)return;
+
+    let substitute=addDays(holiday,1);
+
+    while(holidays.has(dateKey(substitute))){
+      substitute=addDays(substitute,1);
+    }
+
+    holidays.add(dateKey(substitute));
+  });
+
+  japaneseHolidayCache.set(year,holidays);
+  return holidays;
+}
+
+function isJapaneseHoliday(date){
+  return buildJapaneseHolidaySet(date.getFullYear()).has(dateKey(date));
+}
+
+function isBusinessDay(date){
+  const day=date.getDay();
+  return day!==0&&day!==6&&!isJapaneseHoliday(date);
+}
+
+function normalizeHolidayRule(value){
+  return ["previousBusinessDay","nextBusinessDay","noChange"].includes(value)
+    ?value
+    :"previousBusinessDay";
+}
+
+function adjustedPeriodStart(year,month,settings=runtimePeriodSettings){
+  const startDay=Math.min(28,Math.max(1,Number(settings.startDay)||25));
+  const rule=normalizeHolidayRule(settings.holidayRule);
+  let date=new Date(year,month-1,startDay,12);
+
+  if(rule==="noChange")return date;
+
+  const direction=rule==="nextBusinessDay"?1:-1;
+
+  while(!isBusinessDay(date)){
+    date=addDays(date,direction);
+  }
+
+  return date;
+}
+
 function salaryPeriodDates(key){
   const [year,month]=key.split("-").map(Number);
+  const start=adjustedPeriodStart(year,month);
+  const nextMonth=new Date(year,month,1,12);
+  const nextStart=adjustedPeriodStart(nextMonth.getFullYear(),nextMonth.getMonth()+1);
+
   return {
-    start:new Date(year,month-1,25),
-    end:new Date(year,month,24)
+    start,
+    end:addDays(nextStart,-1)
   };
 }
 
@@ -883,9 +1107,27 @@ function salaryPeriodCompact(key){
   return `${start.getMonth()+1}/25〜${end.getMonth()+1}/24`;
 }
 
+function formatShortDate(date){
+  return `${date.getMonth()+1}月${date.getDate()}日`;
+}
+
+function holidayRuleLabel(rule){
+  if(rule==="nextBusinessDay")return "次の平日";
+  if(rule==="noChange")return "変更しない";
+  return "前の平日";
+}
+
 function salaryPaydayNote(key){
   const [year,month]=key.split("-").map(Number);
-  return `${year}年${month}月25日に入った給料で生活する期間`;
+  const startDay=Math.min(28,Math.max(1,Number(runtimePeriodSettings.startDay)||25));
+  const nominal=new Date(year,month-1,startDay,12);
+  const actual=salaryPeriodDates(key).start;
+
+  if(dateKey(nominal)!==dateKey(actual)){
+    return `${year}年${month}月${startDay}日が土日祝日のため、${formatShortDate(actual)}から集計`;
+  }
+
+  return `${year}年${month}月${startDay}日から集計`;
 }
 
 function salaryPeriodFullLabel(key){
@@ -910,6 +1152,12 @@ function migrate(v){
   const sourceLife=v.lifePlan&&typeof v.lifePlan==="object"?v.lifePlan:{};
   const sourceBudget=v.budgetPlan&&typeof v.budgetPlan==="object"?v.budgetPlan:{};
   const sourceAccounts=Array.isArray(v.bankAccounts)?v.bankAccounts:clone(DEFAULT.bankAccounts);
+  const sourcePeriod=v.periodSettings&&typeof v.periodSettings==="object"?v.periodSettings:{};
+
+  runtimePeriodSettings={
+    startDay:Math.min(28,Math.max(1,Number(sourcePeriod.startDay)||25)),
+    holidayRule:normalizeHolidayRule(sourcePeriod.holidayRule)
+  };
   return {
     items:Array.isArray(v.items)&&v.items.length?v.items:clone(DEFAULT_ITEMS),
     monthly:v.monthly&&typeof v.monthly==="object"?v.monthly:{},
@@ -917,6 +1165,7 @@ function migrate(v){
     annualYear:Number(v.annualYear)||new Date().getFullYear(),
     lifePlan:{...clone(DEFAULT.lifePlan),...sourceLife,family:Array.isArray(sourceLife.family)&&sourceLife.family.length?sourceLife.family:clone(DEFAULT.lifePlan.family),events:Array.isArray(sourceLife.events)?sourceLife.events:[]},
     budgetPlan:{...clone(DEFAULT.budgetPlan),...sourceBudget,entries:Array.isArray(sourceBudget.entries)?sourceBudget.entries:[]},
+    periodSettings:{...runtimePeriodSettings},
     bankAccounts:sourceAccounts.map(account=>({
       id:account.id||id(),
       name:String(account.name||"口座"),
@@ -1051,6 +1300,7 @@ function activate(tab){
   if(tab==="annual")renderAnnual();
   if(tab==="lifeplan")renderLifePlan();
   if(tab==="assets")renderAssets();
+  if(tab==="menu")renderPeriodSettings();
   if(tab==="settings")renderSettings();
 
   window.scrollTo({top:0,behavior:"smooth"});
@@ -1072,6 +1322,67 @@ document.querySelectorAll("[data-back-menu]").forEach(button=>{
   button.onclick=()=>activate("menu");
 });
 
+
+
+function renderPeriodSettings(){
+  if(!data.periodSettings)data.periodSettings={...DEFAULT_PERIOD_SETTINGS};
+
+  periodStartDay.innerHTML=Array.from({length:28},(_,index)=>{
+    const day=index+1;
+    return `<option value="${day}">${day}日</option>`;
+  }).join("");
+
+  periodStartDay.value=data.periodSettings.startDay;
+  periodHolidayRule.value=data.periodSettings.holidayRule;
+  renderPeriodSettingPreview();
+}
+
+function renderPeriodSettingPreview(){
+  const temporarySettings={
+    startDay:Math.min(28,Math.max(1,Number(periodStartDay.value)||25)),
+    holidayRule:normalizeHolidayRule(periodHolidayRule.value)
+  };
+
+  const previousSettings={...runtimePeriodSettings};
+  runtimePeriodSettings=temporarySettings;
+
+  const currentKey=currentMonth();
+  const nextKey=shiftMonth(currentKey,1);
+  const currentRange=salaryPeriodRange(currentKey);
+  const nextRange=salaryPeriodRange(nextKey);
+
+  runtimePeriodSettings=previousSettings;
+
+  periodSettingPreview.innerHTML=`
+    現在の期間：${currentRange}
+    <span>次の期間：${nextRange}</span>
+  `;
+}
+
+periodStartDay.onchange=renderPeriodSettingPreview;
+periodHolidayRule.onchange=renderPeriodSettingPreview;
+
+savePeriodSettings.onclick=()=>{
+  const startDay=Math.min(28,Math.max(1,Number(periodStartDay.value)||25));
+  const holidayRule=normalizeHolidayRule(periodHolidayRule.value);
+
+  data.periodSettings={startDay,holidayRule};
+  runtimePeriodSettings={...data.periodSettings};
+
+  data.selectedMonth=currentMonth();
+
+  save();
+
+  homeMonth.value=data.selectedMonth;
+  inputMonth.value=data.selectedMonth;
+  updatePeriodDisplay(data.selectedMonth);
+  renderHome();
+  renderInputs();
+  renderAnnual();
+  renderPeriodSettings();
+
+  alert(`集計期間を保存しました。開始日が土日祝日の場合は「${holidayRuleLabel(holidayRule)}」に調整します。`);
+};
 
 function classificationTotals(monthKey){
   const result={
@@ -1220,6 +1531,378 @@ function renderInputs(){
   const map=grouped(),v=values(data.selectedMonth);
   inputGroups.innerHTML=[...map.entries()].map(([g,items])=>`<div class="group-card"><div class="group-head"><span>${esc(g)}</span><span class="small">${items[0].type==="income"?"収入":items[0].type==="investment"?"投資":"支出"}</span></div>${items.map(i=>`<div class="input-row"><div><div class="detail-name">${esc(i.detail||i.group)}</div><div class="detail-meta">${esc(i.classification)}</div></div><div class="money"><input type="number" min="0" step="1" inputmode="numeric" data-id="${esc(i.id)}" value="${normalize(v[i.id]||0)||""}" placeholder="0"></div></div>`).join("")}</div>`).join("");
 }
+
+function parseCsvRows(text){
+  const rows=[];
+  let row=[];
+  let value="";
+  let quoted=false;
+
+  for(let index=0;index<text.length;index++){
+    const char=text[index];
+    const next=text[index+1];
+
+    if(quoted){
+      if(char==='"'&&next==='"'){
+        value+='"';
+        index++;
+      }else if(char==='"'){
+        quoted=false;
+      }else{
+        value+=char;
+      }
+      continue;
+    }
+
+    if(char==='"'){
+      quoted=true;
+    }else if(char===","){
+      row.push(value);
+      value="";
+    }else if(char==="\n"){
+      row.push(value.replace(/\r$/,""));
+      rows.push(row);
+      row=[];
+      value="";
+    }else{
+      value+=char;
+    }
+  }
+
+  if(value.length||row.length){
+    row.push(value.replace(/\r$/,""));
+    rows.push(row);
+  }
+
+  return rows.filter(row=>row.some(cell=>String(cell).trim()!==""));
+}
+
+function normalizedHeader(value){
+  return String(value||"")
+    .replace(/^\uFEFF/,"")
+    .replace(/\s/g,"")
+    .replace(/[()（）]/g,"")
+    .toLowerCase();
+}
+
+function findCsvColumn(headers,candidates){
+  const normalized=headers.map(normalizedHeader);
+
+  for(const candidate of candidates){
+    const index=normalized.indexOf(normalizedHeader(candidate));
+    if(index>=0)return index;
+  }
+
+  return -1;
+}
+
+async function decodeCsvFile(file){
+  const buffer=await file.arrayBuffer();
+  const utf8=new TextDecoder("utf-8").decode(buffer);
+
+  if(utf8.includes("計算対象")&&utf8.includes("金額")){
+    return utf8;
+  }
+
+  try{
+    const shiftJis=new TextDecoder("shift-jis").decode(buffer);
+
+    if(shiftJis.includes("計算対象")||shiftJis.includes("金額")){
+      return shiftJis;
+    }
+  }catch(error){
+    console.warn(error);
+  }
+
+  return utf8;
+}
+
+function parseCsvDate(value){
+  const match=String(value||"").trim().match(/(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/);
+
+  if(!match)return null;
+
+  const date=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),12);
+
+  return Number.isNaN(date.getTime())?null:date;
+}
+
+function parseCsvAmount(value){
+  const normalized=String(value||"")
+    .replace(/[，,￥¥円\s]/g,"")
+    .replace(/[－−]/g,"-")
+    .replace(/[＋]/g,"+");
+
+  const amount=Number(normalized);
+  return Number.isFinite(amount)?amount:0;
+}
+
+function isCsvFalse(value){
+  return ["0","false","off","対象外","×","いいえ","no"].includes(String(value||"").trim().toLowerCase());
+}
+
+function isCsvTransfer(value){
+  return ["1","true","on","振替","○","はい","yes"].includes(String(value||"").trim().toLowerCase());
+}
+
+function normalizedCategory(value){
+  return String(value||"")
+    .replace(/\s/g,"")
+    .replace(/[・･]/g,"")
+    .replace(/[()（）]/g,"")
+    .toLowerCase();
+}
+
+function findItemById(itemId){
+  return data.items.find(item=>item.id===itemId)||null;
+}
+
+function findMoneyForwardItem({major,middle,content,amount}){
+  const majorText=normalizedCategory(major);
+  const middleText=normalizedCategory(middle);
+  const fullText=normalizedCategory(`${major} ${middle} ${content}`);
+
+  const isIncome=majorText.includes("収入")||(
+    amount>0&&!majorText.includes("支出")&&!majorText.includes("食費")
+  );
+
+  const exactDetail=data.items.find(item=>{
+    return item.type===(isIncome?"income":"expense")&&
+      normalizedCategory(item.detail)===middleText&&middleText;
+  });
+
+  if(exactDetail)return {item:exactDetail,fallback:false};
+
+  const rules=isIncome
+    ?[
+      [/賞与|ボーナス/,"income_bonus"],
+      [/副業|せどり|メルカリ/,"income_side"],
+      [/臨時|還付|返金/,"income_temp"],
+      [/ママ|妻/,"income_mama"],
+      [/給与|給料|振込/,"income_papa"]
+    ]
+    :[
+      [/外食|カフェ|レストラン|ファストフード/,"food_eatout"],
+      [/食料品|食品|スーパー|コンビニ|食材/,"food_grocery"],
+      [/長距離外食/,"food_long"],
+      [/電気/,"utility_electric"],
+      [/水道/,"utility_water"],
+      [/ガス/,"utility_electric"],
+      [/学費|学校|教材/,"edu_school"],
+      [/スイミング|習い事/,"edu_swim"],
+      [/ガソリン|給油/,"car_gas"],
+      [/高速|有料道路/,"car_toll"],
+      [/車検|整備|修理|タイヤ/,"car_maint"],
+      [/ドラッグ|薬|医薬品/,"daily_drug"],
+      [/日用品|ホームセンター/,"daily_goods"],
+      [/生命保険|医療保険/,"insurance_1"],
+      [/携帯|スマホ|電話/,"comm_papa"],
+      [/インターネット|光回線/,"comm_net"],
+      [/サブスク|動画配信/,"comm_sub"],
+      [/美容院|理髪|ヘアカット/,"beauty_hair"],
+      [/衣服|服|靴/,"beauty_clothes"],
+      [/ジム|スポーツクラブ/,"health_gym"],
+      [/病院|医療|診療/,"health_hospital"],
+      [/電車|バス|駐車|交通/,"transport"],
+      [/旅行|ホテル|宿泊/,"hobby_travel"],
+      [/ゲーム|音楽|娯楽|趣味/,"hobby_game"],
+      [/飲み会|交際|プレゼント/,"social_drink"],
+      [/住宅ローン|家賃/,"housing_loan"],
+      [/固定資産税/,"housing_tax"],
+      [/火災保険|地震保険/,"housing_fire"]
+    ];
+
+  for(const [pattern,itemId] of rules){
+    if(pattern.test(fullText)){
+      const item=findItemById(itemId);
+      if(item)return {item,fallback:false};
+    }
+  }
+
+  const groupAliases={
+    "食費":"食費",
+    "日用品":"日用品",
+    "住宅":"住宅",
+    "水道光熱費":"水道光熱費",
+    "水道光熱":"水道光熱費",
+    "通信費":"通信費",
+    "自動車":"自動車",
+    "交通費":"交通費",
+    "健康医療":"健康・医療",
+    "衣服美容":"衣服・美容",
+    "教養教育":"教養・教育",
+    "趣味娯楽":"趣味・娯楽",
+    "交際費":"交際費",
+    "保険":"保険"
+  };
+
+  const groupName=groupAliases[majorText];
+  const groupItem=groupName
+    ?data.items.find(item=>item.type==="expense"&&item.group===groupName)
+    :null;
+
+  if(groupItem)return {item:groupItem,fallback:true};
+
+  return {
+    item:findItemById(isIncome?"income_temp":"other_unknown"),
+    fallback:true
+  };
+}
+
+function showMoneyForwardResult({usedRows,excludedRows,outsideRows,fallbackRows,totalRows}){
+  moneyForwardImportResult.classList.remove("hidden");
+  moneyForwardImportResult.innerHTML=`
+    <strong>${usedRows}件を自動入力して保存しました</strong>
+    CSV全体 ${totalRows}件・対象期間外 ${outsideRows}件・計算対象外/振替 ${excludedRows}件
+    ${fallbackRows?`<br>「その他」などへまとめた明細 ${fallbackRows}件`:""}
+  `;
+  undoMoneyForwardImport.classList.remove("hidden");
+}
+
+async function importMoneyForwardCsv(file){
+  const text=await decodeCsvFile(file);
+  const rows=parseCsvRows(text);
+
+  if(rows.length<2){
+    throw new Error("CSVの明細が見つかりません");
+  }
+
+  const headers=rows[0];
+  const dateIndex=findCsvColumn(headers,["日付"]);
+  const amountIndex=findCsvColumn(headers,["金額（円）","金額円","金額"]);
+  const targetIndex=findCsvColumn(headers,["計算対象"]);
+  const contentIndex=findCsvColumn(headers,["内容"]);
+  const majorIndex=findCsvColumn(headers,["大項目"]);
+  const middleIndex=findCsvColumn(headers,["中項目"]);
+  const transferIndex=findCsvColumn(headers,["振替"]);
+
+  if(dateIndex<0||amountIndex<0){
+    throw new Error("マネーフォワードのCSV形式を確認できません");
+  }
+
+  const {start,end}=salaryPeriodDates(data.selectedMonth);
+  const totalsByItem={};
+  let usedRows=0;
+  let excludedRows=0;
+  let outsideRows=0;
+  let fallbackRows=0;
+
+  rows.slice(1).forEach(row=>{
+    const date=parseCsvDate(row[dateIndex]);
+
+    if(!date)return;
+
+    if(date<start||date>end){
+      outsideRows++;
+      return;
+    }
+
+    if(targetIndex>=0&&isCsvFalse(row[targetIndex])){
+      excludedRows++;
+      return;
+    }
+
+    if(transferIndex>=0&&isCsvTransfer(row[transferIndex])){
+      excludedRows++;
+      return;
+    }
+
+    const rawAmount=parseCsvAmount(row[amountIndex]);
+    if(!rawAmount)return;
+
+    const match=findMoneyForwardItem({
+      major:majorIndex>=0?row[majorIndex]:"",
+      middle:middleIndex>=0?row[middleIndex]:"",
+      content:contentIndex>=0?row[contentIndex]:"",
+      amount:rawAmount
+    });
+
+    if(!match.item)return;
+
+    totalsByItem[match.item.id]=(totalsByItem[match.item.id]||0)+Math.abs(rawAmount);
+    usedRows++;
+
+    if(match.fallback)fallbackRows++;
+  });
+
+  if(!usedRows){
+    throw new Error(`選択中の期間（${salaryPeriodRange(data.selectedMonth)}）に該当する明細がありません`);
+  }
+
+  if(monthHasActualData(data.selectedMonth)){
+    const replaceConfirmed=confirm("この期間には入力済みデータがあります。CSVの集計結果で置き換えますか？");
+    if(!replaceConfirmed)return;
+  }
+
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+
+  data.usage.lastCsvImportBackup={
+    monthKey:data.selectedMonth,
+    values:clone(data.monthly[data.selectedMonth]||{}),
+    importedAt:new Date().toISOString()
+  };
+
+  const importedValues={};
+
+  sortedItems().forEach(item=>{
+    importedValues[item.id]=normalize(totalsByItem[item.id]||0);
+  });
+
+  data.monthly[data.selectedMonth]=importedValues;
+  save();
+
+  renderInputs();
+  renderHome();
+
+  showMoneyForwardResult({
+    usedRows,
+    excludedRows,
+    outsideRows,
+    fallbackRows,
+    totalRows:rows.length-1
+  });
+}
+
+moneyForwardCsvFile.onchange=async()=>{
+  const file=moneyForwardCsvFile.files?.[0];
+  if(!file)return;
+
+  moneyForwardImportResult.classList.remove("hidden");
+  moneyForwardImportResult.textContent="CSVを読み込んでいます…";
+
+  try{
+    await importMoneyForwardCsv(file);
+  }catch(error){
+    moneyForwardImportResult.innerHTML=`<strong>読み込めませんでした</strong>${esc(error.message||"CSVを確認してください")}`;
+    undoMoneyForwardImport.classList.add("hidden");
+  }finally{
+    moneyForwardCsvFile.value="";
+  }
+};
+
+undoMoneyForwardImport.onclick=()=>{
+  const backup=data.usage?.lastCsvImportBackup;
+
+  if(!backup){
+    alert("元に戻せるCSV取込がありません");
+    return;
+  }
+
+  data.monthly[backup.monthKey]=clone(backup.values||{});
+  data.selectedMonth=backup.monthKey;
+  data.usage.lastCsvImportBackup=null;
+  save();
+
+  homeMonth.value=data.selectedMonth;
+  inputMonth.value=data.selectedMonth;
+  updatePeriodDisplay(data.selectedMonth);
+  renderInputs();
+  renderHome();
+
+  moneyForwardImportResult.innerHTML="<strong>CSV取込前の状態に戻しました</strong>";
+  undoMoneyForwardImport.classList.add("hidden");
+};
+
 saveMonth.onclick=()=>{
   const out={};
 
@@ -2352,7 +3035,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:12,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:13,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -2372,6 +3055,7 @@ function initRender(){
   renderAnnual();
   renderLifePlan();
   renderAssets();
+  renderPeriodSettings();
   renderSettings();
 
   if(correction.moved){
@@ -2456,6 +3140,22 @@ initRender();
 - 移動先に既存データがある場合は、入力済みの値を安全に統合
 - 選択中期間と資産更新月も同時に1期間前へ修正
 - 年間実績への集計位置も自動的に修正
+- 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
+-->
+
+
+<!--
+変更履歴 v13
+- 集計開始日を1日〜28日から選べる設定を追加
+- 開始日が土日祝日の場合に「前の平日・次の平日・変更しない」を選択可能
+- 初期設定を毎月25日、土日祝日は前の平日に設定
+- 日本の祝日と振替休日を考慮して集計開始日を自動調整
+- 次の調整済み開始日の前日を集計終了日に設定
+- メニューに現在期間と次回期間のプレビューを追加
+- マネーフォワード MEのCSVを選ぶだけで対象期間を自動集計
+- 計算対象外と振替の明細をCSV取込から除外
+- 大項目・中項目・内容から既存の家計項目へ自動振り分け
+- CSV取込前へ戻す機能を追加
 - 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
 -->
 
