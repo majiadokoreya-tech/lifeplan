@@ -240,6 +240,27 @@
     .account-review-hint{margin-top:5px;color:var(--muted);font-size:9px;font-weight:700}
     @media(max-width:520px){.account-review-grid{grid-template-columns:minmax(0,1fr) 105px}}
 
+    
+    .asset-summary-card.total-assets{border-color:#fdba74;background:#fff7ed}
+    .asset-summary-card.deposit-assets{border-color:#bbf7d0;background:#f0fdf4}
+    .asset-summary-card.investment-assets{border-color:#bfdbfe;background:#eff6ff}
+    .asset-summary-card.unallocated-assets{border-color:#d8b4fe;background:#faf5ff}
+    .asset-summary-note{grid-column:1/-1;padding:10px 12px;border-radius:13px;background:#f5f5f5;color:#57534e;font-size:10px;font-weight:800;line-height:1.6}
+    .asset-group-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:17px 2px 8px;padding-bottom:7px;border-bottom:2px solid #e5e7eb}
+    .asset-group-heading:first-child{margin-top:0}
+    .asset-group-title{font-size:15px;font-weight:950}
+    .asset-group-total{font-size:12px;font-weight:900}
+    .asset-group-note{margin:-2px 2px 9px;color:var(--muted);font-size:10px;font-weight:700}
+    .account-type-badge{display:inline-flex;align-items:center;margin-top:4px;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:900}
+    .account-type-badge.deposit{background:#dcfce7;color:#166534}
+    .account-type-badge.investment{background:#dbeafe;color:#1d4ed8}
+    .account-type-badge.pension{background:#ede9fe;color:#6d28d9}
+    .account-card.investment-card{border-color:#bfdbfe}
+    .account-card.pension-card{border-color:#d8b4fe}
+    .investment-exclusion{padding:16px 12px;text-align:center;color:#475569;font-size:11px;font-weight:800;line-height:1.7;background:#f8fafc}
+    .investment-footer{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fff}
+    .excluded-label{color:#2563eb;font-size:10px;font-weight:900}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -684,7 +705,7 @@
       <div id="accountScreenshotMessage" class="import-result hidden"></div>
 
       <div class="privacy-note">
-        目的別の金額は変更せず、口座の現在残高だけ更新します。新しい口座として追加することもできます。
+        預金は目的別設定を残して残高だけ更新します。証券・iDeCoは投資資産として扱い、未振分金額には含めません。
       </div>
     </div>
 
@@ -694,9 +715,17 @@
       <input id="accountEditId" type="hidden">
 
       <div class="life-controls">
-        <div class="field"><label>口座名</label><input id="accountName" placeholder="例：ママゆうちょ"></div>
-        <div class="field"><label>現在の残高</label><input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：7600000"></div>
-        <div class="field"><label>アイコン</label><select id="accountIcon"><option>🏦</option><option>💳</option><option>💰</option><option>🏧</option><option>📮</option><option>👛</option></select></div>
+        <div class="field"><label>口座名・資産名</label><input id="accountName" placeholder="例：ママゆうちょ"></div>
+        <div class="field"><label>現在の残高・評価額</label><input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：7600000"></div>
+        <div class="field">
+          <label>資産の種類</label>
+          <select id="accountType">
+            <option value="deposit">預金・現金</option>
+            <option value="investment">証券・投資</option>
+            <option value="pension">iDeCo・年金</option>
+          </select>
+        </div>
+        <div class="field"><label>アイコン</label><select id="accountIcon"><option>🏦</option><option>📮</option><option>💰</option><option>👛</option><option>📈</option><option>🏦</option><option>🧓</option></select></div>
         <div class="field"><label>メモ</label><input id="accountMemo" placeholder="例：生活防衛資金用"></div>
       </div>
 
@@ -707,7 +736,7 @@
     </div>
 
     <div class="card">
-      <div class="title-row"><h2 class="title">目的を追加・編集</h2><span class="small">何のためのお金かを分ける</span></div>
+      <div class="title-row"><h2 class="title">預金の目的を追加・編集</h2><span class="small">証券・iDeCoは対象外</span></div>
 
       <div class="quick-purpose-row">
         <button class="quick-purpose" data-purpose-preset="生活防衛費" type="button">＋生活防衛費</button>
@@ -733,7 +762,7 @@
     </div>
 
     <div class="card">
-      <div class="title-row"><h2 class="title">目的別の残高</h2><span id="accountCount" class="small"></span></div>
+      <div class="title-row"><h2 class="title">資産の内訳</h2><span id="accountCount" class="small"></span></div>
       <div id="accountList" class="account-list"></div>
     </div>
   </section>
@@ -984,6 +1013,43 @@ const DEFAULT_ITEMS=[
 ["housing_tax","expense","住宅","固定資産税","不定・固定","🏠","#34a77b"],
 ["housing_fire","expense","住宅","火災地震保険","不定・固定","🏠","#34a77b"]
 ].map((x,i)=>({id:x[0],type:x[1],group:x[2],detail:x[3],classification:x[4],icon:x[5],color:x[6],order:i+1}));
+
+function normalizeAccountType(value){
+  return ["deposit","investment","pension"].includes(value)?value:"";
+}
+
+function detectAccountType(name,currentType=""){
+  const normalized=String(name||"")
+    .replace(/\s/g,"")
+    .toLowerCase();
+
+  if(/ideco|イデコ|確定拠出|企業型dc|個人型年金|年金/.test(normalized)){
+    return "pension";
+  }
+
+  if(/証券|投資信託|株式|nisa|ニーサ|ファンド|ロボアド|ウェルスナビ/.test(normalized)){
+    return "investment";
+  }
+
+  return normalizeAccountType(currentType)||"deposit";
+}
+
+function accountTypeLabel(type){
+  if(type==="investment")return "証券・投資";
+  if(type==="pension")return "iDeCo・年金";
+  return "預金・現金";
+}
+
+function accountTypeIcon(type){
+  if(type==="investment")return "📈";
+  if(type==="pension")return "🧓";
+  return "🏦";
+}
+
+function isDepositAccount(account){
+  return detectAccountType(account?.name,account?.accountType)==="deposit";
+}
+
 const DEFAULT={
   items:DEFAULT_ITEMS,
   monthly:{},
@@ -1019,6 +1085,7 @@ const DEFAULT={
       name:"ママゆうちょ",
       balance:7600000,
       icon:"📮",
+      accountType:"deposit",
       memo:"",
       purposes:[
         {id:"purpose_defense",name:"生活防衛費",amount:3300000,target:3300000},
@@ -1323,7 +1390,8 @@ function migrate(v){
       id:account.id||id(),
       name:String(account.name||"口座"),
       balance:normalize(account.balance),
-      icon:account.icon||"🏦",
+      icon:account.icon||accountTypeIcon(detectAccountType(account.name,account.accountType)),
+      accountType:detectAccountType(account.name,account.accountType),
       memo:String(account.memo||""),
       purposes:Array.isArray(account.purposes)?account.purposes.map(purpose=>({
         id:purpose.id||id(),
@@ -2839,6 +2907,7 @@ function resetAccountForm(){
   accountEditId.value="";
   accountName.value="";
   accountBalance.value="";
+  accountType.value="deposit";
   accountIcon.value="🏦";
   accountMemo.value="";
   saveAccountButton.textContent="口座を追加";
@@ -2856,15 +2925,31 @@ function resetPurposeForm(){
 
 function fillPurposeAccountOptions(){
   const currentValue=purposeAccountId.value;
+  const depositAccounts=(data.bankAccounts||[]).filter(isDepositAccount);
 
-  purposeAccountId.innerHTML=(data.bankAccounts||[]).map(account=>{
-    return `<option value="${esc(account.id)}">${esc(account.icon||"🏦")} ${esc(account.name)}</option>`;
-  }).join("");
+  purposeAccountId.innerHTML=depositAccounts.length
+    ?depositAccounts.map(account=>{
+      return `<option value="${esc(account.id)}">${esc(account.icon||"🏦")} ${esc(account.name)}</option>`;
+    }).join("")
+    :'<option value="">預金・現金の口座がありません</option>';
 
-  if((data.bankAccounts||[]).some(account=>account.id===currentValue)){
+  if(depositAccounts.some(account=>account.id===currentValue)){
     purposeAccountId.value=currentValue;
   }
 }
+
+
+accountType.onchange=()=>{
+  const type=normalizeAccountType(accountType.value)||"deposit";
+  accountIcon.value=accountTypeIcon(type);
+};
+
+accountName.onblur=()=>{
+  if(accountEditId.value)return;
+  const detected=detectAccountType(accountName.value);
+  accountType.value=detected;
+  accountIcon.value=accountTypeIcon(detected);
+};
 
 
 let selectedAccountScreenshotFiles=[];
@@ -2895,7 +2980,7 @@ function shouldIgnoreAccountLabel(label){
 
   const ignorePatterns=[
     /総資産/,/資産合計/,/口座合計/,/預金合計/,/合計/,/負債/,
-    /ポイント/,/証券/,/投資信託/,/株式/,/年金/,/確定拠出/,
+    /ポイント/,
     /クレジットカード/,/カード利用/,/引落/,/請求/,/前月比/,
     /更新/,/連携/,/ホーム/,/入出金/,/明細/
   ];
@@ -2912,7 +2997,8 @@ function looksLikeAccountName(label){
     "銀行","ゆうちょ","信用金庫","信金","信用組合","農協","ja",
     "現金","財布","貯金","預金","paypay","楽天","住信","sbi",
     "三菱","ufj","三井住友","みずほ","あいち","名古屋","東海",
-    "ろうきん","労働金庫","イオン","セブン","ローソン"
+    "ろうきん","労働金庫","イオン","セブン","ローソン",
+    "証券","投資信託","株式","nisa","ideco","イデコ","確定拠出","年金"
   ];
 
   return accountWords.some(word=>normalized.includes(normalizedCategory(word)));
@@ -2972,6 +3058,7 @@ function extractAccountRowsFromText(text){
       id:"account_ocr_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
       name:label,
       balance:money.amount,
+      accountType:detectAccountType(label),
       destinationId:"",
       confidence:looksLikeAccountName(label)?"high":"review"
     });
@@ -3072,6 +3159,15 @@ function renderAccountScreenshotReview(){
           <label>残高</label>
           <input data-account-ocr-balance="${index}" type="number" min="0" inputmode="numeric" value="${row.balance}">
         </div>
+      </div>
+
+      <div class="field account-review-destination">
+        <label>資産の種類</label>
+        <select data-account-ocr-type="${index}">
+          <option value="deposit"${row.accountType==="deposit"?" selected":""}>預金・現金</option>
+          <option value="investment"${row.accountType==="investment"?" selected":""}>証券・投資</option>
+          <option value="pension"${row.accountType==="pension"?" selected":""}>iDeCo・年金</option>
+        </select>
       </div>
 
       <div class="field account-review-destination">
@@ -3319,10 +3415,11 @@ applyAccountScreenshotImport.onclick=()=>{
     const index=Number(container.dataset.accountOcrRow);
     const name=container.querySelector(`[data-account-ocr-name="${index}"]`)?.value.trim()||"";
     const balance=normalize(container.querySelector(`[data-account-ocr-balance="${index}"]`)?.value);
+    const accountType=normalizeAccountType(container.querySelector(`[data-account-ocr-type="${index}"]`)?.value)||detectAccountType(name);
     const destinationId=container.querySelector(`[data-account-ocr-destination="${index}"]`)?.value||"__new__";
 
     if(name&&balance){
-      rows.push({name,balance,destinationId});
+      rows.push({name,balance,accountType,destinationId});
     }
   });
 
@@ -3349,6 +3446,8 @@ applyAccountScreenshotImport.onclick=()=>{
 
       if(existing){
         existing.balance=row.balance;
+        existing.accountType=row.accountType;
+        existing.icon=accountTypeIcon(row.accountType);
         processedDestinations.add(existing.id);
         updatedCount++;
         return;
@@ -3361,18 +3460,22 @@ applyAccountScreenshotImport.onclick=()=>{
 
     if(duplicate&&!processedDestinations.has(duplicate.id)){
       duplicate.balance=row.balance;
+      duplicate.accountType=row.accountType;
+      duplicate.icon=accountTypeIcon(row.accountType);
       processedDestinations.add(duplicate.id);
       updatedCount++;
       return;
     }
 
     const isYucho=/ゆうちょ|郵便/.test(normalizedCategory(row.name));
+    const type=row.accountType||detectAccountType(row.name);
 
     data.bankAccounts.push({
       id:"account_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
       name:row.name,
       balance:row.balance,
-      icon:isYucho?"📮":"🏦",
+      accountType:type,
+      icon:isYucho&&type==="deposit"?"📮":accountTypeIcon(type),
       memo:"スクショから追加",
       purposes:[]
     });
@@ -3439,10 +3542,13 @@ saveAccountButton.onclick=()=>{
       return;
     }
 
+    const selectedType=normalizeAccountType(accountType.value)||detectAccountType(name);
+
     const values={
       name,
       balance,
-      icon:accountIcon.value||"🏦",
+      accountType:selectedType,
+      icon:accountIcon.value||accountTypeIcon(selectedType),
       memo:accountMemo.value.trim()
     };
 
@@ -3479,7 +3585,8 @@ function editAccount(accountId){
   accountEditId.value=account.id;
   accountName.value=account.name;
   accountBalance.value=account.balance;
-  accountIcon.value=account.icon||"🏦";
+  accountType.value=detectAccountType(account.name,account.accountType);
+  accountIcon.value=account.icon||accountTypeIcon(accountType.value);
   accountMemo.value=account.memo||"";
   saveAccountButton.textContent="変更を保存";
   cancelAccountEdit.classList.remove("hidden");
@@ -3521,7 +3628,12 @@ savePurposeButton.onclick=()=>{
     const target=normalize(purposeTarget.value);
 
     if(!account){
-      alert("先に口座を追加してください");
+      alert("先に預金・現金の口座を追加してください");
+      return;
+    }
+
+    if(!isDepositAccount(account)){
+      alert("目的別の振り分けは預金・現金だけに設定できます");
       return;
     }
 
@@ -3615,88 +3727,184 @@ function deletePurpose(accountId,purposeId){
 function renderAssets(){
   if(!Array.isArray(data.bankAccounts))data.bankAccounts=clone(DEFAULT.bankAccounts);
 
+  data.bankAccounts.forEach(account=>{
+    account.accountType=detectAccountType(account.name,account.accountType);
+
+    if(!account.icon||["🏦","📮"].includes(account.icon)&&account.accountType!=="deposit"){
+      account.icon=accountTypeIcon(account.accountType);
+    }
+  });
+
   fillPurposeAccountOptions();
 
-  const totalBalance=data.bankAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
-  const totalAllocated=data.bankAccounts.reduce((sum,account)=>sum+totalPurposeAmount(account),0);
-  const totalUnallocated=totalBalance-totalAllocated;
-  const totalTarget=data.bankAccounts.reduce((sum,account)=>{
+  const depositAccounts=data.bankAccounts.filter(account=>account.accountType==="deposit");
+  const investmentAccounts=data.bankAccounts.filter(account=>account.accountType==="investment");
+  const pensionAccounts=data.bankAccounts.filter(account=>account.accountType==="pension");
+
+  const depositBalance=depositAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
+  const investmentBalance=investmentAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
+  const pensionBalance=pensionAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
+  const investmentTotal=investmentBalance+pensionBalance;
+  const totalBalance=depositBalance+investmentTotal;
+
+  const totalAllocated=depositAccounts.reduce((sum,account)=>sum+totalPurposeAmount(account),0);
+  const totalUnallocated=depositBalance-totalAllocated;
+  const totalTarget=depositAccounts.reduce((sum,account)=>{
     return sum+(account.purposes||[]).reduce((purposeSum,purpose)=>purposeSum+normalize(purpose.target),0);
   },0);
 
   assetSummary.innerHTML=`
-    <div class="asset-summary-card"><span>通帳残高の合計</span><strong>${yen(totalBalance)}</strong></div>
-    <div class="asset-summary-card"><span>目的別に確保済み</span><strong>${yen(totalAllocated)}</strong></div>
-    <div class="asset-summary-card"><span>まだ振り分けていない金額</span><strong class="${totalUnallocated>=0?"positive":"negative"}">${yen(totalUnallocated)}</strong></div>
-    <div class="asset-summary-card"><span>目標金額の合計</span><strong>${yen(totalTarget)}</strong></div>
+    <div class="asset-summary-card total-assets">
+      <span>総資産</span>
+      <strong>${yen(totalBalance)}</strong>
+    </div>
+
+    <div class="asset-summary-card deposit-assets">
+      <span>預金・現金</span>
+      <strong>${yen(depositBalance)}</strong>
+    </div>
+
+    <div class="asset-summary-card investment-assets">
+      <span>証券・iDeCo</span>
+      <strong>${yen(investmentTotal)}</strong>
+    </div>
+
+    <div class="asset-summary-card unallocated-assets">
+      <span>未振分（預金のみ）</span>
+      <strong class="${totalUnallocated>=0?"positive":"negative"}">${yen(totalUnallocated)}</strong>
+    </div>
+
+    <div class="asset-summary-note">
+      目的別確保済み ${yen(totalAllocated)}・目標合計 ${yen(totalTarget)}<br>
+      証券・iDeCoは総資産には含みますが、未振分金額には含めません。
+    </div>
   `;
 
-  accountCount.textContent=`${data.bankAccounts.length}口座`;
+  accountCount.textContent=`${data.bankAccounts.length}件`;
 
   if(!data.bankAccounts.length){
-    accountList.innerHTML='<div class="empty">口座を追加すると、目的別の残高を管理できます。</div>';
+    accountList.innerHTML='<div class="empty">口座や投資資産を追加すると、資産全体を管理できます。</div>';
     return;
   }
 
-  accountList.innerHTML=data.bankAccounts.map(account=>{
-    const allocated=totalPurposeAmount(account);
-    const unallocated=normalize(account.balance)-allocated;
+  const renderAccountCard=account=>{
+    const type=account.accountType;
+    const isDeposit=type==="deposit";
+    const allocated=isDeposit?totalPurposeAmount(account):0;
+    const unallocated=isDeposit?normalize(account.balance)-allocated:0;
 
-    const purposes=(account.purposes||[]).length
-      ?account.purposes.map(purpose=>{
-        const target=normalize(purpose.target);
-        const rate=target?Math.min(100,(normalize(purpose.amount)/target)*100):0;
+    const purposes=isDeposit
+      ?((account.purposes||[]).length
+        ?account.purposes.map(purpose=>{
+          const target=normalize(purpose.target);
+          const rate=target?Math.min(100,(normalize(purpose.amount)/target)*100):0;
 
-        return `
-          <div class="purpose-item">
-            <div class="purpose-top">
-              <div>
-                <div class="purpose-name">・${esc(purpose.name)}</div>
-                <div class="purpose-meta">${target?`目標 ${yen(target)}・達成 ${pct(rate)}`:"目標金額なし"}</div>
+          return `
+            <div class="purpose-item">
+              <div class="purpose-top">
+                <div>
+                  <div class="purpose-name">・${esc(purpose.name)}</div>
+                  <div class="purpose-meta">${target?`目標 ${yen(target)}・達成 ${pct(rate)}`:"目標金額なし"}</div>
+                </div>
+                <div class="purpose-amount">${yen(purpose.amount)}</div>
               </div>
-              <div class="purpose-amount">${yen(purpose.amount)}</div>
-            </div>
 
-            ${target?`<div class="purpose-progress"><div class="purpose-progress-bar" style="width:${rate}%"></div></div>`:""}
+              ${target?`<div class="purpose-progress"><div class="purpose-progress-bar" style="width:${rate}%"></div></div>`:""}
 
-            <div class="actions" style="margin-top:7px;">
-              <button class="btn outline small-btn" onclick="editPurpose('${esc(account.id)}','${esc(purpose.id)}')">編集</button>
-              <button class="btn danger small-btn" onclick="deletePurpose('${esc(account.id)}','${esc(purpose.id)}')">削除</button>
+              <div class="actions" style="margin-top:7px;">
+                <button class="btn outline small-btn" onclick="editPurpose('${esc(account.id)}','${esc(purpose.id)}')">編集</button>
+                <button class="btn danger small-btn" onclick="deletePurpose('${esc(account.id)}','${esc(purpose.id)}')">削除</button>
+              </div>
             </div>
-          </div>
-        `;
-      }).join("")
-      :'<div class="empty">目的別の金額はまだありません。</div>';
+          `;
+        }).join("")
+        :'<div class="empty">目的別の金額はまだありません。</div>')
+      :`<div class="investment-exclusion">
+          ${type==="pension"?"老後資金として運用中の資産です。":"運用中の投資資産です。"}<br>
+          目的別振分と未振分金額の計算には含めません。
+        </div>`;
+
+    const cardClass=type==="investment"
+      ?"account-card investment-card"
+      :type==="pension"
+        ?"account-card pension-card"
+        :"account-card";
 
     return `
-      <div class="account-card">
+      <div class="${cardClass}">
         <div class="account-head">
           <div class="account-title-row">
-            <div class="account-icon">${esc(account.icon||"🏦")}</div>
+            <div class="account-icon">${esc(account.icon||accountTypeIcon(type))}</div>
+
             <div>
               <div class="account-name">${esc(account.name)}</div>
-              <div class="account-meta">${account.memo?esc(account.memo):`${(account.purposes||[]).length}目的`}</div>
+              <span class="account-type-badge ${esc(type)}">${esc(accountTypeLabel(type))}</span>
+              <div class="account-meta">${account.memo?esc(account.memo):(isDeposit?`${(account.purposes||[]).length}目的`:"評価額・残高")}</div>
             </div>
+
             <div class="account-balance">${yen(account.balance)}</div>
           </div>
 
           <div class="actions" style="margin-top:8px;">
-            <button class="btn outline small-btn" onclick="editAccount('${esc(account.id)}')">残高編集</button>
-            <button class="btn danger small-btn" onclick="deleteAccount('${esc(account.id)}')">口座削除</button>
+            <button class="btn outline small-btn" onclick="editAccount('${esc(account.id)}')">${isDeposit?"残高編集":"評価額編集"}</button>
+            <button class="btn danger small-btn" onclick="deleteAccount('${esc(account.id)}')">削除</button>
           </div>
         </div>
 
         <div class="account-purpose-list">${purposes}</div>
 
-        <div class="account-footer">
-          <span class="small">目的別合計 ${yen(allocated)}</span>
-          <span class="account-unallocated ${unallocated>=0?"positive":"negative"}">未振分 ${yen(unallocated)}</span>
-        </div>
+        ${isDeposit
+          ?`<div class="account-footer">
+              <span class="small">目的別合計 ${yen(allocated)}</span>
+              <span class="account-unallocated ${unallocated>=0?"positive":"negative"}">未振分 ${yen(unallocated)}</span>
+            </div>`
+          :`<div class="investment-footer">
+              <span class="small">総資産には含む</span>
+              <span class="excluded-label">未振分から除外</span>
+            </div>`
+        }
       </div>
     `;
-  }).join("");
-}
+  };
 
+  const groups=[];
+
+  if(depositAccounts.length){
+    groups.push(`
+      <div class="asset-group-heading">
+        <span class="asset-group-title">🏦 預金・現金</span>
+        <span class="asset-group-total">${yen(depositBalance)}</span>
+      </div>
+      <div class="asset-group-note">目的別に分ける資金。未振分金額の計算対象です。</div>
+      ${depositAccounts.map(renderAccountCard).join("")}
+    `);
+  }
+
+  if(investmentAccounts.length){
+    groups.push(`
+      <div class="asset-group-heading">
+        <span class="asset-group-title">📈 証券・投資</span>
+        <span class="asset-group-total">${yen(investmentBalance)}</span>
+      </div>
+      <div class="asset-group-note">運用資産。未振分金額の計算対象外です。</div>
+      ${investmentAccounts.map(renderAccountCard).join("")}
+    `);
+  }
+
+  if(pensionAccounts.length){
+    groups.push(`
+      <div class="asset-group-heading">
+        <span class="asset-group-title">🧓 iDeCo・年金</span>
+        <span class="asset-group-total">${yen(pensionBalance)}</span>
+      </div>
+      <div class="asset-group-note">老後資産。未振分金額の計算対象外です。</div>
+      ${pensionAccounts.map(renderAccountCard).join("")}
+    `);
+  }
+
+  accountList.innerHTML=groups.join("");
+  save();
+}
 
 let movingItemId=null;
 
@@ -4282,7 +4490,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:17,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:18,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -4464,6 +4672,25 @@ initRender();
 - 総資産、合計、証券、ポイント、カード請求などを除外
 - 口座スクショ取込前へ戻す機能を追加
 - 月次スクショ、CSV、集計期間、資産、予算、年間、ライフプラン、設定を維持
+-->
+
+
+<!--
+変更履歴 v18
+- 資産を「預金・現金」「証券・投資」「iDeCo・年金」に分類
+- 楽天証券など証券名を投資資産として自動判定
+- iDeCo、確定拠出年金を年金資産として自動判定
+- 総資産は預金・証券・iDeCoをすべて合算
+- 未振分金額は預金・現金だけで計算
+- 証券・iDeCoを未振分金額から除外
+- 証券・iDeCoのカードに「未振分から除外」を明記
+- 資産一覧を種類ごとの見出しで分割
+- 口座追加・編集に資産の種類を追加
+- 目的別設定は預金・現金だけ選択可能
+- 口座スクショ読取で証券とiDeCoも取得可能
+- スクショ確認画面で資産の種類を変更可能
+- 既存の楽天証券・iDeCoデータを名称から自動移行
+- 月次スクショ、CSV、集計期間、予算、年間、ライフプラン、設定を維持
 -->
 
 </body>
