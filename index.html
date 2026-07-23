@@ -203,6 +203,32 @@
     .import-result{margin-top:11px;padding:11px;border-radius:13px;background:#fff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:11px;font-weight:800;line-height:1.7}
     .import-result strong{display:block;font-size:14px}
 
+    
+    .screenshot-import-card{border:2px solid #ddd6fe;background:linear-gradient(180deg,#fff,#f5f3ff)}
+    .screenshot-drop-zone{display:grid;place-items:center;gap:4px;padding:22px 12px;border:2px dashed #a78bfa;border-radius:15px;background:#fff;color:#5b21b6;text-align:center;cursor:pointer;outline:none}
+    .screenshot-drop-zone:focus,.screenshot-drop-zone.dragging{border-style:solid;background:#ede9fe;box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+    .screenshot-drop-zone strong{font-size:14px}
+    .screenshot-drop-zone span{color:#6b7280;font-size:10px;font-weight:700}
+    .screenshot-drop-icon{font-size:29px}
+    .screenshot-preview-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+    .screenshot-preview-item{position:relative;overflow:hidden;aspect-ratio:9/16;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .screenshot-preview-item img{width:100%;height:100%;object-fit:cover}
+    .screenshot-preview-number{position:absolute;top:5px;left:5px;padding:3px 6px;border-radius:999px;background:rgba(0,0,0,.68);color:#fff;font-size:9px;font-weight:900}
+    .ocr-progress-wrap{margin-top:12px;padding:11px;border:1px solid #ddd6fe;border-radius:13px;background:#fff}
+    .ocr-progress-track{height:9px;overflow:hidden;border-radius:999px;background:#e5e7eb}
+    .ocr-progress-bar{width:0;height:100%;border-radius:999px;background:#7c3aed;transition:width .15s ease}
+    .ocr-status{margin-top:6px;color:#5b21b6;font-size:10px;font-weight:800;text-align:center}
+    .screenshot-review-area{margin-top:13px;padding-top:12px;border-top:1px dashed #c4b5fd}
+    .review-title{margin:0;font-size:15px;font-weight:900}
+    .screenshot-review-list{display:grid;gap:9px;margin-top:11px}
+    .screenshot-review-row{padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .screenshot-review-grid{display:grid;grid-template-columns:minmax(0,1fr) 105px;gap:8px}
+    .screenshot-review-row .field{margin:0}
+    .screenshot-review-row select{margin-top:8px}
+    .screenshot-review-actions{display:flex;justify-content:flex-end;margin-top:7px}
+    .privacy-note{margin-top:10px;color:#6b7280;font-size:9px;font-weight:700;line-height:1.6;text-align:center}
+    @media(max-width:520px){.screenshot-preview-list{grid-template-columns:repeat(2,1fr)}.screenshot-review-grid{grid-template-columns:minmax(0,1fr) 96px}}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -378,6 +404,65 @@
 
       <div id="moneyForwardImportResult" class="import-result hidden"></div>
       <button id="undoMoneyForwardImport" class="btn outline hidden" type="button">CSV取込前に戻す</button>
+    </div>
+
+    <div class="card screenshot-import-card">
+      <div class="title-row">
+        <h2 class="title">スクショから入力</h2>
+        <span class="small">画像を選択・貼り付け</span>
+      </div>
+
+      <div class="import-explanation">
+        マネーフォワード MEの費目と金額が見えるスクショを読み取ります。反映前に、項目と金額を確認・修正できます。
+      </div>
+
+      <div id="screenshotDropZone" class="screenshot-drop-zone" tabindex="0" role="button">
+        <div class="screenshot-drop-icon">📷</div>
+        <strong>ここを押してスクショを選ぶ</strong>
+        <span>この枠を長押しして「貼り付け」でもOK</span>
+      </div>
+
+      <input id="moneyForwardScreenshotFiles" class="hidden" type="file" accept="image/*" multiple>
+
+      <div id="screenshotPreviewList" class="screenshot-preview-list hidden"></div>
+
+      <div id="screenshotOcrProgress" class="ocr-progress-wrap hidden">
+        <div class="ocr-progress-track"><div id="screenshotOcrProgressBar" class="ocr-progress-bar"></div></div>
+        <div id="screenshotOcrStatus" class="ocr-status">画像を準備しています…</div>
+      </div>
+
+      <div class="btn-row">
+        <button id="runScreenshotOcr" class="btn hidden" type="button">スクショを読み取る</button>
+        <button id="clearScreenshotImport" class="btn outline hidden" type="button">画像を取消</button>
+      </div>
+
+      <div id="screenshotReviewArea" class="screenshot-review-area hidden">
+        <div class="title-row">
+          <h3 class="review-title">読み取った内容を確認</h3>
+          <span id="screenshotReviewCount" class="small"></span>
+        </div>
+
+        <div class="field">
+          <label>反映方法</label>
+          <select id="screenshotImportMode">
+            <option value="replace">この期間の入力を置き換える</option>
+            <option value="add">現在の入力に加算する</option>
+          </select>
+        </div>
+
+        <div id="screenshotReviewList" class="screenshot-review-list"></div>
+
+        <div class="btn-row">
+          <button id="applyScreenshotImport" class="btn" type="button">確認した内容を入力する</button>
+          <button id="undoScreenshotImport" class="btn outline hidden" type="button">スクショ取込前に戻す</button>
+        </div>
+      </div>
+
+      <div id="screenshotImportMessage" class="import-result hidden"></div>
+
+      <div class="privacy-note">
+        画像の文字読み取りは端末内のブラウザで行います。初回は読み取り機能の読み込みに少し時間がかかります。
+      </div>
     </div>
 
     <div class="card">
@@ -782,6 +867,7 @@
 
 </main>
 
+<script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
 "use strict";
 const KEY="household_detail_v3";
@@ -886,7 +972,8 @@ const DEFAULT={
     lastAssetsUpdatedMonth:"",
     periodCorrectionV12Done:false,
     periodCorrectionV12Backup:null,
-    lastCsvImportBackup:null
+    lastCsvImportBackup:null,
+    lastScreenshotImportBackup:null
   }
 };
 let data=load();
@@ -1906,6 +1993,522 @@ undoMoneyForwardImport.onclick=()=>{
 
   moneyForwardImportResult.innerHTML="<strong>CSV取込前の状態に戻しました</strong>";
   undoMoneyForwardImport.classList.add("hidden");
+};
+
+
+let selectedScreenshotFiles=[];
+let screenshotPreviewUrls=[];
+let screenshotReviewRows=[];
+let screenshotOcrRunning=false;
+
+function normalizeOcrText(value){
+  return String(value||"")
+    .replace(/[０-９]/g,char=>String.fromCharCode(char.charCodeAt(0)-0xFEE0))
+    .replace(/[Ａ-Ｚａ-ｚ]/g,char=>String.fromCharCode(char.charCodeAt(0)-0xFEE0))
+    .replace(/[，]/g,",")
+    .replace(/[￥]/g,"¥")
+    .replace(/[ー―−]/g,"-")
+    .replace(/\u00a0/g," ")
+    .trim();
+}
+
+function cleanOcrLabel(value){
+  return normalizeOcrText(value)
+    .replace(/^[・●■□◆◇▶▷\-\s]+/,"")
+    .replace(/[¥￥]?\s*[-+]?\d[\d,.\s]*\s*円?.*$/,"")
+    .replace(/[|｜:：]+$/,"")
+    .replace(/\s{2,}/g," ")
+    .trim();
+}
+
+function shouldIgnoreOcrLabel(label){
+  const normalized=normalizedCategory(label);
+
+  if(!normalized)return true;
+
+  const ignoreExact=[
+    "支出","収入","合計","収支","残高","予算","前月","今月",
+    "支出合計","収入合計","総資産","家計簿","内訳","表示期間"
+  ];
+
+  if(ignoreExact.includes(normalized))return true;
+
+  return /前月比|達成率|残り|集計期間|年月日|グループ編集/.test(normalized);
+}
+
+function parseOcrMoney(value){
+  const normalized=normalizeOcrText(value)
+    .replace(/[¥円\s]/g,"")
+    .replace(/[,.](?=\d{3}(?:\D|$))/g,"")
+    .replace(/,/g,"")
+    .replace(/[oO]/g,"0");
+
+  const match=normalized.match(/[-+]?\d{2,}/);
+  if(!match)return 0;
+
+  const amount=Math.abs(Number(match[0]));
+  return Number.isFinite(amount)?Math.round(amount):0;
+}
+
+function extractScreenshotRows(text){
+  const rawLines=normalizeOcrText(text)
+    .split(/\r?\n/)
+    .map(line=>line.trim())
+    .filter(Boolean);
+
+  const found=[];
+  let previousTextLine="";
+
+  rawLines.forEach(line=>{
+    const moneyMatches=[...line.matchAll(/(?:¥\s*)?[-+]?\d[\d,.\s]{1,14}(?:円)?/g)];
+
+    if(!moneyMatches.length){
+      const possibleLabel=cleanOcrLabel(line);
+
+      if(possibleLabel&&!shouldIgnoreOcrLabel(possibleLabel)){
+        previousTextLine=possibleLabel;
+      }
+      return;
+    }
+
+    moneyMatches.forEach(match=>{
+      const amount=parseOcrMoney(match[0]);
+      if(!amount)return;
+
+      const before=line.slice(0,match.index).trim();
+      const after=line.slice((match.index||0)+match[0].length).trim();
+      let label=cleanOcrLabel(before||after||previousTextLine);
+
+      if(!label||shouldIgnoreOcrLabel(label))return;
+
+      // 日付・割合・時刻らしい数値を除外。
+      if(/^\d{1,4}[\/\-]\d{1,2}/.test(label))return;
+      if(/%|％/.test(line))return;
+
+      const mapped=findMoneyForwardItem({
+        major:label,
+        middle:label,
+        content:label,
+        amount
+      });
+
+      if(!mapped.item)return;
+
+      found.push({
+        id:"ocr_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+        label,
+        amount,
+        itemId:mapped.item.id,
+        fallback:mapped.fallback
+      });
+    });
+  });
+
+  const merged=new Map();
+
+  found.forEach(row=>{
+    const key=`${normalizedCategory(row.label)}||${row.itemId}`;
+
+    if(merged.has(key)){
+      merged.get(key).amount+=row.amount;
+    }else{
+      merged.set(key,{...row});
+    }
+  });
+
+  return [...merged.values()];
+}
+
+function screenshotItemOptions(selectedItemId){
+  return sortedItems().map(item=>{
+    const typeLabel=item.type==="income"
+      ?"収入"
+      :item.type==="investment"
+        ?"投資"
+        :"支出";
+
+    const selected=item.id===selectedItemId?" selected":"";
+
+    return `<option value="${esc(item.id)}"${selected}>${typeLabel}｜${esc(item.group)}${item.detail?` / ${esc(item.detail)}`:""}</option>`;
+  }).join("");
+}
+
+function renderScreenshotReview(){
+  screenshotReviewCount.textContent=`${screenshotReviewRows.length}件`;
+
+  if(!screenshotReviewRows.length){
+    screenshotReviewList.innerHTML='<div class="empty">費目と金額を読み取れませんでした。費目一覧と金額がはっきり見えるスクショを使用してください。</div>';
+    applyScreenshotImport.classList.add("hidden");
+    return;
+  }
+
+  applyScreenshotImport.classList.remove("hidden");
+
+  screenshotReviewList.innerHTML=screenshotReviewRows.map((row,index)=>`
+    <div class="screenshot-review-row" data-ocr-row="${index}">
+      <div class="screenshot-review-grid">
+        <div class="field">
+          <label>スクショの項目名</label>
+          <input data-ocr-label="${index}" value="${esc(row.label)}">
+        </div>
+
+        <div class="field">
+          <label>金額</label>
+          <input data-ocr-amount="${index}" type="number" min="0" inputmode="numeric" value="${row.amount}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>アプリの入力先</label>
+        <select data-ocr-item="${index}">${screenshotItemOptions(row.itemId)}</select>
+      </div>
+
+      <div class="screenshot-review-actions">
+        <button class="btn danger small-btn" data-remove-ocr-row="${index}" type="button">この行を除外</button>
+      </div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-remove-ocr-row]").forEach(button=>{
+    button.onclick=()=>{
+      const index=Number(button.dataset.removeOcrRow);
+      screenshotReviewRows.splice(index,1);
+      renderScreenshotReview();
+    };
+  });
+}
+
+function clearScreenshotPreviewUrls(){
+  screenshotPreviewUrls.forEach(url=>URL.revokeObjectURL(url));
+  screenshotPreviewUrls=[];
+}
+
+function clearScreenshotSelection({keepMessage=false}={}){
+  clearScreenshotPreviewUrls();
+  selectedScreenshotFiles=[];
+  screenshotReviewRows=[];
+  moneyForwardScreenshotFiles.value="";
+  screenshotPreviewList.innerHTML="";
+  screenshotPreviewList.classList.add("hidden");
+  screenshotOcrProgress.classList.add("hidden");
+  screenshotReviewArea.classList.add("hidden");
+  runScreenshotOcr.classList.add("hidden");
+  clearScreenshotImport.classList.add("hidden");
+  screenshotOcrProgressBar.style.width="0%";
+  screenshotOcrStatus.textContent="画像を準備しています…";
+
+  if(!keepMessage){
+    screenshotImportMessage.classList.add("hidden");
+    screenshotImportMessage.innerHTML="";
+  }
+}
+
+function setScreenshotFiles(files){
+  const imageFiles=[...files].filter(file=>file&&String(file.type).startsWith("image/")).slice(0,6);
+
+  if(!imageFiles.length){
+    alert("画像ファイルを選んでください");
+    return;
+  }
+
+  clearScreenshotPreviewUrls();
+  selectedScreenshotFiles=imageFiles;
+  screenshotReviewRows=[];
+
+  screenshotPreviewList.innerHTML=imageFiles.map((file,index)=>{
+    const url=URL.createObjectURL(file);
+    screenshotPreviewUrls.push(url);
+
+    return `
+      <div class="screenshot-preview-item">
+        <img src="${esc(url)}" alt="スクリーンショット ${index+1}">
+        <span class="screenshot-preview-number">${index+1}枚目</span>
+      </div>
+    `;
+  }).join("");
+
+  screenshotPreviewList.classList.remove("hidden");
+  runScreenshotOcr.classList.remove("hidden");
+  clearScreenshotImport.classList.remove("hidden");
+  screenshotReviewArea.classList.add("hidden");
+  screenshotImportMessage.classList.add("hidden");
+}
+
+function readImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=()=>reject(new Error("画像を読み込めませんでした"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadBrowserImage(source){
+  return new Promise((resolve,reject)=>{
+    const image=new Image();
+
+    image.onload=()=>resolve(image);
+    image.onerror=()=>reject(new Error("画像を表示できませんでした"));
+    image.src=source;
+  });
+}
+
+async function preprocessScreenshot(file){
+  const dataUrl=await readImageFile(file);
+  const image=await loadBrowserImage(dataUrl);
+
+  const maxWidth=1900;
+  const baseScale=image.naturalWidth<1200?1.6:1.2;
+  const scale=Math.min(baseScale,maxWidth/image.naturalWidth);
+  const width=Math.max(1,Math.round(image.naturalWidth*scale));
+  const height=Math.max(1,Math.round(image.naturalHeight*scale));
+
+  const canvas=document.createElement("canvas");
+  canvas.width=width;
+  canvas.height=height;
+
+  const context=canvas.getContext("2d",{willReadFrequently:false});
+  context.imageSmoothingEnabled=true;
+  context.imageSmoothingQuality="high";
+  context.filter="grayscale(1) contrast(1.25)";
+  context.drawImage(image,0,0,width,height);
+
+  return canvas.toDataURL("image/png");
+}
+
+function updateScreenshotOcrProgress(fileIndex,fileCount,message){
+  const progress=Math.max(0,Math.min(1,Number(message.progress)||0));
+  const completedFraction=(fileIndex+progress)/fileCount;
+  screenshotOcrProgressBar.style.width=`${Math.round(completedFraction*100)}%`;
+
+  const statusLabels={
+    "loading tesseract core":"読み取り機能を準備中",
+    "initializing tesseract":"読み取り機能を初期化中",
+    "loading language traineddata":"日本語データを読み込み中",
+    "initializing api":"日本語を準備中",
+    "recognizing text":"文字を読み取り中"
+  };
+
+  const status=statusLabels[message.status]||"画像を解析中";
+  screenshotOcrStatus.textContent=`${fileIndex+1}/${fileCount}枚目：${status} ${Math.round(progress*100)}%`;
+}
+
+async function recognizeScreenshotFiles(){
+  if(screenshotOcrRunning||!selectedScreenshotFiles.length)return;
+
+  if(!window.Tesseract||typeof window.Tesseract.recognize!=="function"){
+    throw new Error("文字読み取り機能を読み込めませんでした。インターネット接続を確認して、ページを再読み込みしてください。");
+  }
+
+  screenshotOcrRunning=true;
+  runScreenshotOcr.disabled=true;
+  screenshotOcrProgress.classList.remove("hidden");
+  screenshotReviewArea.classList.add("hidden");
+  screenshotImportMessage.classList.add("hidden");
+  screenshotOcrProgressBar.style.width="0%";
+
+  try{
+    const allRows=[];
+
+    for(let index=0;index<selectedScreenshotFiles.length;index++){
+      const processedImage=await preprocessScreenshot(selectedScreenshotFiles[index]);
+
+      const result=await window.Tesseract.recognize(
+        processedImage,
+        "jpn+eng",
+        {
+          logger:message=>updateScreenshotOcrProgress(index,selectedScreenshotFiles.length,message)
+        }
+      );
+
+      allRows.push(...extractScreenshotRows(result?.data?.text||""));
+    }
+
+    const mergedByItemAndLabel=new Map();
+
+    allRows.forEach(row=>{
+      const key=`${normalizedCategory(row.label)}||${row.itemId}`;
+
+      if(mergedByItemAndLabel.has(key)){
+        mergedByItemAndLabel.get(key).amount+=row.amount;
+      }else{
+        mergedByItemAndLabel.set(key,{...row});
+      }
+    });
+
+    screenshotReviewRows=[...mergedByItemAndLabel.values()]
+      .sort((a,b)=>b.amount-a.amount);
+
+    screenshotOcrProgressBar.style.width="100%";
+    screenshotOcrStatus.textContent="読み取り完了。項目と金額を確認してください。";
+    screenshotReviewArea.classList.remove("hidden");
+    renderScreenshotReview();
+
+    if(!screenshotReviewRows.length){
+      screenshotImportMessage.classList.remove("hidden");
+      screenshotImportMessage.innerHTML="<strong>費目と金額を確認できませんでした</strong>マネーフォワードの費目一覧と金額が見える画面を、明るく鮮明に撮影してください。";
+    }
+  }finally{
+    screenshotOcrRunning=false;
+    runScreenshotOcr.disabled=false;
+  }
+}
+
+screenshotDropZone.onclick=()=>{
+  moneyForwardScreenshotFiles.click();
+};
+
+screenshotDropZone.onkeydown=event=>{
+  if(event.key==="Enter"||event.key===" "){
+    event.preventDefault();
+    moneyForwardScreenshotFiles.click();
+  }
+};
+
+screenshotDropZone.ondragover=event=>{
+  event.preventDefault();
+  screenshotDropZone.classList.add("dragging");
+};
+
+screenshotDropZone.ondragleave=()=>{
+  screenshotDropZone.classList.remove("dragging");
+};
+
+screenshotDropZone.ondrop=event=>{
+  event.preventDefault();
+  screenshotDropZone.classList.remove("dragging");
+  setScreenshotFiles(event.dataTransfer?.files||[]);
+};
+
+screenshotDropZone.addEventListener("paste",event=>{
+  const files=[...(event.clipboardData?.items||[])]
+    .filter(item=>item.type.startsWith("image/"))
+    .map(item=>item.getAsFile())
+    .filter(Boolean);
+
+  if(files.length){
+    event.preventDefault();
+    setScreenshotFiles(files);
+  }
+});
+
+document.addEventListener("paste",event=>{
+  const inputPage=document.getElementById("input");
+
+  if(!inputPage||inputPage.classList.contains("hidden"))return;
+  if(document.activeElement&&["INPUT","TEXTAREA"].includes(document.activeElement.tagName))return;
+
+  const files=[...(event.clipboardData?.items||[])]
+    .filter(item=>item.type.startsWith("image/"))
+    .map(item=>item.getAsFile())
+    .filter(Boolean);
+
+  if(files.length){
+    event.preventDefault();
+    setScreenshotFiles(files);
+  }
+});
+
+moneyForwardScreenshotFiles.onchange=()=>{
+  setScreenshotFiles(moneyForwardScreenshotFiles.files||[]);
+};
+
+runScreenshotOcr.onclick=async()=>{
+  try{
+    await recognizeScreenshotFiles();
+  }catch(error){
+    screenshotOcrProgress.classList.remove("hidden");
+    screenshotOcrStatus.textContent="読み取りに失敗しました";
+    screenshotImportMessage.classList.remove("hidden");
+    screenshotImportMessage.innerHTML=`<strong>読み取れませんでした</strong>${esc(error.message||"スクショを確認してください")}`;
+  }
+};
+
+clearScreenshotImport.onclick=()=>{
+  clearScreenshotSelection();
+};
+
+applyScreenshotImport.onclick=()=>{
+  const rows=[];
+
+  document.querySelectorAll("[data-ocr-row]").forEach(container=>{
+    const index=Number(container.dataset.ocrRow);
+    const labelInput=container.querySelector(`[data-ocr-label="${index}"]`);
+    const amountInput=container.querySelector(`[data-ocr-amount="${index}"]`);
+    const itemSelect=container.querySelector(`[data-ocr-item="${index}"]`);
+
+    const amount=normalize(amountInput?.value);
+    const itemId=itemSelect?.value||"";
+
+    if(amount&&itemId){
+      rows.push({
+        label:labelInput?.value.trim()||"",
+        amount,
+        itemId
+      });
+    }
+  });
+
+  if(!rows.length){
+    alert("入力する項目がありません");
+    return;
+  }
+
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+
+  data.usage.lastScreenshotImportBackup={
+    monthKey:data.selectedMonth,
+    values:clone(data.monthly[data.selectedMonth]||{}),
+    importedAt:new Date().toISOString()
+  };
+
+  const mode=screenshotImportMode.value;
+  const nextValues=mode==="add"
+    ?clone(data.monthly[data.selectedMonth]||{})
+    :Object.fromEntries(sortedItems().map(item=>[item.id,0]));
+
+  rows.forEach(row=>{
+    nextValues[row.itemId]=normalize(nextValues[row.itemId])+row.amount;
+  });
+
+  data.monthly[data.selectedMonth]=nextValues;
+  save();
+
+  renderInputs();
+  renderHome();
+
+  screenshotImportMessage.classList.remove("hidden");
+  screenshotImportMessage.innerHTML=`
+    <strong>${rows.length}項目を${mode==="add"?"加算":"入力"}しました</strong>
+    ${salaryPeriodRange(data.selectedMonth)}へ反映済みです。
+  `;
+
+  undoScreenshotImport.classList.remove("hidden");
+};
+
+undoScreenshotImport.onclick=()=>{
+  const backup=data.usage?.lastScreenshotImportBackup;
+
+  if(!backup){
+    alert("元に戻せるスクショ取込がありません");
+    return;
+  }
+
+  data.monthly[backup.monthKey]=clone(backup.values||{});
+  data.selectedMonth=backup.monthKey;
+  data.usage.lastScreenshotImportBackup=null;
+  save();
+
+  homeMonth.value=data.selectedMonth;
+  inputMonth.value=data.selectedMonth;
+  updatePeriodDisplay(data.selectedMonth);
+  renderInputs();
+  renderHome();
+
+  screenshotImportMessage.classList.remove("hidden");
+  screenshotImportMessage.innerHTML="<strong>スクショ取込前の状態に戻しました</strong>";
+  undoScreenshotImport.classList.add("hidden");
 };
 
 saveMonth.onclick=()=>{
@@ -3040,7 +3643,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:14,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:15,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -3174,6 +3777,22 @@ initRender();
 - メニュー内の予算、年間、項目設定への遷移を再確認
 - 各詳細画面からメニューへ戻る動作を再確認
 - 土日祝日調整、CSV取込、資産、予算、年間、ライフプラン機能を維持
+-->
+
+
+<!--
+変更履歴 v15
+- 月次入力に「スクショから入力」を追加
+- スクショの選択、ドラッグ＆ドロップ、クリップボード貼り付けに対応
+- 端末内ブラウザで日本語OCRを実行
+- 複数スクショを最大6枚までまとめて読み取り
+- 認識した費目名と金額を自動抽出
+- マネーフォワードの費目名から既存の家計項目へ自動割当
+- 反映前に費目名、金額、入力先を修正できる確認画面を追加
+- 現在データの置換または加算を選択可能
+- 読み取り行の除外に対応
+- スクショ取込前へ戻す機能を追加
+- CSV取込、土日祝日設定、月次、資産、予算、年間、ライフプラン、設定を維持
 -->
 
 </body>
