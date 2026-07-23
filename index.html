@@ -824,7 +824,9 @@ const DEFAULT={
     }
   ],
   usage:{
-    lastAssetsUpdatedMonth:""
+    lastAssetsUpdatedMonth:"",
+    periodCorrectionV12Done:false,
+    periodCorrectionV12Backup:null
   }
 };
 let data=load();
@@ -935,6 +937,64 @@ function migrate(v){
   };
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+
+function hasPeriodValues(periodValues){
+  return Object.values(periodValues||{}).some(value=>normalize(value)>0);
+}
+
+function correctMisassignedPeriodData(){
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+
+  if(data.usage.periodCorrectionV12Done){
+    return {moved:false};
+  }
+
+  const sourceKey="2026-06";
+  const targetKey="2026-05";
+  const sourceValues=data.monthly?.[sourceKey]||{};
+  const targetValues=data.monthly?.[targetKey]||{};
+  const sourceHasData=hasPeriodValues(sourceValues);
+
+  data.usage.periodCorrectionV12Backup={
+    sourceKey,
+    targetKey,
+    sourceValues:clone(sourceValues),
+    targetValues:clone(targetValues),
+    correctedAt:new Date().toISOString()
+  };
+
+  if(sourceHasData){
+    const merged={...targetValues};
+
+    Object.entries(sourceValues).forEach(([itemId,value])=>{
+      const normalizedValue=normalize(value);
+
+      if(normalizedValue>0||!(itemId in merged)){
+        merged[itemId]=normalizedValue;
+      }
+    });
+
+    data.monthly[targetKey]=merged;
+    delete data.monthly[sourceKey];
+
+    if(data.selectedMonth===sourceKey){
+      data.selectedMonth=targetKey;
+    }
+
+    if(data.usage.lastAssetsUpdatedMonth===sourceKey){
+      data.usage.lastAssetsUpdatedMonth=targetKey;
+    }
+  }
+
+  data.usage.periodCorrectionV12Done=true;
+  save();
+
+  return {
+    moved:sourceHasData,
+    sourceKey,
+    targetKey
+  };
+}
 function sortedItems(){return [...data.items].sort((a,b)=>(a.order||0)-(b.order||0))}
 function values(month){return data.monthly[month]||{}}
 function amount(month,itemId){return normalize(values(month)[itemId]||0)}
@@ -2292,15 +2352,19 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:11,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:12,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
 function initRender(){
+  const correction=correctMisassignedPeriodData();
+
   cleanupEmptyDuplicateItems();
+
   homeMonth.value=data.selectedMonth;
   inputMonth.value=data.selectedMonth;
   annualYear.value=data.annualYear;
+
   updatePeriodDisplay(data.selectedMonth);
   renderHome();
   renderInputs();
@@ -2309,6 +2373,12 @@ function initRender(){
   renderLifePlan();
   renderAssets();
   renderSettings();
+
+  if(correction.moved){
+    setTimeout(()=>{
+      alert("入力済みの家計データを、6月25日〜7月24日から5月25日〜6月24日へ移動しました。");
+    },150);
+  }
 }
 initRender();
 </script>
@@ -2374,6 +2444,18 @@ initRender();
 - 過去期間の選択と現在期間の案内を明確に分離
 - 保存ボタンを「この期間を保存」に統一
 - 更新状況の文言を収入・支出、通帳残高に具体化
+- 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
+-->
+
+
+<!--
+変更履歴 v12
+- 入力済みの2026年6月25日〜7月24日分を2026年5月25日〜6月24日分へ自動移動
+- 移動は初回起動時の1回だけ実行
+- 移動前の両期間データを内部バックアップ
+- 移動先に既存データがある場合は、入力済みの値を安全に統合
+- 選択中期間と資産更新月も同時に1期間前へ修正
+- 年間実績への集計位置も自動的に修正
 - 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
 -->
 
