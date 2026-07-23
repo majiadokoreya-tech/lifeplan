@@ -137,11 +137,14 @@
     .quick-purpose{border:1px solid #fed7aa;border-radius:999px;padding:7px 10px;background:var(--main-soft);color:#9a3412;font-size:11px;font-weight:900}
 
     
-    .routine-card{border:2px solid #fed7aa;background:linear-gradient(180deg,#fff,#fff7ed)}
-    .routine-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
-    .routine-title{margin:0;font-size:18px;font-weight:900}
-    .routine-sub{margin:3px 0 0;color:var(--muted);font-size:11px}
-    .routine-count{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#fff;color:#9a3412;font-size:11px;font-weight:900;border:1px solid #fed7aa}
+    .routine-card{border:2px solid #fb923c;background:linear-gradient(180deg,#fff,#fff7ed)}
+    .current-period-label{color:#9a3412;font-size:12px;font-weight:900;text-align:center}
+    .current-period-range{margin-top:3px;color:#7c2d12;font-size:27px;font-weight:950;line-height:1.25;text-align:center;letter-spacing:-.03em}
+    .current-period-note{margin-top:5px;color:#57534e;font-size:11px;font-weight:800;text-align:center}
+    .next-action-area{margin-top:14px;padding-top:13px;border-top:1px dashed #fdba74}
+    .next-action-label{margin-bottom:7px;color:#171717;font-size:13px;font-weight:900}
+    .routine-status-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 8px}
+    .routine-count{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:#fff;color:#9a3412;font-size:10px;font-weight:900;border:1px solid #fed7aa}
     .routine-steps{display:grid;gap:8px;margin-bottom:11px}
     .routine-step{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}
     .routine-number{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#e5e7eb;color:#525252;font-weight:900}
@@ -166,22 +169,29 @@
     
     .period-banner{
       margin-top:9px;
-      padding:10px 12px;
-      border:1px solid #fed7aa;
-      border-radius:13px;
+      padding:13px 12px;
+      border:2px solid #fdba74;
+      border-radius:14px;
       background:var(--main-soft);
-      color:#9a3412;
+      color:#7c2d12;
       text-align:center;
-      font-size:12px;
-      font-weight:900;
+      font-size:21px;
+      font-weight:950;
+      line-height:1.25;
+      letter-spacing:-.02em;
     }
     .period-banner span{
       display:block;
-      margin-top:2px;
+      margin-top:4px;
       color:#c2410c;
-      font-size:10px;
-      font-weight:700;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:0;
     }
+    .period-note{margin-top:6px;color:var(--muted);font-size:10px;font-weight:700;text-align:center}
+    .input-period-card{border:2px solid #fb923c;background:linear-gradient(180deg,#fff,#fff7ed)}
+    .input-period-range{margin-top:4px;color:#7c2d12;font-size:28px;font-weight:950;line-height:1.25;text-align:center;letter-spacing:-.03em}
+    .period-change-label{margin:15px 0 7px;padding-top:12px;border-top:1px dashed #fdba74;color:#57534e;font-size:11px;font-weight:900;text-align:center}
 
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
@@ -233,7 +243,7 @@
 <header class="app-header">
   <div class="header-inner">
     <div><h1 class="app-title">家計・ライフプラン</h1><p class="app-sub">毎月1回、入力 → 資産更新 → 確認</p></div>
-    <button id="monthChip" class="month-chip" type="button"></button>
+    <button id="monthChip" class="month-chip" type="button" title="現在の家計期間へ戻る"></button>
   </div>
 </header>
 <main>
@@ -247,11 +257,17 @@
 
   <section id="home" class="page">
     <div class="card routine-card">
-      <div class="routine-head">
-        <div>
-          <h2 class="routine-title">今月はこの2つだけ</h2>
-          <p id="routineMonthText" class="routine-sub"></p>
-        </div>
+      <div class="current-period-label">現在入力する家計期間</div>
+      <div id="routinePeriodRange" class="current-period-range"></div>
+      <div id="routinePeriodNote" class="current-period-note"></div>
+
+      <div class="next-action-area">
+        <div class="next-action-label">次にすること</div>
+        <button id="nextActionButton" class="btn" type="button">この期間の収入・支出を入力する</button>
+      </div>
+
+      <div class="routine-status-head">
+        <strong>この期間の更新状況</strong>
         <span id="routineCount" class="routine-count">0/2 完了</span>
       </div>
 
@@ -259,8 +275,8 @@
         <div id="monthlyRoutineStep" class="routine-step">
           <div class="routine-number">1</div>
           <div>
-            <div class="routine-step-title">家計実績を入力</div>
-            <div class="routine-step-note">25日〜翌24日の合計を転記</div>
+            <div class="routine-step-title">収入・支出を保存</div>
+            <div class="routine-step-note">上に表示された期間の合計を入力</div>
           </div>
           <span id="monthlyRoutineStatus" class="routine-status">未入力</span>
         </div>
@@ -268,20 +284,19 @@
         <div id="assetRoutineStep" class="routine-step">
           <div class="routine-number">2</div>
           <div>
-            <div class="routine-step-title">通帳残高を更新</div>
-            <div class="routine-step-note">口座の現在残高だけ直す</div>
+            <div class="routine-step-title">通帳残高を最新にする</div>
+            <div class="routine-step-note">現在の口座残高だけ更新</div>
           </div>
           <span id="assetRoutineStatus" class="routine-status">未更新</span>
         </div>
       </div>
 
-      <button id="nextActionButton" class="btn" type="button">今月の家計を入力する</button>
-      <div class="routine-help">予算やライフプランは毎月触らなくても大丈夫です。</div>
+      <div class="routine-help">予算やライフプランは、金額や予定が変わったときだけ確認します。</div>
     </div>
     <div class="card">
-      <div class="title-row"><h2 class="title">給与月を選択</h2><span class="small">25日〜翌月24日</span></div>
+      <div class="title-row"><h2 class="title">過去・別の期間を見る</h2><span class="small">開始月を選択</span></div>
       <div class="month-nav"><button id="homePrev">‹</button><input id="homeMonth" type="month"><button id="homeNext">›</button></div>
-      <div id="homePeriodRange" class="period-banner"></div>
+      <div id="homePeriodRange" class="period-banner"></div><div id="homePeriodNote" class="period-note"></div>
     </div>
     <div id="homeResultCard" class="card">
       <div class="title-row"><h2 id="homeResultTitle" class="title">給与期間の家計</h2><button id="goInput" class="btn outline small-btn">入力・編集</button></div>
@@ -333,10 +348,13 @@
   </section>
 
   <section id="input" class="page hidden">
-    <div class="card">
-      <div class="title-row"><h2 class="title">給与月を選択</h2><span class="small">25日〜翌月24日</span></div>
-      <div class="month-nav"><button id="inputPrev">‹</button><input id="inputMonth" type="month"><button id="inputNext">›</button></div>
-      <div id="inputPeriodRange" class="period-banner"></div>
+    <div class="card input-period-card">
+      <div class="current-period-label">いま入力する期間</div>
+      <div id="inputPeriodRange" class="input-period-range"></div>
+      <div id="inputPeriodNote" class="current-period-note"></div>
+
+      <div class="period-change-label">別の期間に変更</div>
+      <div class="month-nav"><button id="inputPrev" type="button">‹</button><input id="inputMonth" type="month"><button id="inputNext" type="button">›</button></div>
     </div>
     <div class="card">
       <div class="title-row"><h2 id="inputPeriodTitle" class="title">給与期間を入力</h2><span class="small">項目別の合計額だけ</span></div>
@@ -850,13 +868,22 @@ function salaryMonthShort(key){
 
 function salaryPeriodRange(key){
   const {start,end}=salaryPeriodDates(key);
-  const sameYear=start.getFullYear()===end.getFullYear();
+  const startText=`${start.getFullYear()}年${start.getMonth()+1}月25日`;
+  const endText=start.getFullYear()===end.getFullYear()
+    ?`${end.getMonth()+1}月24日`
+    :`${end.getFullYear()}年${end.getMonth()+1}月24日`;
 
-  if(sameYear){
-    return `${start.getMonth()+1}月25日〜${end.getMonth()+1}月24日`;
-  }
+  return `${startText}〜${endText}`;
+}
 
-  return `${start.getFullYear()}年${start.getMonth()+1}月25日〜${end.getFullYear()}年${end.getMonth()+1}月24日`;
+function salaryPeriodCompact(key){
+  const {start,end}=salaryPeriodDates(key);
+  return `${start.getMonth()+1}/25〜${end.getMonth()+1}/24`;
+}
+
+function salaryPaydayNote(key){
+  const [year,month]=key.split("-").map(Number);
+  return `${year}年${month}月25日に入った給料で生活する期間`;
 }
 
 function salaryPeriodFullLabel(key){
@@ -924,14 +951,17 @@ function grouped(typeFilter=null){
 function updatePeriodDisplay(monthKey){
   const title=salaryMonthTitle(monthKey);
   const range=salaryPeriodRange(monthKey);
+  const note=salaryPaydayNote(monthKey);
 
-  monthChip.textContent=salaryMonthShort(monthKey);
-  homePeriodRange.innerHTML=`${title}<span>${range}</span>`;
-  inputPeriodRange.innerHTML=`${title}<span>${range}</span>`;
-  homeResultTitle.textContent=`${salaryMonthShort(monthKey)}の家計`;
-  inputPeriodTitle.textContent=`${salaryMonthShort(monthKey)}を入力`;
-  saveMonth.textContent=`${salaryMonthShort(monthKey)}を保存`;
-  clearMonth.textContent=`${salaryMonthShort(monthKey)}を削除`;
+  monthChip.textContent=salaryPeriodCompact(monthKey);
+  homePeriodRange.innerHTML=`${range}<span>${title}</span>`;
+  homePeriodNote.textContent=note;
+  inputPeriodRange.textContent=range;
+  inputPeriodNote.textContent=note;
+  homeResultTitle.textContent=`${range}の家計`;
+  inputPeriodTitle.textContent=`この期間の金額を入力`;
+  saveMonth.textContent=`この期間を保存`;
+  clearMonth.textContent=`この期間を削除`;
 }
 
 function setMonth(m){
@@ -1033,7 +1063,8 @@ function renderUsageGuide(){
   const assetsUpdated=data.usage.lastAssetsUpdatedMonth===monthKey;
   const completed=(hasMonthlyData?1:0)+(assetsUpdated?1:0);
 
-  routineMonthText.textContent=`${salaryPeriodFullLabel(monthKey)}の更新状況`;
+  routinePeriodRange.textContent=salaryPeriodRange(monthKey);
+  routinePeriodNote.textContent=salaryPaydayNote(monthKey);
   routineCount.textContent=`${completed}/2 完了`;
 
   monthlyRoutineStep.classList.toggle("done",hasMonthlyData);
@@ -1045,7 +1076,7 @@ function renderUsageGuide(){
   nextActionButton.disabled=false;
 
   if(!hasMonthlyData){
-    nextActionButton.textContent="1. 今月の家計を入力する";
+    nextActionButton.textContent="この期間の収入・支出を入力する";
     nextActionButton.onclick=()=>{
       setMonth(monthKey);
       activate("input");
@@ -1054,12 +1085,12 @@ function renderUsageGuide(){
   }
 
   if(!assetsUpdated){
-    nextActionButton.textContent="2. 通帳残高を更新する";
+    nextActionButton.textContent="通帳残高を最新にする";
     nextActionButton.onclick=()=>activate("assets");
     return;
   }
 
-  nextActionButton.textContent="今月の更新完了・結果を見る";
+  nextActionButton.textContent="更新完了・この期間の結果を見る";
   nextActionButton.onclick=()=>{
     setMonth(monthKey);
     activate("home");
@@ -2261,7 +2292,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:10,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:11,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -2329,6 +2360,20 @@ initRender();
 - 月次保存・削除メッセージに対象期間を表示
 - 年間集計を1月給与分〜12月給与分の基準に変更
 - 今月やることの判定も給与期間基準へ変更
+- 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
+-->
+
+
+<!--
+変更履歴 v11
+- 曖昧な月次案内を廃止し「次にすること」へ変更
+- ホーム最上部に現在入力する開始日・終了日を大きく表示
+- 月次入力画面にも対象期間を最上部へ大きく表示
+- 「○月25日に入った給料で生活する期間」と説明を追加
+- ヘッダーにも「7/25〜8/24」のように期間を表示
+- 過去期間の選択と現在期間の案内を明確に分離
+- 保存ボタンを「この期間を保存」に統一
+- 更新状況の文言を収入・支出、通帳残高に具体化
 - 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
 -->
 
