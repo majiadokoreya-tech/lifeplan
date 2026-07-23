@@ -790,6 +790,9 @@ const DEFAULT_PERIOD_SETTINGS={
   holidayRule:"previousBusinessDay"
 };
 let runtimePeriodSettings={...DEFAULT_PERIOD_SETTINGS};
+
+// DEFAULT作成時にcurrentMonth()が呼ばれるため、祝日キャッシュを先に初期化する。
+const japaneseHolidayCache=new Map();
 const GROUP_COLORS={"収入":"#2563eb","住宅":"#34a77b","食費":"#ef4444","水道光熱費":"#eab308","教養・教育":"#6b82c4","自動車":"#52525b","日用品":"#86c995","保険":"#0f766e","通信費":"#9333ea","衣服・美容":"#f8b84e","健康・医療":"#ec4899","交通費":"#64748b","趣味・娯楽":"#db3f82","交際費":"#f97316","その他":"#a8a29e","株式投資":"#16a34a"};
 const DEFAULT_ITEMS=[
 ["income_papa","income","収入","パパ","収入・予算内","💰","#2563eb"],
@@ -942,8 +945,6 @@ function vernalEquinoxDay(year){
 function autumnalEquinoxDay(year){
   return Math.floor(23.2488+0.242194*(year-1980)-Math.floor((year-1980)/4));
 }
-
-const japaneseHolidayCache=new Map();
 
 function buildJapaneseHolidaySet(year){
   if(japaneseHolidayCache.has(year))return japaneseHolidayCache.get(year);
@@ -1305,7 +1306,11 @@ function activate(tab){
 
   window.scrollTo({top:0,behavior:"smooth"});
 }
-document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>activate(b.dataset.tab));
+document.querySelectorAll(".tab").forEach(button=>{
+  button.addEventListener("click",()=>{
+    activate(button.dataset.tab);
+  });
+});
 homePrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));homeNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
 inputPrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));inputNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
 homeMonth.onchange=()=>setMonth(homeMonth.value);
@@ -3035,7 +3040,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:13,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:14,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -3157,6 +3162,18 @@ initRender();
 - 大項目・中項目・内容から既存の家計項目へ自動振り分け
 - CSV取込前へ戻す機能を追加
 - 既存の月次、資産、予算、年間、ライフプラン、設定機能を維持
+-->
+
+
+<!--
+変更履歴 v14
+- 画面起動時に停止していた祝日キャッシュの初期化順序を修正
+- タブが押しても反応しない致命的なJavaScriptエラーを解消
+- タブのクリック処理をaddEventListener方式へ変更
+- ホーム、月次入力、資産、プラン、メニューの画面切替を再確認
+- メニュー内の予算、年間、項目設定への遷移を再確認
+- 各詳細画面からメニューへ戻る動作を再確認
+- 土日祝日調整、CSV取込、資産、予算、年間、ライフプラン機能を維持
 -->
 
 </body>
