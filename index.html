@@ -22,7 +22,7 @@
     .app-title{margin:0;font-size:23px;font-weight:900}.app-sub{margin:2px 0 0;color:var(--muted);font-size:12px}
     .month-chip{border:0;border-radius:999px;padding:9px 12px;background:var(--main-soft);color:var(--main-dark);font-size:13px;font-weight:900}
     main{width:min(100%,1100px);margin:auto;padding:14px 14px 100px}
-    .tabs{position:sticky;top:71px;z-index:30;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:14px;padding:8px;background:rgba(245,246,248,.96);backdrop-filter:blur(10px);border-radius:16px}
+    .tabs{position:sticky;top:71px;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;padding:8px;background:rgba(245,246,248,.96);backdrop-filter:blur(10px);border-radius:16px}
     .tab{border:0;border-radius:12px;padding:10px 4px;background:#e5e7eb;color:#525252;font-size:12px;font-weight:900}
     .tab.active{background:var(--main);color:#fff;box-shadow:0 5px 12px rgba(249,115,22,.25)}
     .hidden{display:none!important}.card{margin-bottom:14px;padding:16px;background:var(--card);border:1px solid rgba(229,231,235,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
@@ -136,6 +136,33 @@
     .quick-purpose-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
     .quick-purpose{border:1px solid #fed7aa;border-radius:999px;padding:7px 10px;background:var(--main-soft);color:#9a3412;font-size:11px;font-weight:900}
 
+    
+    .routine-card{border:2px solid #fed7aa;background:linear-gradient(180deg,#fff,#fff7ed)}
+    .routine-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:11px}
+    .routine-title{margin:0;font-size:18px;font-weight:900}
+    .routine-sub{margin:3px 0 0;color:var(--muted);font-size:11px}
+    .routine-count{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#fff;color:#9a3412;font-size:11px;font-weight:900;border:1px solid #fed7aa}
+    .routine-steps{display:grid;gap:8px;margin-bottom:11px}
+    .routine-step{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:9px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .routine-number{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#e5e7eb;color:#525252;font-weight:900}
+    .routine-step.done .routine-number{background:#dcfce7;color:#166534}
+    .routine-step-title{font-size:13px;font-weight:900}
+    .routine-step-note{color:var(--muted);font-size:10px}
+    .routine-status{padding:5px 8px;border-radius:999px;background:#f5f5f5;color:#737373;font-size:10px;font-weight:900;white-space:nowrap}
+    .routine-step.done .routine-status{background:#dcfce7;color:#166534}
+    .routine-help{margin-top:8px;color:#9a3412;font-size:10px;font-weight:700;text-align:center}
+    .menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+    .menu-card{border:1px solid var(--line);border-radius:15px;padding:14px;background:#fff;text-align:left;color:var(--text)}
+    .menu-card-icon{font-size:24px}
+    .menu-card-title{margin-top:5px;font-size:14px;font-weight:900}
+    .menu-card-text{margin-top:2px;color:var(--muted);font-size:10px}
+    .usage-list{display:grid;gap:8px}
+    .usage-row{display:grid;grid-template-columns:70px minmax(0,1fr);gap:9px;padding:10px;border:1px solid var(--line);border-radius:13px;background:#fafafa}
+    .usage-when{font-size:11px;font-weight:900;color:var(--main-dark)}
+    .usage-what{font-size:12px;font-weight:800}
+    .usage-note{color:var(--muted);font-size:10px;margin-top:2px}
+    .back-menu-button{margin-bottom:10px}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -185,7 +212,7 @@
 <body>
 <header class="app-header">
   <div class="header-inner">
-    <div><h1 class="app-title">家計・ライフプラン</h1><p class="app-sub">月1回、マネーフォワードの集計を入力</p></div>
+    <div><h1 class="app-title">家計・ライフプラン</h1><p class="app-sub">毎月1回、入力 → 資産更新 → 確認</p></div>
     <button id="monthChip" class="month-chip" type="button"></button>
   </div>
 </header>
@@ -193,19 +220,49 @@
   <nav class="tabs">
     <button class="tab active" data-tab="home">ホーム</button>
     <button class="tab" data-tab="input">月次入力</button>
-    <button class="tab" data-tab="budget">予算</button>
-    <button class="tab" data-tab="annual">年間</button>
-    <button class="tab" data-tab="lifeplan">プラン</button>
     <button class="tab" data-tab="assets">資産</button>
-    <button class="tab" data-tab="settings">設定</button>
+    <button class="tab" data-tab="lifeplan">プラン</button>
+    <button class="tab" data-tab="menu">メニュー</button>
   </nav>
 
   <section id="home" class="page">
+    <div class="card routine-card">
+      <div class="routine-head">
+        <div>
+          <h2 class="routine-title">今月はこの2つだけ</h2>
+          <p id="routineMonthText" class="routine-sub"></p>
+        </div>
+        <span id="routineCount" class="routine-count">0/2 完了</span>
+      </div>
+
+      <div class="routine-steps">
+        <div id="monthlyRoutineStep" class="routine-step">
+          <div class="routine-number">1</div>
+          <div>
+            <div class="routine-step-title">家計実績を入力</div>
+            <div class="routine-step-note">マネーフォワードの月合計を転記</div>
+          </div>
+          <span id="monthlyRoutineStatus" class="routine-status">未入力</span>
+        </div>
+
+        <div id="assetRoutineStep" class="routine-step">
+          <div class="routine-number">2</div>
+          <div>
+            <div class="routine-step-title">通帳残高を更新</div>
+            <div class="routine-step-note">口座の現在残高だけ直す</div>
+          </div>
+          <span id="assetRoutineStatus" class="routine-status">未更新</span>
+        </div>
+      </div>
+
+      <button id="nextActionButton" class="btn" type="button">今月の家計を入力する</button>
+      <div class="routine-help">予算やライフプランは毎月触らなくても大丈夫です。</div>
+    </div>
     <div class="card">
       <div class="title-row"><h2 class="title">表示月</h2><span class="small">月単位</span></div>
       <div class="month-nav"><button id="homePrev">‹</button><input id="homeMonth" type="month"><button id="homeNext">›</button></div>
     </div>
-    <div class="card">
+    <div id="homeResultCard" class="card">
       <div class="title-row"><h2 class="title">今月の家計</h2><button id="goInput" class="btn outline small-btn">入力・編集</button></div>
       <div class="summary">
         <div class="sum income"><span>手取り収入</span><strong id="sumIncome">0円</strong></div>
@@ -270,6 +327,7 @@
 
 
   <section id="budget" class="page hidden">
+    <button class="btn outline back-menu-button" data-back-menu type="button">‹ メニューへ戻る</button>
     <div class="card">
       <div class="title-row"><h2 class="title">予算計画</h2><button id="createBudgetFromActual" class="btn outline small-btn" type="button">実績平均から作成</button></div>
       <div class="life-help">金額、発生周期、開始年、終了年を設定します。住宅ローン終了や数年ごとの車検にも対応します。</div>
@@ -305,6 +363,7 @@
   </section>
 
   <section id="annual" class="page hidden">
+    <button class="btn outline back-menu-button" data-back-menu type="button">‹ メニューへ戻る</button>
     <div class="card">
       <div class="title-row"><h2 class="title">年間実績・予算比較</h2><span class="small">実績と予算を確認</span></div>
       <div class="month-nav"><button id="yearPrev">‹</button><input id="annualYear" type="number" min="2000" max="2100"><button id="yearNext">›</button></div>
@@ -466,7 +525,71 @@
     </div>
   </section>
 
+
+  <section id="menu" class="page hidden">
+    <div class="card">
+      <div class="title-row"><h2 class="title">このアプリの使い方</h2><span class="small">全部を毎月使う必要なし</span></div>
+
+      <div class="usage-list">
+        <div class="usage-row">
+          <div class="usage-when">毎月1回</div>
+          <div>
+            <div class="usage-what">月次入力 → 資産残高を更新</div>
+            <div class="usage-note">普段はこの2つだけでOK。ホームで結果を確認します。</div>
+          </div>
+        </div>
+
+        <div class="usage-row">
+          <div class="usage-when">年1回</div>
+          <div>
+            <div class="usage-what">予算計画を見直す</div>
+            <div class="usage-note">給料・固定費・積立額が変わったときにも更新します。</div>
+          </div>
+        </div>
+
+        <div class="usage-row">
+          <div class="usage-when">変化時</div>
+          <div>
+            <div class="usage-what">ライフプランを確認</div>
+            <div class="usage-note">車購入、進学、住宅修繕など大きな予定が決まったとき。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title-row"><h2 class="title">詳しい機能</h2><span class="small">必要なときだけ開く</span></div>
+
+      <div class="menu-grid">
+        <button id="openBudgetMenu" class="menu-card" type="button">
+          <div class="menu-card-icon">📝</div>
+          <div class="menu-card-title">予算計画</div>
+          <div class="menu-card-text">将来の収入・支出・積立を設定</div>
+        </button>
+
+        <button id="openAnnualMenu" class="menu-card" type="button">
+          <div class="menu-card-icon">📊</div>
+          <div class="menu-card-title">年間実績</div>
+          <div class="menu-card-text">12か月の実績と予算を比較</div>
+        </button>
+
+        <button id="openSettingsMenu" class="menu-card" type="button">
+          <div class="menu-card-icon">⚙️</div>
+          <div class="menu-card-title">項目設定</div>
+          <div class="menu-card-text">費目・アイコン・並び順を変更</div>
+        </button>
+
+        <button id="openBackupMenu" class="menu-card" type="button">
+          <div class="menu-card-icon">💾</div>
+          <div class="menu-card-title">バックアップ</div>
+          <div class="menu-card-text">設定画面で保存・復元</div>
+        </button>
+      </div>
+    </div>
+  </section>
+
 <section id="settings" class="page hidden">
+    <button class="btn outline back-menu-button" data-back-menu type="button">‹ メニューへ戻る</button>
     <div class="card">
       <div class="title-row"><h2 class="title">項目設定</h2><span class="small">追加・編集・削除</span></div>
       <div class="notice" style="margin-bottom:12px;">家計向けアイコンを50種類以上から選べます。「自分で入力」を選ぶと好きな絵文字も使えます。</div>
@@ -659,7 +782,10 @@ const DEFAULT={
         {id:"purpose_education",name:"上の子大学費用",amount:2000000,target:2000000}
       ]
     }
-  ]
+  ],
+  usage:{
+    lastAssetsUpdatedMonth:""
+  }
 };
 let data=load();
 
@@ -706,7 +832,11 @@ function migrate(v){
         amount:normalize(purpose.amount),
         target:normalize(purpose.target)
       })):[]
-    }))
+    })),
+    usage:{
+      ...clone(DEFAULT.usage),
+      ...(v.usage&&typeof v.usage==="object"?v.usage:{})
+    }
   };
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
@@ -725,19 +855,40 @@ function grouped(typeFilter=null){
 }
 function setMonth(m){if(!m)return;data.selectedMonth=m;save();homeMonth.value=m;inputMonth.value=m;monthChip.textContent=m.replace("-","年")+"月";renderHome();renderInputs()}
 function activate(tab){
-  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
-  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("hidden",p.id!==tab));
+  const mainTab=["budget","annual","settings"].includes(tab)?"menu":tab;
+
+  document.querySelectorAll(".tab").forEach(button=>{
+    button.classList.toggle("active",button.dataset.tab===mainTab);
+  });
+
+  document.querySelectorAll(".page").forEach(page=>{
+    page.classList.toggle("hidden",page.id!==tab);
+  });
+
   if(tab==="budget")renderBudget();
   if(tab==="annual")renderAnnual();
   if(tab==="lifeplan")renderLifePlan();
   if(tab==="assets")renderAssets();
   if(tab==="settings")renderSettings();
+
   window.scrollTo({top:0,behavior:"smooth"});
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>activate(b.dataset.tab));
 homePrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));homeNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
 inputPrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));inputNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
-homeMonth.onchange=()=>setMonth(homeMonth.value);inputMonth.onchange=()=>setMonth(inputMonth.value);monthChip.onclick=()=>{setMonth(currentMonth());activate("home")};goInput.onclick=()=>activate("input");
+homeMonth.onchange=()=>setMonth(homeMonth.value);
+inputMonth.onchange=()=>setMonth(inputMonth.value);
+monthChip.onclick=()=>{setMonth(currentMonth());activate("home")};
+goInput.onclick=()=>activate("input");
+
+openBudgetMenu.onclick=()=>activate("budget");
+openAnnualMenu.onclick=()=>activate("annual");
+openSettingsMenu.onclick=()=>activate("settings");
+openBackupMenu.onclick=()=>activate("settings");
+
+document.querySelectorAll("[data-back-menu]").forEach(button=>{
+  button.onclick=()=>activate("menu");
+});
 
 
 function classificationTotals(monthKey){
@@ -772,7 +923,63 @@ function classificationTotals(monthKey){
   return result;
 }
 
+
+function monthHasActualData(monthKey){
+  return Object.values(data.monthly?.[monthKey]||{}).some(value=>normalize(value)>0);
+}
+
+function markAssetsUpdated(){
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+  data.usage.lastAssetsUpdatedMonth=currentMonth();
+}
+
+function renderUsageGuide(){
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+
+  const monthKey=currentMonth();
+  const hasMonthlyData=monthHasActualData(monthKey);
+  const assetsUpdated=data.usage.lastAssetsUpdatedMonth===monthKey;
+  const completed=(hasMonthlyData?1:0)+(assetsUpdated?1:0);
+
+  routineMonthText.textContent=`${monthKey.replace("-","年")}月の更新状況`;
+  routineCount.textContent=`${completed}/2 完了`;
+
+  monthlyRoutineStep.classList.toggle("done",hasMonthlyData);
+  monthlyRoutineStatus.textContent=hasMonthlyData?"入力済み":"未入力";
+
+  assetRoutineStep.classList.toggle("done",assetsUpdated);
+  assetRoutineStatus.textContent=assetsUpdated?"更新済み":"未更新";
+
+  nextActionButton.disabled=false;
+
+  if(!hasMonthlyData){
+    nextActionButton.textContent="1. 今月の家計を入力する";
+    nextActionButton.onclick=()=>{
+      setMonth(monthKey);
+      activate("input");
+    };
+    return;
+  }
+
+  if(!assetsUpdated){
+    nextActionButton.textContent="2. 通帳残高を更新する";
+    nextActionButton.onclick=()=>activate("assets");
+    return;
+  }
+
+  nextActionButton.textContent="今月の更新完了・結果を見る";
+  nextActionButton.onclick=()=>{
+    setMonth(monthKey);
+    activate("home");
+    setTimeout(()=>{
+      homeResultCard.scrollIntoView({behavior:"smooth",block:"start"});
+    },80);
+  };
+}
+
 function renderHome(){
+  renderUsageGuide();
+
   const t=totals(data.selectedMonth);
   const classifications=classificationTotals(data.selectedMonth);
 
@@ -830,7 +1037,7 @@ function renderInputs(){
   const map=grouped(),v=values(data.selectedMonth);
   inputGroups.innerHTML=[...map.entries()].map(([g,items])=>`<div class="group-card"><div class="group-head"><span>${esc(g)}</span><span class="small">${items[0].type==="income"?"収入":items[0].type==="investment"?"投資":"支出"}</span></div>${items.map(i=>`<div class="input-row"><div><div class="detail-name">${esc(i.detail||i.group)}</div><div class="detail-meta">${esc(i.classification)}</div></div><div class="money"><input type="number" min="0" step="1" inputmode="numeric" data-id="${esc(i.id)}" value="${normalize(v[i.id]||0)||""}" placeholder="0"></div></div>`).join("")}</div>`).join("");
 }
-saveMonth.onclick=()=>{const out={};document.querySelectorAll("[data-id]").forEach(el=>out[el.dataset.id]=normalize(el.value));data.monthly[data.selectedMonth]=out;save();renderHome();alert("保存しました")};
+saveMonth.onclick=()=>{const out={};document.querySelectorAll("[data-id]").forEach(el=>out[el.dataset.id]=normalize(el.value));data.monthly[data.selectedMonth]=out;save();renderHome();alert(data.selectedMonth.replace("-","年")+"月を保存しました。次は資産タブで通帳残高を更新してください。")};
 clearMonth.onclick=()=>{if(confirm("この月の入力をすべて削除しますか？")){delete data.monthly[data.selectedMonth];save();renderInputs();renderHome()}};
 
 yearPrev.onclick=()=>{data.annualYear--;annualYear.value=data.annualYear;save();renderAnnual()};yearNext.onclick=()=>{data.annualYear++;annualYear.value=data.annualYear;save();renderAnnual()};annualYear.onchange=()=>{data.annualYear=Number(annualYear.value)||new Date().getFullYear();save();renderAnnual()};
@@ -1116,9 +1323,11 @@ saveAccountButton.onclick=()=>{
       });
     }
 
+    markAssetsUpdated();
     save();
     resetAccountForm();
     renderAssets();
+    renderUsageGuide();
   }finally{
     setTimeout(()=>{
       accountSaveLocked=false;
@@ -1150,9 +1359,11 @@ function deleteAccount(accountId){
   if(!confirm(`「${account.name}」と目的別残高を削除しますか？`))return;
 
   data.bankAccounts=data.bankAccounts.filter(item=>item.id!==accountId);
+  markAssetsUpdated();
   save();
   resetPurposeForm();
   renderAssets();
+  renderUsageGuide();
 }
 
 document.querySelectorAll("[data-purpose-preset]").forEach(button=>{
@@ -1221,9 +1432,11 @@ savePurposeButton.onclick=()=>{
       });
     }
 
+    markAssetsUpdated();
     save();
     resetPurposeForm();
     renderAssets();
+    renderUsageGuide();
   }finally{
     setTimeout(()=>{
       purposeSaveLocked=false;
@@ -1259,8 +1472,10 @@ function deletePurpose(accountId,purposeId){
   if(!confirm(`「${purpose.name}」を削除しますか？`))return;
 
   account.purposes=account.purposes.filter(item=>item.id!==purposeId);
+  markAssetsUpdated();
   save();
   renderAssets();
+  renderUsageGuide();
 }
 
 function renderAssets(){
@@ -1933,7 +2148,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:8,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:9,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -1974,6 +2189,20 @@ initRender();
 - 口座・目的の追加、編集、削除に対応
 - 二重登録と連打を防止
 - 既存の月次、予算、年間、ライフプラン、設定機能を維持
+-->
+
+
+<!--
+変更履歴 v9
+- 上部タブを「ホーム・月次入力・資産・プラン・メニュー」の5つに整理
+- ホーム最上部に「今月やること」を追加
+- 月次入力と通帳残高更新の完了状況を自動表示
+- 次に押すボタンをアプリが自動案内
+- 予算・年間・設定をメニュー画面に集約
+- 予算・年間・設定からメニューへ戻るボタンを追加
+- 通帳残高を変更した月を記録し、更新状況へ反映
+- 毎月・年1回・変化時の使い分けをアプリ内に表示
+- 既存の月次、予算、年間、ライフプラン、資産、設定機能を維持
 -->
 
 </body>
