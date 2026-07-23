@@ -229,6 +229,17 @@
     .privacy-note{margin-top:10px;color:#6b7280;font-size:9px;font-weight:700;line-height:1.6;text-align:center}
     @media(max-width:520px){.screenshot-preview-list{grid-template-columns:repeat(2,1fr)}.screenshot-review-grid{grid-template-columns:minmax(0,1fr) 96px}}
 
+    
+    .account-screenshot-card{border:2px solid #bbf7d0;background:linear-gradient(180deg,#fff,#f0fdf4)}
+    .account-drop-zone{border-color:#4ade80;color:#166534}
+    .account-drop-zone:focus,.account-drop-zone.dragging{background:#dcfce7;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+    .account-progress-bar{background:#16a34a}
+    .account-review-row{padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .account-review-grid{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px}
+    .account-review-destination{margin-top:8px}
+    .account-review-hint{margin-top:5px;color:var(--muted);font-size:9px;font-weight:700}
+    @media(max-width:520px){.account-review-grid{grid-template-columns:minmax(0,1fr) 105px}}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -626,6 +637,57 @@
       <div id="assetSummary" class="asset-summary"></div>
     </div>
 
+    <div class="card account-screenshot-card">
+      <div class="title-row">
+        <h2 class="title">口座スクショから残高更新</h2>
+        <span class="small">画像を選択・貼り付け</span>
+      </div>
+
+      <div class="import-explanation">
+        マネーフォワード MEの口座一覧や、銀行アプリの残高画面を読み取ります。口座名と残高を確認してから反映できます。
+      </div>
+
+      <div id="accountScreenshotDropZone" class="screenshot-drop-zone account-drop-zone" tabindex="0" role="button">
+        <div class="screenshot-drop-icon">🏦</div>
+        <strong>ここを押して口座スクショを選ぶ</strong>
+        <span>この枠へ画像を貼り付けてもOK</span>
+      </div>
+
+      <input id="accountScreenshotFiles" class="hidden" type="file" accept="image/*" multiple>
+
+      <div id="accountScreenshotPreviewList" class="screenshot-preview-list hidden"></div>
+
+      <div id="accountOcrProgress" class="ocr-progress-wrap hidden">
+        <div class="ocr-progress-track"><div id="accountOcrProgressBar" class="ocr-progress-bar account-progress-bar"></div></div>
+        <div id="accountOcrStatus" class="ocr-status">画像を準備しています…</div>
+      </div>
+
+      <div class="btn-row">
+        <button id="runAccountScreenshotOcr" class="btn hidden" type="button">口座と残高を読み取る</button>
+        <button id="clearAccountScreenshot" class="btn outline hidden" type="button">画像を取消</button>
+      </div>
+
+      <div id="accountScreenshotReviewArea" class="screenshot-review-area hidden">
+        <div class="title-row">
+          <h3 class="review-title">読み取った口座を確認</h3>
+          <span id="accountScreenshotReviewCount" class="small"></span>
+        </div>
+
+        <div id="accountScreenshotReviewList" class="screenshot-review-list"></div>
+
+        <div class="btn-row">
+          <button id="applyAccountScreenshotImport" class="btn" type="button">確認した残高を反映する</button>
+          <button id="undoAccountScreenshotImport" class="btn outline hidden" type="button">口座取込前に戻す</button>
+        </div>
+      </div>
+
+      <div id="accountScreenshotMessage" class="import-result hidden"></div>
+
+      <div class="privacy-note">
+        目的別の金額は変更せず、口座の現在残高だけ更新します。新しい口座として追加することもできます。
+      </div>
+    </div>
+
     <div class="card">
       <div class="title-row"><h2 class="title">口座を追加・編集</h2><span class="small">残高だけ簡単入力</span></div>
 
@@ -975,7 +1037,8 @@ const DEFAULT={
     periodCorrectionV12Done:false,
     periodCorrectionV12Backup:null,
     lastCsvImportBackup:null,
-    lastScreenshotImportBackup:null
+    lastScreenshotImportBackup:null,
+    lastAccountScreenshotImportBackup:null
   }
 };
 let data=load();
@@ -2803,6 +2866,555 @@ function fillPurposeAccountOptions(){
   }
 }
 
+
+let selectedAccountScreenshotFiles=[];
+let accountScreenshotPreviewUrls=[];
+let accountScreenshotReviewRows=[];
+let accountScreenshotOcrRunning=false;
+
+function normalizeAccountName(value){
+  return normalizeOcrText(value)
+    .replace(/[|｜]/g," ")
+    .replace(/残高|口座|普通預金|通常貯金|貯蓄預金|定期預金|代表口座|メイン口座/gi," ")
+    .replace(/[（(].*?[）)]/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function normalizedAccountKey(value){
+  return normalizeAccountName(value)
+    .replace(/\s/g,"")
+    .replace(/銀行|信用金庫|信用組合|支店|本店|普通|預金|口座/g,"")
+    .toLowerCase();
+}
+
+function shouldIgnoreAccountLabel(label){
+  const normalized=normalizedCategory(label);
+
+  if(!normalized)return true;
+
+  const ignorePatterns=[
+    /総資産/,/資産合計/,/口座合計/,/預金合計/,/合計/,/負債/,
+    /ポイント/,/証券/,/投資信託/,/株式/,/年金/,/確定拠出/,
+    /クレジットカード/,/カード利用/,/引落/,/請求/,/前月比/,
+    /更新/,/連携/,/ホーム/,/入出金/,/明細/
+  ];
+
+  return ignorePatterns.some(pattern=>pattern.test(normalized));
+}
+
+function looksLikeAccountName(label){
+  const normalized=normalizedCategory(label);
+
+  if(!normalized||shouldIgnoreAccountLabel(label))return false;
+
+  const accountWords=[
+    "銀行","ゆうちょ","信用金庫","信金","信用組合","農協","ja",
+    "現金","財布","貯金","預金","paypay","楽天","住信","sbi",
+    "三菱","ufj","三井住友","みずほ","あいち","名古屋","東海",
+    "ろうきん","労働金庫","イオン","セブン","ローソン"
+  ];
+
+  return accountWords.some(word=>normalized.includes(normalizedCategory(word)));
+}
+
+function accountMoneyMatches(line){
+  return [...normalizeOcrText(line).matchAll(/(?:¥\s*)?[-+]?\d[\d,.\s]{1,16}(?:円)?/g)]
+    .map(match=>({
+      text:match[0],
+      index:match.index||0,
+      amount:parseOcrMoney(match[0])
+    }))
+    .filter(match=>match.amount>=100);
+}
+
+function extractAccountRowsFromText(text){
+  const lines=normalizeOcrText(text)
+    .split(/\r?\n/)
+    .map(line=>line.trim())
+    .filter(Boolean);
+
+  const found=[];
+  let previousLabel="";
+  let previousPreviousLabel="";
+
+  lines.forEach(line=>{
+    const matches=accountMoneyMatches(line);
+
+    if(!matches.length){
+      const candidate=normalizeAccountName(line);
+
+      if(candidate&&!shouldIgnoreAccountLabel(candidate)){
+        previousPreviousLabel=previousLabel;
+        previousLabel=candidate;
+      }
+      return;
+    }
+
+    // 口座残高は通常、同じ行の最後の大きな金額。
+    const money=matches[matches.length-1];
+    const before=normalizeAccountName(line.slice(0,money.index));
+    const after=normalizeAccountName(line.slice(money.index+money.text.length));
+
+    const candidates=[before,after,previousLabel,previousPreviousLabel]
+      .filter(Boolean)
+      .filter(label=>!shouldIgnoreAccountLabel(label));
+
+    let label=candidates.find(looksLikeAccountName)||candidates[0]||"";
+
+    if(!label)return;
+
+    // 日付や口座番号らしいラベルは除外。
+    if(/^\d{1,4}[\/\-]\d{1,2}/.test(label))return;
+    if(/^\d{4,}$/.test(label.replace(/\D/g,"")))return;
+
+    found.push({
+      id:"account_ocr_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      name:label,
+      balance:money.amount,
+      destinationId:"",
+      confidence:looksLikeAccountName(label)?"high":"review"
+    });
+  });
+
+  const unique=new Map();
+
+  found.forEach(row=>{
+    const key=normalizedAccountKey(row.name);
+
+    if(!key)return;
+
+    const current=unique.get(key);
+
+    if(!current||row.balance>current.balance){
+      unique.set(key,row);
+    }
+  });
+
+  return [...unique.values()]
+    .filter(row=>!shouldIgnoreAccountLabel(row.name))
+    .sort((a,b)=>b.balance-a.balance);
+}
+
+function bestExistingAccountMatch(name){
+  const key=normalizedAccountKey(name);
+
+  if(!key)return "";
+
+  let bestId="";
+  let bestScore=0;
+
+  (data.bankAccounts||[]).forEach(account=>{
+    const accountKey=normalizedAccountKey(account.name);
+
+    if(!accountKey)return;
+
+    let score=0;
+
+    if(accountKey===key){
+      score=100;
+    }else if(accountKey.includes(key)||key.includes(accountKey)){
+      score=80;
+    }else{
+      const common=[...new Set(key)].filter(char=>accountKey.includes(char)).length;
+      score=Math.round(common/Math.max(key.length,accountKey.length)*50);
+    }
+
+    if(score>bestScore){
+      bestScore=score;
+      bestId=account.id;
+    }
+  });
+
+  return bestScore>=55?bestId:"";
+}
+
+function accountDestinationOptions(selectedId){
+  const existing=(data.bankAccounts||[]).map(account=>{
+    const selected=account.id===selectedId?" selected":"";
+    return `<option value="${esc(account.id)}"${selected}>更新｜${esc(account.icon||"🏦")} ${esc(account.name)}</option>`;
+  }).join("");
+
+  const newSelected=selectedId?"":" selected";
+
+  return `
+    ${existing}
+    <option value="__new__"${newSelected}>新しい口座として追加</option>
+  `;
+}
+
+function renderAccountScreenshotReview(){
+  accountScreenshotReviewCount.textContent=`${accountScreenshotReviewRows.length}口座`;
+
+  if(!accountScreenshotReviewRows.length){
+    accountScreenshotReviewList.innerHTML='<div class="empty">口座名と残高を読み取れませんでした。口座一覧と残高がはっきり見えるスクショを使用してください。</div>';
+    applyAccountScreenshotImport.classList.add("hidden");
+    return;
+  }
+
+  applyAccountScreenshotImport.classList.remove("hidden");
+
+  accountScreenshotReviewRows.forEach(row=>{
+    if(!row.destinationId){
+      row.destinationId=bestExistingAccountMatch(row.name)||"__new__";
+    }
+  });
+
+  accountScreenshotReviewList.innerHTML=accountScreenshotReviewRows.map((row,index)=>`
+    <div class="account-review-row" data-account-ocr-row="${index}">
+      <div class="account-review-grid">
+        <div class="field">
+          <label>読み取った口座名</label>
+          <input data-account-ocr-name="${index}" value="${esc(row.name)}">
+        </div>
+
+        <div class="field">
+          <label>残高</label>
+          <input data-account-ocr-balance="${index}" type="number" min="0" inputmode="numeric" value="${row.balance}">
+        </div>
+      </div>
+
+      <div class="field account-review-destination">
+        <label>反映先</label>
+        <select data-account-ocr-destination="${index}">
+          ${accountDestinationOptions(row.destinationId)}
+        </select>
+      </div>
+
+      <div class="account-review-hint">
+        既存口座を選ぶと目的別設定を残して残高だけ更新します。
+      </div>
+
+      <div class="screenshot-review-actions">
+        <button class="btn danger small-btn" data-remove-account-ocr-row="${index}" type="button">この行を除外</button>
+      </div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-remove-account-ocr-row]").forEach(button=>{
+    button.onclick=()=>{
+      const index=Number(button.dataset.removeAccountOcrRow);
+      accountScreenshotReviewRows.splice(index,1);
+      renderAccountScreenshotReview();
+    };
+  });
+}
+
+function clearAccountScreenshotPreviewUrls(){
+  accountScreenshotPreviewUrls.forEach(url=>URL.revokeObjectURL(url));
+  accountScreenshotPreviewUrls=[];
+}
+
+function clearAccountScreenshotSelection({keepMessage=false}={}){
+  clearAccountScreenshotPreviewUrls();
+  selectedAccountScreenshotFiles=[];
+  accountScreenshotReviewRows=[];
+  accountScreenshotFiles.value="";
+  accountScreenshotPreviewList.innerHTML="";
+  accountScreenshotPreviewList.classList.add("hidden");
+  accountOcrProgress.classList.add("hidden");
+  accountScreenshotReviewArea.classList.add("hidden");
+  runAccountScreenshotOcr.classList.add("hidden");
+  clearAccountScreenshot.classList.add("hidden");
+  accountOcrProgressBar.style.width="0%";
+  accountOcrStatus.textContent="画像を準備しています…";
+
+  if(!keepMessage){
+    accountScreenshotMessage.classList.add("hidden");
+    accountScreenshotMessage.innerHTML="";
+  }
+}
+
+function setAccountScreenshotFiles(files){
+  const imageFiles=[...files]
+    .filter(file=>file&&String(file.type).startsWith("image/"))
+    .slice(0,6);
+
+  if(!imageFiles.length){
+    alert("画像ファイルを選んでください");
+    return;
+  }
+
+  clearAccountScreenshotPreviewUrls();
+  selectedAccountScreenshotFiles=imageFiles;
+  accountScreenshotReviewRows=[];
+
+  accountScreenshotPreviewList.innerHTML=imageFiles.map((file,index)=>{
+    const url=URL.createObjectURL(file);
+    accountScreenshotPreviewUrls.push(url);
+
+    return `
+      <div class="screenshot-preview-item">
+        <img src="${esc(url)}" alt="口座スクリーンショット ${index+1}">
+        <span class="screenshot-preview-number">${index+1}枚目</span>
+      </div>
+    `;
+  }).join("");
+
+  accountScreenshotPreviewList.classList.remove("hidden");
+  runAccountScreenshotOcr.classList.remove("hidden");
+  clearAccountScreenshot.classList.remove("hidden");
+  accountScreenshotReviewArea.classList.add("hidden");
+  accountScreenshotMessage.classList.add("hidden");
+}
+
+function updateAccountOcrProgress(fileIndex,fileCount,message){
+  const progress=Math.max(0,Math.min(1,Number(message.progress)||0));
+  const completedFraction=(fileIndex+progress)/fileCount;
+
+  accountOcrProgressBar.style.width=`${Math.round(completedFraction*100)}%`;
+
+  const labels={
+    "loading tesseract core":"読み取り機能を準備中",
+    "initializing tesseract":"読み取り機能を初期化中",
+    "loading language traineddata":"日本語データを読み込み中",
+    "initializing api":"日本語を準備中",
+    "recognizing text":"口座名と残高を読み取り中"
+  };
+
+  accountOcrStatus.textContent=`${fileIndex+1}/${fileCount}枚目：${labels[message.status]||"画像を解析中"} ${Math.round(progress*100)}%`;
+}
+
+async function recognizeAccountScreenshotFiles(){
+  if(accountScreenshotOcrRunning||!selectedAccountScreenshotFiles.length)return;
+
+  if(!window.Tesseract||typeof window.Tesseract.recognize!=="function"){
+    throw new Error("文字読み取り機能を読み込めませんでした。インターネット接続を確認してページを再読み込みしてください。");
+  }
+
+  accountScreenshotOcrRunning=true;
+  runAccountScreenshotOcr.disabled=true;
+  accountOcrProgress.classList.remove("hidden");
+  accountScreenshotReviewArea.classList.add("hidden");
+  accountScreenshotMessage.classList.add("hidden");
+  accountOcrProgressBar.style.width="0%";
+
+  try{
+    const allRows=[];
+
+    for(let index=0;index<selectedAccountScreenshotFiles.length;index++){
+      const processedImage=await preprocessScreenshot(selectedAccountScreenshotFiles[index]);
+
+      const result=await window.Tesseract.recognize(
+        processedImage,
+        "jpn+eng",
+        {
+          logger:message=>updateAccountOcrProgress(index,selectedAccountScreenshotFiles.length,message)
+        }
+      );
+
+      allRows.push(...extractAccountRowsFromText(result?.data?.text||""));
+    }
+
+    const merged=new Map();
+
+    allRows.forEach(row=>{
+      const key=normalizedAccountKey(row.name);
+
+      if(!key)return;
+
+      const current=merged.get(key);
+
+      if(!current||row.balance>current.balance){
+        merged.set(key,{...row});
+      }
+    });
+
+    accountScreenshotReviewRows=[...merged.values()]
+      .sort((a,b)=>b.balance-a.balance);
+
+    accountOcrProgressBar.style.width="100%";
+    accountOcrStatus.textContent="読み取り完了。口座名・残高・反映先を確認してください。";
+    accountScreenshotReviewArea.classList.remove("hidden");
+    renderAccountScreenshotReview();
+
+    if(!accountScreenshotReviewRows.length){
+      accountScreenshotMessage.classList.remove("hidden");
+      accountScreenshotMessage.innerHTML="<strong>口座名と残高を確認できませんでした</strong>マネーフォワードの口座一覧、または銀行アプリの口座名と残高が見える画面を使用してください。";
+    }
+  }finally{
+    accountScreenshotOcrRunning=false;
+    runAccountScreenshotOcr.disabled=false;
+  }
+}
+
+accountScreenshotDropZone.onclick=()=>{
+  accountScreenshotFiles.click();
+};
+
+accountScreenshotDropZone.onkeydown=event=>{
+  if(event.key==="Enter"||event.key===" "){
+    event.preventDefault();
+    accountScreenshotFiles.click();
+  }
+};
+
+accountScreenshotDropZone.ondragover=event=>{
+  event.preventDefault();
+  accountScreenshotDropZone.classList.add("dragging");
+};
+
+accountScreenshotDropZone.ondragleave=()=>{
+  accountScreenshotDropZone.classList.remove("dragging");
+};
+
+accountScreenshotDropZone.ondrop=event=>{
+  event.preventDefault();
+  accountScreenshotDropZone.classList.remove("dragging");
+  setAccountScreenshotFiles(event.dataTransfer?.files||[]);
+};
+
+accountScreenshotDropZone.addEventListener("paste",event=>{
+  const files=[...(event.clipboardData?.items||[])]
+    .filter(item=>item.type.startsWith("image/"))
+    .map(item=>item.getAsFile())
+    .filter(Boolean);
+
+  if(files.length){
+    event.preventDefault();
+    setAccountScreenshotFiles(files);
+  }
+});
+
+document.addEventListener("paste",event=>{
+  const assetsPage=document.getElementById("assets");
+
+  if(!assetsPage||assetsPage.classList.contains("hidden"))return;
+  if(document.activeElement&&["INPUT","TEXTAREA"].includes(document.activeElement.tagName))return;
+
+  const files=[...(event.clipboardData?.items||[])]
+    .filter(item=>item.type.startsWith("image/"))
+    .map(item=>item.getAsFile())
+    .filter(Boolean);
+
+  if(files.length){
+    event.preventDefault();
+    setAccountScreenshotFiles(files);
+  }
+});
+
+accountScreenshotFiles.onchange=()=>{
+  setAccountScreenshotFiles(accountScreenshotFiles.files||[]);
+};
+
+runAccountScreenshotOcr.onclick=async()=>{
+  try{
+    await recognizeAccountScreenshotFiles();
+  }catch(error){
+    accountOcrProgress.classList.remove("hidden");
+    accountOcrStatus.textContent="読み取りに失敗しました";
+    accountScreenshotMessage.classList.remove("hidden");
+    accountScreenshotMessage.innerHTML=`<strong>読み取れませんでした</strong>${esc(error.message||"スクショを確認してください")}`;
+  }
+};
+
+clearAccountScreenshot.onclick=()=>{
+  clearAccountScreenshotSelection();
+};
+
+applyAccountScreenshotImport.onclick=()=>{
+  const rows=[];
+
+  document.querySelectorAll("[data-account-ocr-row]").forEach(container=>{
+    const index=Number(container.dataset.accountOcrRow);
+    const name=container.querySelector(`[data-account-ocr-name="${index}"]`)?.value.trim()||"";
+    const balance=normalize(container.querySelector(`[data-account-ocr-balance="${index}"]`)?.value);
+    const destinationId=container.querySelector(`[data-account-ocr-destination="${index}"]`)?.value||"__new__";
+
+    if(name&&balance){
+      rows.push({name,balance,destinationId});
+    }
+  });
+
+  if(!rows.length){
+    alert("反映する口座がありません");
+    return;
+  }
+
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+
+  data.usage.lastAccountScreenshotImportBackup={
+    bankAccounts:clone(data.bankAccounts||[]),
+    lastAssetsUpdatedMonth:data.usage.lastAssetsUpdatedMonth||"",
+    importedAt:new Date().toISOString()
+  };
+
+  let updatedCount=0;
+  let createdCount=0;
+  const processedDestinations=new Set();
+
+  rows.forEach(row=>{
+    if(row.destinationId!=="__new__"){
+      const existing=data.bankAccounts.find(account=>account.id===row.destinationId);
+
+      if(existing){
+        existing.balance=row.balance;
+        processedDestinations.add(existing.id);
+        updatedCount++;
+        return;
+      }
+    }
+
+    const duplicate=data.bankAccounts.find(account=>{
+      return normalizedAccountKey(account.name)===normalizedAccountKey(row.name);
+    });
+
+    if(duplicate&&!processedDestinations.has(duplicate.id)){
+      duplicate.balance=row.balance;
+      processedDestinations.add(duplicate.id);
+      updatedCount++;
+      return;
+    }
+
+    const isYucho=/ゆうちょ|郵便/.test(normalizedCategory(row.name));
+
+    data.bankAccounts.push({
+      id:"account_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      name:row.name,
+      balance:row.balance,
+      icon:isYucho?"📮":"🏦",
+      memo:"スクショから追加",
+      purposes:[]
+    });
+
+    createdCount++;
+  });
+
+  markAssetsUpdated();
+  save();
+  renderAssets();
+  renderUsageGuide();
+
+  accountScreenshotMessage.classList.remove("hidden");
+  accountScreenshotMessage.innerHTML=`
+    <strong>${rows.length}口座の残高を反映しました</strong>
+    既存口座を更新 ${updatedCount}件・新しい口座を追加 ${createdCount}件
+  `;
+
+  undoAccountScreenshotImport.classList.remove("hidden");
+};
+
+undoAccountScreenshotImport.onclick=()=>{
+  const backup=data.usage?.lastAccountScreenshotImportBackup;
+
+  if(!backup){
+    alert("元に戻せる口座スクショ取込がありません");
+    return;
+  }
+
+  data.bankAccounts=clone(backup.bankAccounts||[]);
+  data.usage.lastAssetsUpdatedMonth=backup.lastAssetsUpdatedMonth||"";
+  data.usage.lastAccountScreenshotImportBackup=null;
+  save();
+
+  renderAssets();
+  renderUsageGuide();
+
+  accountScreenshotMessage.classList.remove("hidden");
+  accountScreenshotMessage.innerHTML="<strong>口座スクショ取込前の状態に戻しました</strong>";
+  undoAccountScreenshotImport.classList.add("hidden");
+};
+
 saveAccountButton.onclick=()=>{
   if(accountSaveLocked)return;
 
@@ -3670,7 +4282,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:16,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:17,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -3835,6 +4447,23 @@ initRender();
 - CSV取込とスクショ取込の両方に同じ収入分類ルールを適用
 - 既存の入力済み金額と項目IDを維持
 - タブ、集計期間、資産、予算、年間、ライフプラン、設定機能を維持
+-->
+
+
+<!--
+変更履歴 v17
+- 資産画面に「口座スクショから残高更新」を追加
+- マネーフォワード MEの口座一覧と銀行アプリの残高画面に対応
+- 画像選択、貼り付け、ドラッグ＆ドロップに対応
+- 複数スクショを最大6枚までまとめて読み取り
+- 口座名と現在残高を自動抽出
+- 既存口座への自動候補選択を追加
+- 反映前に口座名、残高、反映先を修正可能
+- 既存口座は目的別設定を残して残高だけ更新
+- 読み取った口座を新規口座として追加可能
+- 総資産、合計、証券、ポイント、カード請求などを除外
+- 口座スクショ取込前へ戻す機能を追加
+- 月次スクショ、CSV、集計期間、資産、予算、年間、ライフプラン、設定を維持
 -->
 
 </body>
