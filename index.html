@@ -446,8 +446,8 @@
       </div>
 
       <div class="import-explanation">
-        マネーフォワード MEの費目と金額が見えるスクショを読み取ります。反映前に、項目と金額を確認・修正できます。
-        <br>給与・賞与の振り分けも、登録済みの勤務先名から自動判定します。
+        マネーフォワード MEの「家計簿・費目一覧」画面に対応しています。左側の費目名と右側の金額を位置で結びつけて読み取ります。
+        <br>反映前に項目と金額を確認・修正できます。給与・賞与も勤務先名から自動判定します。
       </div>
 
       <div id="screenshotDropZone" class="screenshot-drop-zone" tabindex="0" role="button">
@@ -1890,6 +1890,125 @@ function normalizedCategory(value){
     .toLowerCase();
 }
 
+const MONEY_FORWARD_CATEGORY_DEFINITIONS=[
+  {label:"住宅",aliases:["住宅","住居"],itemId:"housing_loan"},
+  {label:"食費",aliases:["食費","食品"],itemId:"food_grocery"},
+  {label:"日用品",aliases:["日用品","生活用品"],itemId:"daily_goods"},
+  {label:"趣味・娯楽",aliases:["趣味娯楽","趣味娱乐","趣味","娯楽"],itemId:"hobby_game"},
+  {label:"自動車",aliases:["自動車","車関連","白動車","邊動車","自働車"],itemId:"car_gas"},
+  {label:"教養・教育",aliases:["教養教育","教着教育","教養教音","教育"],itemId:"edu_school"},
+  {label:"水道・光熱費",aliases:["水道光熱費","水道光熱","光熱費","水道"],itemId:"utility_electric"},
+  {label:"通信費",aliases:["通信費","通信"],itemId:"comm_papa"},
+  {label:"衣服・美容",aliases:["衣服美容","衣類美容","衣服"],itemId:"beauty_clothes"},
+  {label:"交際費",aliases:["交際費","交際"],itemId:"social_drink"},
+  {label:"健康・医療",aliases:["健康医療","健康","医療"],itemId:"health_hospital"},
+  {label:"その他",aliases:["その他","その地","その也"],itemId:"other_unknown"},
+  {label:"保険",aliases:["保険","保瞼"],itemId:"insurance_1"},
+  {label:"交通費",aliases:["交通費","交通"],itemId:"transport"},
+  {label:"税・社会保障",aliases:["税社会保障","社会保障","税金"],itemId:"other_unknown"}
+];
+
+const MONEY_FORWARD_CATEGORY_ORDER=[
+  "住宅",
+  "食費",
+  "日用品",
+  "趣味・娯楽",
+  "自動車",
+  "教養・教育",
+  "水道・光熱費",
+  "通信費",
+  "衣服・美容",
+  "交際費",
+  "健康・医療",
+  "その他",
+  "保険",
+  "交通費",
+  "税・社会保障"
+];
+
+function ocrComparableText(value){
+  return normalizedCategory(normalizeOcrText(value))
+    .replace(/[|｜'"`]/g,"")
+    .replace(/[^\p{L}\p{N}]/gu,"")
+    .replace(/邊動車|白動車|自働車/g,"自動車")
+    .replace(/教着教育|教養教音|教着教青/g,"教養教育")
+    .replace(/水道光熱賣|水道光熱/g,"水道光熱費")
+    .replace(/衣類美容/g,"衣服美容")
+    .replace(/健康医療費/g,"健康医療");
+}
+
+function levenshteinDistance(left,right){
+  const a=[...String(left||"")];
+  const b=[...String(right||"")];
+  const previous=Array.from({length:b.length+1},(_,index)=>index);
+
+  for(let i=1;i<=a.length;i++){
+    const current=[i];
+
+    for(let j=1;j<=b.length;j++){
+      const cost=a[i-1]===b[j-1]?0:1;
+      current[j]=Math.min(
+        current[j-1]+1,
+        previous[j]+1,
+        previous[j-1]+cost
+      );
+    }
+
+    for(let j=0;j<current.length;j++)previous[j]=current[j];
+  }
+
+  return previous[b.length];
+}
+
+function canonicalMoneyForwardCategory(value){
+  const text=ocrComparableText(value);
+  if(!text)return "";
+
+  let bestLabel="";
+  let bestScore=Infinity;
+
+  MONEY_FORWARD_CATEGORY_DEFINITIONS.forEach(definition=>{
+    definition.aliases.forEach(alias=>{
+      const normalizedAlias=ocrComparableText(alias);
+
+      if(!normalizedAlias)return;
+
+      if(text===normalizedAlias){
+        bestLabel=definition.label;
+        bestScore=0;
+        return;
+      }
+
+      if(
+        normalizedAlias.length>=2&&
+        (text.includes(normalizedAlias)||normalizedAlias.includes(text))
+      ){
+        const score=Math.abs(text.length-normalizedAlias.length)+0.25;
+
+        if(score<bestScore){
+          bestLabel=definition.label;
+          bestScore=score;
+        }
+      }
+
+      const distance=levenshteinDistance(text,normalizedAlias);
+      const allowed=normalizedAlias.length<=3?1:normalizedAlias.length<=6?2:3;
+
+      if(distance<=allowed&&distance<bestScore){
+        bestLabel=definition.label;
+        bestScore=distance;
+      }
+    });
+  });
+
+  return bestLabel;
+}
+
+function moneyForwardCategoryItem(category){
+  const definition=MONEY_FORWARD_CATEGORY_DEFINITIONS.find(entry=>entry.label===category);
+  return definition?findItemById(definition.itemId):null;
+}
+
 function findItemById(itemId){
   return data.items.find(item=>item.id===itemId)||null;
 }
@@ -1898,10 +2017,23 @@ function findMoneyForwardItem({major,middle,content,amount}){
   const majorText=normalizedCategory(major);
   const middleText=normalizedCategory(middle);
   const fullText=normalizedCategory(`${major} ${middle} ${content}`);
+  const knownExpenseCategory=canonicalMoneyForwardCategory(`${major} ${middle} ${content}`);
 
-  const isIncome=majorText.includes("収入")||(
-    amount>0&&!majorText.includes("支出")&&!majorText.includes("食費")
-  );
+  if(knownExpenseCategory){
+    const categoryItem=moneyForwardCategoryItem(knownExpenseCategory);
+
+    if(categoryItem){
+      return {
+        item:categoryItem,
+        fallback:false,
+        category:knownExpenseCategory
+      };
+    }
+  }
+
+  const explicitIncome=/収入|給与|給料|賞与|ボーナス|振込/.test(fullText);
+  const explicitExpense=/支出|食費|日用品|住宅|自動車|教育|光熱|通信|美容|交際|医療|保険/.test(fullText);
+  const isIncome=explicitIncome||(!explicitExpense&&amount<0);
 
   const exactDetail=data.items.find(item=>{
     return item.type===(isIncome?"income":"expense")&&
@@ -2208,6 +2340,352 @@ function parseOcrMoney(value){
   return Number.isFinite(amount)?Math.round(amount):0;
 }
 
+
+function parseTesseractTsvWords(tsv){
+  const lines=String(tsv||"")
+    .split(/\r?\n/)
+    .filter(Boolean);
+
+  if(lines.length<2)return [];
+
+  const headers=lines[0].split("\t");
+  const column=name=>headers.indexOf(name);
+  const levelIndex=column("level");
+  const leftIndex=column("left");
+  const topIndex=column("top");
+  const widthIndex=column("width");
+  const heightIndex=column("height");
+  const confidenceIndex=column("conf");
+  const textIndex=column("text");
+
+  if([levelIndex,leftIndex,topIndex,widthIndex,heightIndex,textIndex].some(index=>index<0)){
+    return [];
+  }
+
+  return lines.slice(1).map(line=>{
+    const cells=line.split("\t");
+
+    if(cells[levelIndex]!=="5")return null;
+
+    const text=cells.slice(textIndex).join("\t").trim();
+    if(!text)return null;
+
+    const left=Number(cells[leftIndex])||0;
+    const top=Number(cells[topIndex])||0;
+    const width=Number(cells[widthIndex])||0;
+    const height=Number(cells[heightIndex])||0;
+
+    return {
+      text,
+      confidence:Number(cells[confidenceIndex])||0,
+      bbox:{
+        x0:left,
+        y0:top,
+        x1:left+width,
+        y1:top+height
+      }
+    };
+  }).filter(Boolean);
+}
+
+function flattenTesseractWords(ocrData){
+  if(Array.isArray(ocrData?.words)&&ocrData.words.length){
+    return ocrData.words;
+  }
+
+  const words=[];
+
+  (ocrData?.blocks||[]).forEach(block=>{
+    (block.paragraphs||[]).forEach(paragraph=>{
+      (paragraph.lines||[]).forEach(line=>{
+        (line.words||[]).forEach(word=>words.push(word));
+      });
+    });
+  });
+
+  if(words.length)return words;
+
+  return parseTesseractTsvWords(ocrData?.tsv||"");
+}
+
+function normalizeOcrWord(word){
+  const box=word?.bbox||word?.boundingBox||{};
+  const x0=Number(box.x0??box.left??0);
+  const y0=Number(box.y0??box.top??0);
+  const x1=Number(box.x1??((box.left??0)+(box.width??0)));
+  const y1=Number(box.y1??((box.top??0)+(box.height??0)));
+  const text=normalizeOcrText(word?.text||word?.symbols?.map(symbol=>symbol.text).join("")||"");
+
+  return {
+    text,
+    x0,
+    y0,
+    x1,
+    y1,
+    width:Math.max(1,x1-x0),
+    height:Math.max(1,y1-y0),
+    centerX:(x0+x1)/2,
+    centerY:(y0+y1)/2,
+    confidence:Number(word?.confidence??word?.conf??0)
+  };
+}
+
+function clusterOcrWordsIntoVisualRows(ocrData){
+  const words=flattenTesseractWords(ocrData)
+    .map(normalizeOcrWord)
+    .filter(word=>word.text&&word.width>0&&word.height>0)
+    .sort((a,b)=>a.centerY-b.centerY||a.x0-b.x0);
+
+  if(!words.length)return [];
+
+  const heights=words.map(word=>word.height).sort((a,b)=>a-b);
+  const medianHeight=heights[Math.floor(heights.length/2)]||20;
+  const tolerance=Math.max(10,medianHeight*0.72);
+  const rows=[];
+
+  words.forEach(word=>{
+    let row=rows
+      .filter(entry=>Math.abs(entry.centerY-word.centerY)<=tolerance)
+      .sort((a,b)=>Math.abs(a.centerY-word.centerY)-Math.abs(b.centerY-word.centerY))[0];
+
+    if(!row){
+      row={
+        words:[],
+        centerY:word.centerY,
+        y0:word.y0,
+        y1:word.y1
+      };
+      rows.push(row);
+    }
+
+    row.words.push(word);
+    row.y0=Math.min(row.y0,word.y0);
+    row.y1=Math.max(row.y1,word.y1);
+    row.centerY=row.words.reduce((sum,item)=>sum+item.centerY,0)/row.words.length;
+  });
+
+  return rows
+    .map(row=>{
+      row.words.sort((a,b)=>a.x0-b.x0);
+      row.text=row.words.map(word=>word.text).join(" ").trim();
+      row.x0=Math.min(...row.words.map(word=>word.x0));
+      row.x1=Math.max(...row.words.map(word=>word.x1));
+      row.height=Math.max(1,row.y1-row.y0);
+      return row;
+    })
+    .sort((a,b)=>a.centerY-b.centerY);
+}
+
+function isLikelyMoneyWord(word,pageWidth,rowText){
+  const text=normalizeOcrText(word.text);
+
+  if(!text||/%|％/.test(text)||/%|％/.test(rowText))return false;
+  if(/年|月|日|時|分/.test(text)&&!/[¥￥円\\]/.test(text))return false;
+
+  const hasCurrency=/[¥￥円\\]/.test(text);
+  const hasThousands=/\d{1,3}(?:,\d{3})+/.test(text);
+  const amount=parseOcrMoney(text);
+  const onRight=word.centerX>pageWidth*0.48;
+
+  return amount>=100&&(hasCurrency||hasThousands||onRight);
+}
+
+function inferMoneyForwardCategoryOrder(rows){
+  const anchors=[];
+
+  rows.forEach((row,rowIndex)=>{
+    if(!row.category||row.categorySource!=="direct")return;
+
+    const categoryIndex=MONEY_FORWARD_CATEGORY_ORDER.indexOf(row.category);
+
+    if(categoryIndex>=0){
+      anchors.push({
+        rowIndex,
+        categoryIndex,
+        offset:categoryIndex-rowIndex
+      });
+    }
+  });
+
+  if(anchors.length<2)return rows;
+
+  const offsetScores=new Map();
+
+  anchors.forEach(anchor=>{
+    offsetScores.set(
+      anchor.offset,
+      (offsetScores.get(anchor.offset)||0)+1
+    );
+  });
+
+  const best=[...offsetScores.entries()]
+    .sort((a,b)=>b[1]-a[1]||Math.abs(a[0])-Math.abs(b[0]))[0];
+
+  if(!best||best[1]<2)return rows;
+
+  const offset=best[0];
+
+  return rows.map((row,rowIndex)=>{
+    const expected=MONEY_FORWARD_CATEGORY_ORDER[rowIndex+offset];
+
+    if(!expected)return row;
+
+    if(row.categorySource==="direct"&&row.category===expected){
+      return row;
+    }
+
+    if(row.categorySource==="direct"&&row.category!==expected){
+      return row;
+    }
+
+    return {
+      ...row,
+      category:expected,
+      categorySource:"order",
+      inferred:true
+    };
+  });
+}
+
+function extractMoneyForwardCategoryRowsFromOcrData(ocrData){
+  const visualRows=clusterOcrWordsIntoVisualRows(ocrData);
+  if(!visualRows.length)return [];
+
+  const pageWidth=Math.max(
+    1,
+    ...visualRows.flatMap(row=>row.words.map(word=>word.x1))
+  );
+
+  const categoryRows=visualRows
+    .map(row=>({
+      ...row,
+      category:canonicalMoneyForwardCategory(row.text)
+    }))
+    .filter(row=>row.category);
+
+  let amountRows=[];
+
+  visualRows.forEach(row=>{
+    const normalizedRowText=normalizeOcrText(row.text);
+
+    if(
+      /\d{4}\s*年/.test(normalizedRowText)||
+      /\d{1,2}\s*月\s*\d{1,2}\s*日/.test(normalizedRowText)||
+      ((normalizedRowText.match(/月/g)||[]).length>=2)
+    ){
+      return;
+    }
+
+    const moneyWords=row.words.filter(word=>isLikelyMoneyWord(word,pageWidth,row.text));
+
+    if(!moneyWords.length)return;
+
+    const moneyWord=moneyWords
+      .sort((a,b)=>b.centerX-a.centerX||parseOcrMoney(b.text)-parseOcrMoney(a.text))[0];
+
+    const amount=parseOcrMoney(moneyWord.text);
+    if(!amount)return;
+
+    const leftText=row.words
+      .filter(word=>word.x1<moneyWord.x0)
+      .map(word=>word.text)
+      .join(" ");
+
+    let category=canonicalMoneyForwardCategory(leftText||row.text);
+    let categorySource=category?"direct":"";
+
+    if(!category){
+      const nearest=categoryRows
+        .map(categoryRow=>({
+          category:categoryRow.category,
+          distance:Math.abs(categoryRow.centerY-row.centerY),
+          verticalOverlap:Math.max(
+            0,
+            Math.min(categoryRow.y1,row.y1)-Math.max(categoryRow.y0,row.y0)
+          )
+        }))
+        .filter(candidate=>candidate.distance<=Math.max(52,row.height*2.4))
+        .sort((a,b)=>b.verticalOverlap-a.verticalOverlap||a.distance-b.distance)[0];
+
+      category=nearest?.category||"";
+      categorySource=category?"nearest":"";
+    }
+
+    amountRows.push({
+      id:"ocr_layout_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      rawLabel:leftText||row.text,
+      category,
+      categorySource,
+      amount,
+      y:row.centerY,
+      sourceType:"category-total",
+      inferred:false
+    });
+  });
+
+  amountRows=amountRows
+    .filter(row=>row.amount>=100)
+    .sort((a,b)=>a.y-b.y);
+
+  amountRows=inferMoneyForwardCategoryOrder(amountRows);
+
+  const unique=new Map();
+
+  amountRows.forEach(row=>{
+    if(!row.category)return;
+
+    const item=moneyForwardCategoryItem(row.category);
+    if(!item)return;
+
+    const normalizedRow={
+      id:row.id,
+      label:row.category,
+      amount:row.amount,
+      itemId:item.id,
+      fallback:Boolean(row.inferred),
+      sourceType:"category-total"
+    };
+
+    const existing=unique.get(row.category);
+
+    if(!existing||normalizedRow.amount>existing.amount){
+      unique.set(row.category,normalizedRow);
+    }
+  });
+
+  return [...unique.values()];
+}
+
+function mergeScreenshotRows(preferredRows,fallbackRows){
+  if(preferredRows.length>=3){
+    return preferredRows;
+  }
+
+  const merged=new Map();
+
+  [...preferredRows,...fallbackRows].forEach(row=>{
+    const key=`${row.itemId}||${normalizedCategory(row.label)}`;
+    const existing=merged.get(key);
+
+    if(!existing){
+      merged.set(key,{...row});
+      return;
+    }
+
+    if(
+      existing.sourceType==="category-total"||
+      row.sourceType==="category-total"||
+      existing.amount===row.amount
+    ){
+      existing.amount=Math.max(existing.amount,row.amount);
+    }else{
+      existing.amount+=row.amount;
+    }
+  });
+
+  return [...merged.values()];
+}
+
 function extractScreenshotRows(text){
   const rawLines=normalizeOcrText(text)
     .split(/\r?\n/)
@@ -2257,7 +2735,8 @@ function extractScreenshotRows(text){
         label,
         amount,
         itemId:mapped.item.id,
-        fallback:mapped.fallback
+        fallback:mapped.fallback,
+        sourceType:"text"
       });
     });
   });
@@ -2429,7 +2908,7 @@ async function preprocessScreenshot(file){
   const context=canvas.getContext("2d",{willReadFrequently:false});
   context.imageSmoothingEnabled=true;
   context.imageSmoothingQuality="high";
-  context.filter="grayscale(1) contrast(1.25)";
+  context.filter="grayscale(1) contrast(1.42)";
   context.drawImage(image,0,0,width,height);
 
   return canvas.toDataURL("image/png");
@@ -2455,7 +2934,7 @@ function updateScreenshotOcrProgress(fileIndex,fileCount,message){
 async function recognizeScreenshotFiles(){
   if(screenshotOcrRunning||!selectedScreenshotFiles.length)return;
 
-  if(!window.Tesseract||typeof window.Tesseract.recognize!=="function"){
+  if(!window.Tesseract||typeof window.Tesseract.createWorker!=="function"){
     throw new Error("文字読み取り機能を読み込めませんでした。インターネット接続を確認して、ページを再読み込みしてください。");
   }
 
@@ -2466,32 +2945,69 @@ async function recognizeScreenshotFiles(){
   screenshotImportMessage.classList.add("hidden");
   screenshotOcrProgressBar.style.width="0%";
 
+  let worker=null;
+  let activeFileIndex=0;
+
   try{
     const allRows=[];
 
+    worker=await window.Tesseract.createWorker(
+      "jpn+eng",
+      1,
+      {
+        logger:message=>updateScreenshotOcrProgress(
+          activeFileIndex,
+          selectedScreenshotFiles.length,
+          message
+        )
+      }
+    );
+
+    await worker.setParameters({
+      tessedit_pageseg_mode:"11",
+      preserve_interword_spaces:"1",
+      user_defined_dpi:"300"
+    });
+
     for(let index=0;index<selectedScreenshotFiles.length;index++){
+      activeFileIndex=index;
       const processedImage=await preprocessScreenshot(selectedScreenshotFiles[index]);
 
-      const result=await window.Tesseract.recognize(
+      const result=await worker.recognize(
         processedImage,
-        "jpn+eng",
+        {},
         {
-          logger:message=>updateScreenshotOcrProgress(index,selectedScreenshotFiles.length,message)
+          text:true,
+          blocks:true,
+          tsv:true
         }
       );
 
-      allRows.push(...extractScreenshotRows(result?.data?.text||""));
+      const layoutRows=extractMoneyForwardCategoryRowsFromOcrData(result?.data||{});
+      const textRows=extractScreenshotRows(result?.data?.text||"");
+
+      allRows.push(...mergeScreenshotRows(layoutRows,textRows));
     }
 
     const mergedByItemAndLabel=new Map();
 
     allRows.forEach(row=>{
       const key=`${normalizedCategory(row.label)}||${row.itemId}`;
+      const existing=mergedByItemAndLabel.get(key);
 
-      if(mergedByItemAndLabel.has(key)){
-        mergedByItemAndLabel.get(key).amount+=row.amount;
-      }else{
+      if(!existing){
         mergedByItemAndLabel.set(key,{...row});
+        return;
+      }
+
+      if(
+        row.sourceType==="category-total"||
+        existing.sourceType==="category-total"||
+        row.amount===existing.amount
+      ){
+        existing.amount=Math.max(existing.amount,row.amount);
+      }else{
+        existing.amount+=row.amount;
       }
     });
 
@@ -2505,14 +3021,21 @@ async function recognizeScreenshotFiles(){
 
     if(!screenshotReviewRows.length){
       screenshotImportMessage.classList.remove("hidden");
-      screenshotImportMessage.innerHTML="<strong>費目と金額を確認できませんでした</strong>マネーフォワードの費目一覧と金額が見える画面を、明るく鮮明に撮影してください。";
+      screenshotImportMessage.innerHTML="<strong>費目と金額を確認できませんでした</strong>マネーフォワードの家計簿で、費目名と右側の金額が見える画面を使用してください。画面の上下が少し切れていても読み取れます。";
     }
   }finally{
+    if(worker){
+      try{
+        await worker.terminate();
+      }catch(error){
+        console.warn(error);
+      }
+    }
+
     screenshotOcrRunning=false;
     runScreenshotOcr.disabled=false;
   }
 }
-
 screenshotDropZone.onclick=()=>{
   moneyForwardScreenshotFiles.click();
 };
@@ -4490,7 +5013,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:18,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:20,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -4691,6 +5214,36 @@ initRender();
 - スクショ確認画面で資産の種類を変更可能
 - 既存の楽天証券・iDeCoデータを名称から自動移行
 - 月次スクショ、CSV、集計期間、予算、年間、ライフプラン、設定を維持
+-->
+
+
+<!--
+変更履歴 v19
+- マネーフォワード MEの家計簿・費目一覧画面を専用対応
+- 左側の費目名と右側の金額を座標で結びつけるOCR方式へ変更
+- OCRを疎な文字配置に強いページ分割モードへ変更
+- 趣味・娯楽、自動車、教養・教育、水道・光熱費、通信費などを補正
+- 読み取りが崩れた費目を標準表示順から推定する機能を追加
+- 金額が正数の支出を収入と誤判定していた分類バグを修正
+- 日付、割合、合計表示を費目金額から除外
+- 重複スクショの同じ費目を二重加算しないよう修正
+- 画像のコントラスト補正を強化
+- 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
+-->
+
+
+<!--
+変更履歴 v20
+- 実際のマネーフォワード家計簿スクショでOCRを再検証
+- 日付の「2026」を金額として拾う誤認識を除外
+- 自動車を直前の趣味・娯楽へ誤結合する問題を修正
+- 直接読めた費目だけを表示順推定の基準に使用
+- 読めなかった費目は標準表示順から安全に補完
+- Tesseract.jsの正式なWorker APIへ変更
+- 単語座標を取得するblocks出力とTSV出力を明示的に有効化
+- blocksが取得できない場合もTSVから単語位置を復元
+- OCR Workerを処理後に終了してメモリ使用を抑制
+- 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
 -->
 
 </body>
