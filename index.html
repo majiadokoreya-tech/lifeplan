@@ -261,6 +261,15 @@
     .investment-footer{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fff}
     .excluded-label{color:#2563eb;font-size:10px;font-weight:900}
 
+    
+    .review-warning{margin-bottom:11px;padding:9px 10px;border:1px solid #fde68a;border-radius:11px;background:#fffbeb;color:#92400e;font-size:10px;font-weight:800;line-height:1.6}
+    .ocr-match-badge{display:inline-flex;align-items:center;margin-bottom:7px;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:900}
+    .ocr-match-badge.direct{background:#dcfce7;color:#166534}
+    .ocr-match-badge.inferred{background:#fef3c7;color:#92400e}
+    .ocr-match-badge.manual{background:#e0e7ff;color:#3730a3}
+    .screenshot-review-row.inferred-row{border-color:#fbbf24;background:#fffdf5}
+    .screenshot-review-row.manual-row{border-color:#a5b4fc;background:#fafaff}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -476,6 +485,10 @@
           <span id="screenshotReviewCount" class="small"></span>
         </div>
 
+        <div class="review-warning">
+          金額と費目を確認してください。「表示順で推定」の行は特に確認が必要です。抜けた項目は下のボタンから追加できます。
+        </div>
+
         <div class="field">
           <label>反映方法</label>
           <select id="screenshotImportMode">
@@ -485,6 +498,8 @@
         </div>
 
         <div id="screenshotReviewList" class="screenshot-review-list"></div>
+
+        <button id="addScreenshotReviewRow" class="btn outline" type="button">＋ 読み取れなかった項目を追加</button>
 
         <div class="btn-row">
           <button id="applyScreenshotImport" class="btn" type="button">確認した内容を入力する</button>
@@ -2388,6 +2403,311 @@ function parseTesseractTsvWords(tsv){
   }).filter(Boolean);
 }
 
+
+function medianNumber(values){
+  const sorted=values
+    .filter(Number.isFinite)
+    .sort((a,b)=>a-b);
+
+  if(!sorted.length)return 0;
+
+  const middle=Math.floor(sorted.length/2);
+
+  return sorted.length%2
+    ?sorted[middle]
+    :(sorted[middle-1]+sorted[middle])/2;
+}
+
+function extractCategoryAnchorsFromOcrData(ocrData){
+  return clusterOcrWordsIntoVisualRows(ocrData)
+    .map(row=>({
+      category:canonicalMoneyForwardCategory(row.text),
+      text:row.text,
+      y:row.centerY,
+      height:row.height,
+      confidence:medianNumber(row.words.map(word=>word.confidence))
+    }))
+    .filter(row=>row.category)
+    .sort((a,b)=>a.y-b.y);
+}
+
+function extractAmountRowsFromOcrData(ocrData,imageHeight=0){
+  const visualRows=clusterOcrWordsIntoVisualRows(ocrData);
+  const results=[];
+
+  visualRows.forEach(row=>{
+    const text=normalizeOcrText(row.text);
+    const compact=text.replace(/\s/g,"");
+
+    if(!compact||/%|％/.test(compact))return;
+
+    if(
+      /\d{4}年/.test(compact)||
+      /\d{1,2}月\d{1,2}日/.test(compact)||
+      ((compact.match(/月/g)||[]).length>=2)
+    ){
+      return;
+    }
+
+    if(imageHeight&&row.centerY<imageHeight*0.11&&!/[¥￥円,]/.test(compact)){
+      return;
+    }
+
+    const hasCurrency=/[¥￥円\\]/.test(compact);
+    const hasComma=/\d{1,3}(?:,\d{3})+/.test(compact);
+    const candidates=[];
+
+    const patterns=[
+      /[¥￥\\]?\s*\d{1,3}(?:,\d{3})+(?:円)?/g,
+      /[¥￥\\]\s*\d{3,9}(?:円)?/g,
+      /\d{3,9}\s*円/g
+    ];
+
+    patterns.forEach(pattern=>{
+      for(const match of compact.matchAll(pattern)){
+        const amount=parseOcrMoney(match[0]);
+
+        if(amount>=100&&amount<=999999999){
+          candidates.push(amount);
+        }
+      }
+    });
+
+    if(!candidates.length&&hasCurrency){
+      const amount=parseOcrMoney(compact);
+
+      if(amount>=100&&amount<=999999999){
+        candidates.push(amount);
+      }
+    }
+
+    if(!candidates.length&&!hasCurrency&&!hasComma){
+      const pureDigits=compact.match(/^\d{3,9}$/);
+      const amount=pureDigits?Number(pureDigits[0]):0;
+
+      if(amount>=1000&&(!imageHeight||row.centerY>=imageHeight*0.14)){
+        candidates.push(amount);
+      }
+    }
+
+    if(!candidates.length)return;
+
+    results.push({
+      amount:Math.max(...candidates),
+      text,
+      y:row.centerY,
+      height:row.height,
+      confidence:medianNumber(row.words.map(word=>word.confidence))
+    });
+  });
+
+  return results.sort((a,b)=>a.y-b.y);
+}
+
+function mergeAmountRowsByPosition(primary,secondary){
+  const combined=[];
+
+  [...primary,...secondary]
+    .sort((a,b)=>a.y-b.y)
+    .forEach(row=>{
+      const existing=combined.find(entry=>{
+        const tolerance=Math.max(18,Math.min(entry.height,row.height)*0.9);
+        return Math.abs(entry.y-row.y)<=tolerance;
+      });
+
+      if(!existing){
+        combined.push({...row});
+        return;
+      }
+
+      const existingScore=
+        (/[¥￥円,]/.test(existing.text)?20:0)+
+        Number(existing.confidence||0);
+
+      const rowScore=
+        (/[¥￥円,]/.test(row.text)?20:0)+
+        Number(row.confidence||0);
+
+      if(rowScore>existingScore){
+        Object.assign(existing,row);
+      }else if(existing.amount!==row.amount){
+        const existingDigits=String(existing.amount).length;
+        const rowDigits=String(row.amount).length;
+
+        if(rowDigits>existingDigits&&row.confidence>=existing.confidence-8){
+          Object.assign(existing,row);
+        }
+      }
+    });
+
+  return combined.sort((a,b)=>a.y-b.y);
+}
+
+function directCategoryMatches(categories,amounts){
+  if(!categories.length||!amounts.length)return new Map();
+
+  const spacing=medianNumber(
+    amounts.slice(1).map((row,index)=>row.y-amounts[index].y)
+  )||70;
+
+  const tolerance=Math.max(24,Math.min(75,spacing*0.46));
+  const matches=new Map();
+  const usedCategories=new Set();
+
+  amounts.forEach((amountRow,amountIndex)=>{
+    const candidates=categories
+      .map((categoryRow,categoryIndex)=>({
+        categoryRow,
+        categoryIndex,
+        distance:Math.abs(categoryRow.y-amountRow.y)
+      }))
+      .filter(candidate=>{
+        return candidate.distance<=tolerance&&!usedCategories.has(candidate.categoryIndex);
+      })
+      .sort((a,b)=>a.distance-b.distance);
+
+    const nearest=candidates[0];
+
+    if(nearest){
+      matches.set(amountIndex,{
+        category:nearest.categoryRow.category,
+        categoryIndex:MONEY_FORWARD_CATEGORY_ORDER.indexOf(nearest.categoryRow.category),
+        distance:nearest.distance,
+        source:"direct"
+      });
+      usedCategories.add(nearest.categoryIndex);
+    }
+  });
+
+  return matches;
+}
+
+function bestGlobalCategoryOffset(directMatches){
+  const scores=new Map();
+
+  directMatches.forEach((match,amountIndex)=>{
+    if(match.categoryIndex<0)return;
+
+    const offset=match.categoryIndex-amountIndex;
+    const current=scores.get(offset)||{count:0,distance:0};
+    current.count++;
+    current.distance+=match.distance;
+    scores.set(offset,current);
+  });
+
+  const ranked=[...scores.entries()].sort((left,right)=>{
+    return (
+      right[1].count-left[1].count||
+      left[1].distance-right[1].distance||
+      Math.abs(left[0])-Math.abs(right[0])
+    );
+  });
+
+  return ranked.length?ranked[0][0]:null;
+}
+
+function inferredCategoryIndexForAmount(amountIndex,directMatches,globalOffset){
+  if(directMatches.has(amountIndex)){
+    return directMatches.get(amountIndex).categoryIndex;
+  }
+
+  const anchors=[...directMatches.entries()]
+    .filter(([,match])=>match.categoryIndex>=0)
+    .sort((a,b)=>a[0]-b[0]);
+
+  const previous=[...anchors]
+    .reverse()
+    .find(([index])=>index<amountIndex);
+
+  const next=anchors.find(([index])=>index>amountIndex);
+
+  if(previous&&next){
+    const fromPrevious=previous[1].categoryIndex+(amountIndex-previous[0]);
+    const fromNext=next[1].categoryIndex-(next[0]-amountIndex);
+
+    if(fromPrevious===fromNext){
+      return fromPrevious;
+    }
+
+    const previousDistance=amountIndex-previous[0];
+    const nextDistance=next[0]-amountIndex;
+
+    return previousDistance<=nextDistance?fromPrevious:fromNext;
+  }
+
+  if(previous){
+    return previous[1].categoryIndex+(amountIndex-previous[0]);
+  }
+
+  if(next){
+    return next[1].categoryIndex-(next[0]-amountIndex);
+  }
+
+  return globalOffset===null?null:amountIndex+globalOffset;
+}
+
+function pairSplitMoneyForwardRows(categories,amounts){
+  if(!amounts.length)return [];
+
+  const directMatches=directCategoryMatches(categories,amounts);
+  const globalOffset=bestGlobalCategoryOffset(directMatches);
+
+  if(!directMatches.size&&globalOffset===null){
+    return [];
+  }
+
+  const paired=[];
+
+  amounts.forEach((amountRow,amountIndex)=>{
+    const direct=directMatches.get(amountIndex);
+    const categoryIndex=direct
+      ?direct.categoryIndex
+      :inferredCategoryIndexForAmount(amountIndex,directMatches,globalOffset);
+
+    if(categoryIndex===null||categoryIndex<0||categoryIndex>=MONEY_FORWARD_CATEGORY_ORDER.length){
+      return;
+    }
+
+    const category=direct?.category||MONEY_FORWARD_CATEGORY_ORDER[categoryIndex];
+    const item=moneyForwardCategoryItem(category);
+
+    if(!item)return;
+
+    paired.push({
+      id:"ocr_split_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+      label:category,
+      amount:amountRow.amount,
+      itemId:item.id,
+      fallback:!direct,
+      matchType:direct?"direct":"inferred",
+      sourceType:"category-total",
+      y:amountRow.y
+    });
+  });
+
+  const unique=new Map();
+
+  paired.forEach(row=>{
+    const existing=unique.get(row.label);
+
+    if(!existing){
+      unique.set(row.label,row);
+      return;
+    }
+
+    if(row.matchType==="direct"&&existing.matchType!=="direct"){
+      unique.set(row.label,row);
+      return;
+    }
+
+    if(row.matchType===existing.matchType&&row.amount>existing.amount){
+      unique.set(row.label,row);
+    }
+  });
+
+  return [...unique.values()].sort((a,b)=>a.y-b.y);
+}
+
 function flattenTesseractWords(ocrData){
   if(Array.isArray(ocrData?.words)&&ocrData.words.length){
     return ocrData.words;
@@ -2643,6 +2963,7 @@ function extractMoneyForwardCategoryRowsFromOcrData(ocrData){
       amount:row.amount,
       itemId:item.id,
       fallback:Boolean(row.inferred),
+      matchType:row.inferred?"inferred":"direct",
       sourceType:"category-total"
     };
 
@@ -2736,6 +3057,7 @@ function extractScreenshotRows(text){
         amount,
         itemId:mapped.item.id,
         fallback:mapped.fallback,
+        matchType:mapped.fallback?"inferred":"direct",
         sourceType:"text"
       });
     });
@@ -2770,41 +3092,57 @@ function screenshotItemOptions(selectedItemId){
   }).join("");
 }
 
+function screenshotMatchLabel(row){
+  if(row.matchType==="manual")return "手動追加";
+  if(row.matchType==="inferred")return "表示順で推定";
+  return "費目名と金額を自動一致";
+}
+
 function renderScreenshotReview(){
   screenshotReviewCount.textContent=`${screenshotReviewRows.length}件`;
 
   if(!screenshotReviewRows.length){
-    screenshotReviewList.innerHTML='<div class="empty">費目と金額を読み取れませんでした。費目一覧と金額がはっきり見えるスクショを使用してください。</div>';
+    screenshotReviewList.innerHTML='<div class="empty">費目と金額を読み取れませんでした。「読み取れなかった項目を追加」から手入力できます。</div>';
     applyScreenshotImport.classList.add("hidden");
-    return;
+  }else{
+    applyScreenshotImport.classList.remove("hidden");
   }
 
-  applyScreenshotImport.classList.remove("hidden");
+  screenshotReviewList.innerHTML=screenshotReviewRows.map((row,index)=>{
+    const matchType=row.matchType||"inferred";
+    const rowClass=matchType==="inferred"
+      ?"screenshot-review-row inferred-row"
+      :matchType==="manual"
+        ?"screenshot-review-row manual-row"
+        :"screenshot-review-row";
 
-  screenshotReviewList.innerHTML=screenshotReviewRows.map((row,index)=>`
-    <div class="screenshot-review-row" data-ocr-row="${index}">
-      <div class="screenshot-review-grid">
-        <div class="field">
-          <label>スクショの項目名</label>
-          <input data-ocr-label="${index}" value="${esc(row.label)}">
+    return `
+      <div class="${rowClass}" data-ocr-row="${index}">
+        <span class="ocr-match-badge ${esc(matchType)}">${esc(screenshotMatchLabel(row))}</span>
+
+        <div class="screenshot-review-grid">
+          <div class="field">
+            <label>スクショの項目名</label>
+            <input data-ocr-label="${index}" value="${esc(row.label)}">
+          </div>
+
+          <div class="field">
+            <label>金額</label>
+            <input data-ocr-amount="${index}" type="number" min="0" inputmode="numeric" value="${row.amount||""}">
+          </div>
         </div>
 
         <div class="field">
-          <label>金額</label>
-          <input data-ocr-amount="${index}" type="number" min="0" inputmode="numeric" value="${row.amount}">
+          <label>アプリの入力先</label>
+          <select data-ocr-item="${index}">${screenshotItemOptions(row.itemId)}</select>
+        </div>
+
+        <div class="screenshot-review-actions">
+          <button class="btn danger small-btn" data-remove-ocr-row="${index}" type="button">この行を除外</button>
         </div>
       </div>
-
-      <div class="field">
-        <label>アプリの入力先</label>
-        <select data-ocr-item="${index}">${screenshotItemOptions(row.itemId)}</select>
-      </div>
-
-      <div class="screenshot-review-actions">
-        <button class="btn danger small-btn" data-remove-ocr-row="${index}" type="button">この行を除外</button>
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   document.querySelectorAll("[data-remove-ocr-row]").forEach(button=>{
     button.onclick=()=>{
@@ -2814,6 +3152,28 @@ function renderScreenshotReview(){
     };
   });
 }
+
+addScreenshotReviewRow.onclick=()=>{
+  const defaultItem=findItemById("other_unknown")||sortedItems().find(item=>item.type==="expense");
+
+  screenshotReviewRows.push({
+    id:"manual_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+    label:"未読取の項目",
+    amount:0,
+    itemId:defaultItem?.id||"",
+    fallback:true,
+    matchType:"manual",
+    sourceType:"manual"
+  });
+
+  screenshotReviewArea.classList.remove("hidden");
+  renderScreenshotReview();
+
+  setTimeout(()=>{
+    const rows=document.querySelectorAll("[data-ocr-row]");
+    rows[rows.length-1]?.scrollIntoView({behavior:"smooth",block:"center"});
+  },80);
+};
 
 function clearScreenshotPreviewUrls(){
   screenshotPreviewUrls.forEach(url=>URL.revokeObjectURL(url));
@@ -2914,6 +3274,82 @@ async function preprocessScreenshot(file){
   return canvas.toDataURL("image/png");
 }
 
+function cropCanvasRegion(sourceCanvas,startRatio,endRatio,{binary=false}={}){
+  const sourceX=Math.max(0,Math.floor(sourceCanvas.width*startRatio));
+  const sourceWidth=Math.max(1,Math.floor(sourceCanvas.width*(endRatio-startRatio)));
+
+  const canvas=document.createElement("canvas");
+  canvas.width=sourceWidth;
+  canvas.height=sourceCanvas.height;
+
+  const context=canvas.getContext("2d",{willReadFrequently:binary});
+  context.imageSmoothingEnabled=true;
+  context.imageSmoothingQuality="high";
+  context.drawImage(
+    sourceCanvas,
+    sourceX,
+    0,
+    sourceWidth,
+    sourceCanvas.height,
+    0,
+    0,
+    sourceWidth,
+    sourceCanvas.height
+  );
+
+  if(binary){
+    const imageData=context.getImageData(0,0,canvas.width,canvas.height);
+    const pixels=imageData.data;
+
+    for(let index=0;index<pixels.length;index+=4){
+      const gray=Math.round(
+        pixels[index]*0.299+
+        pixels[index+1]*0.587+
+        pixels[index+2]*0.114
+      );
+      const value=gray<185?0:255;
+      pixels[index]=value;
+      pixels[index+1]=value;
+      pixels[index+2]=value;
+      pixels[index+3]=255;
+    }
+
+    context.putImageData(imageData,0,0);
+  }
+
+  return canvas.toDataURL("image/png");
+}
+
+async function prepareMoneyForwardScreenshotRegions(file){
+  const dataUrl=await readImageFile(file);
+  const image=await loadBrowserImage(dataUrl);
+
+  const maxWidth=2200;
+  const baseScale=image.naturalWidth<1200?2:1.35;
+  const scale=Math.min(baseScale,maxWidth/image.naturalWidth);
+  const width=Math.max(1,Math.round(image.naturalWidth*scale));
+  const height=Math.max(1,Math.round(image.naturalHeight*scale));
+
+  const fullCanvas=document.createElement("canvas");
+  fullCanvas.width=width;
+  fullCanvas.height=height;
+
+  const context=fullCanvas.getContext("2d",{willReadFrequently:false});
+  context.imageSmoothingEnabled=true;
+  context.imageSmoothingQuality="high";
+  context.filter="grayscale(1) contrast(1.48)";
+  context.drawImage(image,0,0,width,height);
+
+  return {
+    full:fullCanvas.toDataURL("image/png"),
+    left:cropCanvasRegion(fullCanvas,0,0.73),
+    right:cropCanvasRegion(fullCanvas,0.50,1),
+    rightBinary:cropCanvasRegion(fullCanvas,0.50,1,{binary:true}),
+    width,
+    height
+  };
+}
+
 function updateScreenshotOcrProgress(fileIndex,fileCount,message){
   const progress=Math.max(0,Math.min(1,Number(message.progress)||0));
   const completedFraction=(fileIndex+progress)/fileCount;
@@ -2947,6 +3383,7 @@ async function recognizeScreenshotFiles(){
 
   let worker=null;
   let activeFileIndex=0;
+  let activeStage="";
 
   try{
     const allRows=[];
@@ -2955,38 +3392,106 @@ async function recognizeScreenshotFiles(){
       "jpn+eng",
       1,
       {
-        logger:message=>updateScreenshotOcrProgress(
-          activeFileIndex,
-          selectedScreenshotFiles.length,
-          message
-        )
+        logger:message=>{
+          updateScreenshotOcrProgress(
+            activeFileIndex,
+            selectedScreenshotFiles.length,
+            message
+          );
+
+          if(activeStage&&message.status==="recognizing text"){
+            screenshotOcrStatus.textContent=`${activeFileIndex+1}/${selectedScreenshotFiles.length}枚目：${activeStage} ${Math.round((message.progress||0)*100)}%`;
+          }
+        }
       }
     );
 
-    await worker.setParameters({
-      tessedit_pageseg_mode:"11",
-      preserve_interword_spaces:"1",
-      user_defined_dpi:"300"
-    });
-
     for(let index=0;index<selectedScreenshotFiles.length;index++){
       activeFileIndex=index;
-      const processedImage=await preprocessScreenshot(selectedScreenshotFiles[index]);
+      const regions=await prepareMoneyForwardScreenshotRegions(selectedScreenshotFiles[index]);
 
-      const result=await worker.recognize(
-        processedImage,
+      activeStage="左側の費目名を読取中";
+      await worker.setParameters({
+        tessedit_pageseg_mode:"11",
+        preserve_interword_spaces:"1",
+        user_defined_dpi:"300",
+        tessedit_char_whitelist:""
+      });
+
+      const leftResult=await worker.recognize(
+        regions.left,
         {},
-        {
-          text:true,
-          blocks:true,
-          tsv:true
-        }
+        {text:true,blocks:true,tsv:true}
       );
 
-      const layoutRows=extractMoneyForwardCategoryRowsFromOcrData(result?.data||{});
-      const textRows=extractScreenshotRows(result?.data?.text||"");
+      const categoryAnchors=extractCategoryAnchorsFromOcrData(leftResult?.data||{});
 
-      allRows.push(...mergeScreenshotRows(layoutRows,textRows));
+      activeStage="右側の金額を読取中";
+      await worker.setParameters({
+        tessedit_pageseg_mode:"11",
+        preserve_interword_spaces:"1",
+        user_defined_dpi:"300",
+        tessedit_char_whitelist:"0123456789,¥￥円.-% "
+      });
+
+      const rightResult=await worker.recognize(
+        regions.right,
+        {},
+        {text:true,blocks:true,tsv:true}
+      );
+
+      let amountRows=extractAmountRowsFromOcrData(
+        rightResult?.data||{},
+        regions.height
+      );
+
+      const expectedMinimum=Math.max(3,categoryAnchors.length-1);
+
+      if(amountRows.length<expectedMinimum){
+        activeStage="読めなかった金額を再確認中";
+
+        const binaryResult=await worker.recognize(
+          regions.rightBinary,
+          {},
+          {text:true,blocks:true,tsv:true}
+        );
+
+        const binaryAmounts=extractAmountRowsFromOcrData(
+          binaryResult?.data||{},
+          regions.height
+        );
+
+        amountRows=mergeAmountRowsByPosition(amountRows,binaryAmounts);
+      }
+
+      let splitRows=pairSplitMoneyForwardRows(categoryAnchors,amountRows);
+
+      if(splitRows.length<3){
+        activeStage="画面全体を再確認中";
+
+        await worker.setParameters({
+          tessedit_pageseg_mode:"11",
+          preserve_interword_spaces:"1",
+          user_defined_dpi:"300",
+          tessedit_char_whitelist:""
+        });
+
+        const fullResult=await worker.recognize(
+          regions.full,
+          {},
+          {text:true,blocks:true,tsv:true}
+        );
+
+        const layoutRows=extractMoneyForwardCategoryRowsFromOcrData(fullResult?.data||{});
+        const textRows=extractScreenshotRows(fullResult?.data?.text||"");
+
+        splitRows=mergeScreenshotRows(
+          splitRows,
+          mergeScreenshotRows(layoutRows,textRows)
+        );
+      }
+
+      allRows.push(...splitRows);
     }
 
     const mergedByItemAndLabel=new Map();
@@ -3000,28 +3505,46 @@ async function recognizeScreenshotFiles(){
         return;
       }
 
-      if(
-        row.sourceType==="category-total"||
-        existing.sourceType==="category-total"||
-        row.amount===existing.amount
-      ){
+      const rank={direct:3,inferred:2,manual:1};
+      const existingRank=rank[existing.matchType]||0;
+      const rowRank=rank[row.matchType]||0;
+
+      if(rowRank>existingRank){
+        mergedByItemAndLabel.set(key,{...row});
+        return;
+      }
+
+      if(rowRank===existingRank){
         existing.amount=Math.max(existing.amount,row.amount);
-      }else{
-        existing.amount+=row.amount;
       }
     });
 
     screenshotReviewRows=[...mergedByItemAndLabel.values()]
-      .sort((a,b)=>b.amount-a.amount);
+      .sort((a,b)=>{
+        const leftIndex=MONEY_FORWARD_CATEGORY_ORDER.indexOf(a.label);
+        const rightIndex=MONEY_FORWARD_CATEGORY_ORDER.indexOf(b.label);
+
+        if(leftIndex>=0&&rightIndex>=0)return leftIndex-rightIndex;
+        if(leftIndex>=0)return -1;
+        if(rightIndex>=0)return 1;
+        return b.amount-a.amount;
+      });
 
     screenshotOcrProgressBar.style.width="100%";
-    screenshotOcrStatus.textContent="読み取り完了。項目と金額を確認してください。";
+    screenshotOcrStatus.textContent="読み取り完了。金額と費目を確認してください。";
     screenshotReviewArea.classList.remove("hidden");
     renderScreenshotReview();
 
+    const inferredCount=screenshotReviewRows.filter(row=>row.matchType==="inferred").length;
+
+    screenshotImportMessage.classList.remove("hidden");
+
     if(!screenshotReviewRows.length){
-      screenshotImportMessage.classList.remove("hidden");
-      screenshotImportMessage.innerHTML="<strong>費目と金額を確認できませんでした</strong>マネーフォワードの家計簿で、費目名と右側の金額が見える画面を使用してください。画面の上下が少し切れていても読み取れます。";
+      screenshotImportMessage.innerHTML="<strong>自動読取できませんでした</strong>下の「読み取れなかった項目を追加」から、費目と金額を入力できます。";
+    }else if(inferredCount){
+      screenshotImportMessage.innerHTML=`<strong>${screenshotReviewRows.length}件を読み取りました</strong>そのうち${inferredCount}件は表示順から推定しています。黄色の行を確認してください。`;
+    }else{
+      screenshotImportMessage.innerHTML=`<strong>${screenshotReviewRows.length}件を読み取りました</strong>すべて費目名と金額の位置を照合しています。`;
     }
   }finally{
     if(worker){
@@ -5013,7 +5536,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:20,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:21,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -5243,6 +5766,23 @@ initRender();
 - 単語座標を取得するblocks出力とTSV出力を明示的に有効化
 - blocksが取得できない場合もTSVから単語位置を復元
 - OCR Workerを処理後に終了してメモリ使用を抑制
+- 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
+-->
+
+
+<!--
+変更履歴 v21
+- マネーフォワードの費目名と金額を左右別々にOCRする方式へ変更
+- 左側は日本語費目専用、右側は数字・通貨専用で読み取り精度を改善
+- 同じ縦位置にある費目と金額だけを直接結合
+- 金額が少ない場合は白黒二値化した画像で自動再読取
+- 読取不足時だけ画面全体OCRへ切り替えるフォールバックを追加
+- 日付、割合、月表示を金額候補から除外
+- 費目の前後に読取済み行がある場合は局所的な表示順で補完
+- 「自動一致」「表示順で推定」「手動追加」を確認画面に表示
+- 推定された行を黄色で強調
+- 読み取れなかった費目を確認画面から手動追加可能
+- 複数スクショの重複金額は最大値を採用し二重加算を防止
 - 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
 -->
 
