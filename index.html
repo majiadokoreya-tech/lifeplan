@@ -486,7 +486,7 @@
         </div>
 
         <div class="review-warning">
-          金額と費目を確認してください。「表示順で推定」の行は特に確認が必要です。抜けた項目は下のボタンから追加できます。
+          金額と費目を確認してください。「表示順で推定」の行は特に確認が必要です。アプリにない費目は、反映時に自動で作成されます。
         </div>
 
         <div class="field">
@@ -1906,22 +1906,22 @@ function normalizedCategory(value){
 }
 
 const MONEY_FORWARD_CATEGORY_DEFINITIONS=[
-  {label:"住宅",aliases:["住宅","住居"],itemId:"housing_loan"},
-  {label:"食費",aliases:["食費","食品"],itemId:"food_grocery"},
-  {label:"日用品",aliases:["日用品","生活用品"],itemId:"daily_goods"},
-  {label:"趣味・娯楽",aliases:["趣味娯楽","趣味娱乐","趣味","娯楽"],itemId:"hobby_game"},
-  {label:"自動車",aliases:["自動車","車関連","白動車","邊動車","自働車"],itemId:"car_gas"},
-  {label:"教養・教育",aliases:["教養教育","教着教育","教養教音","教育"],itemId:"edu_school"},
-  {label:"水道・光熱費",aliases:["水道光熱費","水道光熱","光熱費","水道"],itemId:"utility_electric"},
-  {label:"通信費",aliases:["通信費","通信"],itemId:"comm_papa"},
-  {label:"衣服・美容",aliases:["衣服美容","衣類美容","衣服"],itemId:"beauty_clothes"},
-  {label:"交際費",aliases:["交際費","交際"],itemId:"social_drink"},
-  {label:"健康・医療",aliases:["健康医療","健康","医療"],itemId:"health_hospital"},
-  {label:"その他",aliases:["その他","その地","その也"],itemId:"other_unknown"},
-  {label:"保険",aliases:["保険","保瞼"],itemId:"insurance_1"},
-  {label:"交通費",aliases:["交通費","交通"],itemId:"transport"},
-  {label:"税・社会保障",aliases:["税社会保障","社会保障","税金"],itemId:"other_unknown"}
-];
+  {label:"住宅",aliases:["住宅","住居"],itemId:"housing_loan",classification:"1 毎月・固定",icon:"🏠",color:"#0ea5e9"},
+  {label:"食費",aliases:["食費","食品"],itemId:"food_grocery",classification:"2 毎月・変動",icon:"🍚",color:"#f97316"},
+  {label:"日用品",aliases:["日用品","生活用品"],itemId:"daily_goods",classification:"2 毎月・変動",icon:"🧻",color:"#14b8a6"},
+  {label:"趣味・娯楽",aliases:["趣味娯楽","趣味娱乐","趣味","娯楽"],itemId:"hobby_game",classification:"4 不定・変動",icon:"🎮",color:"#ec4899"},
+  {label:"自動車",aliases:["自動車","車関連","白動車","邊動車","自働車"],itemId:"car_gas",classification:"4 不定・変動",icon:"🚗",color:"#64748b"},
+  {label:"教養・教育",aliases:["教養教育","教着教育","教養教音","教育"],itemId:"edu_school",classification:"4 不定・変動",icon:"📚",color:"#6366f1"},
+  {label:"水道・光熱費",aliases:["水道光熱費","水道光熱","光熱費","水道"],itemId:"utility_electric",classification:"2 毎月・変動",icon:"💡",color:"#06b6d4"},
+  {label:"通信費",aliases:["通信費","通信"],itemId:"comm_papa",classification:"1 毎月・固定",icon:"📡",color:"#8b5cf6"},
+  {label:"衣服・美容",aliases:["衣服美容","衣類美容","衣服"],itemId:"beauty_clothes",classification:"4 不定・変動",icon:"👕",color:"#f59e0b"},
+  {label:"交際費",aliases:["交際費","交際"],itemId:"social_drink",classification:"4 不定・変動",icon:"🤝",color:"#3b82f6"},
+  {label:"健康・医療",aliases:["健康医療","健康","医療"],itemId:"health_hospital",classification:"4 不定・変動",icon:"🏥",color:"#fb7185"},
+  {label:"その他",aliases:["その他","その地","その也"],itemId:"other_unknown",classification:"4 不定・変動",icon:"•••",color:"#a3a3a3"},
+  {label:"保険",aliases:["保険","保瞼"],itemId:"insurance_1",classification:"1 毎月・固定",icon:"🛡️",color:"#ec4899"},
+  {label:"交通費",aliases:["交通費","交通"],itemId:"transport",classification:"2 毎月・変動",icon:"🚃",color:"#0ea5e9"},
+  {label:"税・社会保障",aliases:["税社会保障","社会保障","税金"],itemId:"other_unknown",classification:"3 不定・固定",icon:"🧾",color:"#78716c"}
+]
 
 const MONEY_FORWARD_CATEGORY_ORDER=[
   "住宅",
@@ -2019,9 +2019,91 @@ function canonicalMoneyForwardCategory(value){
   return bestLabel;
 }
 
+const MONEY_FORWARD_AUTO_ITEM_PREFIX="__mf_auto__:";
+
+function moneyForwardCategoryDefinition(category){
+  return MONEY_FORWARD_CATEGORY_DEFINITIONS.find(entry=>entry.label===category)||null;
+}
+
+function moneyForwardExactCategoryItem(category){
+  const normalized=normalizedCategory(category);
+
+  return data.items.find(item=>{
+    return item.type==="expense"&&
+      normalizedCategory(item.group)===normalized&&
+      !String(item.detail||"").trim();
+  })||null;
+}
+
 function moneyForwardCategoryItem(category){
-  const definition=MONEY_FORWARD_CATEGORY_DEFINITIONS.find(entry=>entry.label===category);
+  const exact=moneyForwardExactCategoryItem(category);
+  if(exact)return exact;
+
+  const definition=moneyForwardCategoryDefinition(category);
   return definition?findItemById(definition.itemId):null;
+}
+
+function moneyForwardAutoTargetId(category){
+  return MONEY_FORWARD_AUTO_ITEM_PREFIX+encodeURIComponent(category);
+}
+
+function moneyForwardCategoryTargetId(category){
+  const exact=moneyForwardExactCategoryItem(category);
+  return exact?.id||moneyForwardAutoTargetId(category);
+}
+
+function decodeMoneyForwardAutoCategory(value){
+  if(!String(value||"").startsWith(MONEY_FORWARD_AUTO_ITEM_PREFIX))return "";
+
+  try{
+    return decodeURIComponent(String(value).slice(MONEY_FORWARD_AUTO_ITEM_PREFIX.length));
+  }catch{
+    return "";
+  }
+}
+
+function stableMoneyForwardItemId(category){
+  let hash=0;
+
+  for(const character of category){
+    hash=(hash*31+character.codePointAt(0))>>>0;
+  }
+
+  return `mf_category_${hash.toString(36)}`;
+}
+
+function ensureMoneyForwardCategoryItem(category){
+  const existing=moneyForwardExactCategoryItem(category);
+  if(existing)return existing;
+
+  const definition=moneyForwardCategoryDefinition(category)||{
+    label:category,
+    classification:"4 不定・変動",
+    icon:"💰",
+    color:"#64748b"
+  };
+
+  let itemId=stableMoneyForwardItemId(category);
+
+  while(data.items.some(item=>item.id===itemId)){
+    itemId=`${stableMoneyForwardItemId(category)}_${Math.random().toString(36).slice(2,6)}`;
+  }
+
+  const order=data.items.reduce((max,item)=>Math.max(max,Number(item.order)||0),0)+1;
+
+  const item={
+    id:itemId,
+    type:"expense",
+    group:category,
+    detail:"",
+    classification:definition.classification||"4 不定・変動",
+    icon:definition.icon||"💰",
+    color:definition.color||"#64748b",
+    order
+  };
+
+  data.items.push(item);
+  return item;
 }
 
 function findItemById(itemId){
@@ -2543,169 +2625,214 @@ function mergeAmountRowsByPosition(primary,secondary){
   return combined.sort((a,b)=>a.y-b.y);
 }
 
-function directCategoryMatches(categories,amounts){
-  if(!categories.length||!amounts.length)return new Map();
+function uniqueCategoryAnchors(categories){
+  const byIndex=new Map();
 
-  const spacing=medianNumber(
-    amounts.slice(1).map((row,index)=>row.y-amounts[index].y)
-  )||70;
+  categories.forEach(row=>{
+    const categoryIndex=MONEY_FORWARD_CATEGORY_ORDER.indexOf(row.category);
+    if(categoryIndex<0)return;
 
-  const tolerance=Math.max(24,Math.min(75,spacing*0.46));
-  const matches=new Map();
-  const usedCategories=new Set();
+    const existing=byIndex.get(categoryIndex);
 
-  amounts.forEach((amountRow,amountIndex)=>{
-    const candidates=categories
-      .map((categoryRow,categoryIndex)=>({
-        categoryRow,
-        categoryIndex,
-        distance:Math.abs(categoryRow.y-amountRow.y)
+    if(!existing||Number(row.confidence||0)>Number(existing.confidence||0)){
+      byIndex.set(categoryIndex,{...row,categoryIndex});
+    }
+  });
+
+  return [...byIndex.values()].sort((a,b)=>a.categoryIndex-b.categoryIndex);
+}
+
+function buildCategoryPositionModel(categories){
+  const anchors=uniqueCategoryAnchors(categories);
+  if(anchors.length<2)return null;
+
+  const slopes=[];
+
+  for(let left=0;left<anchors.length;left++){
+    for(let right=left+1;right<anchors.length;right++){
+      const indexDiff=anchors[right].categoryIndex-anchors[left].categoryIndex;
+      const yDiff=anchors[right].y-anchors[left].y;
+
+      if(indexDiff<=0||yDiff<=0)continue;
+
+      const slope=yDiff/indexDiff;
+
+      if(slope>=35&&slope<=180){
+        slopes.push(slope);
+      }
+    }
+  }
+
+  const slope=medianNumber(slopes);
+  if(!slope)return null;
+
+  const intercept=medianNumber(
+    anchors.map(anchor=>anchor.y-slope*anchor.categoryIndex)
+  );
+
+  const residuals=anchors.map(anchor=>{
+    return Math.abs(anchor.y-(intercept+slope*anchor.categoryIndex));
+  });
+
+  return {
+    slope,
+    intercept,
+    anchors,
+    residual:medianNumber(residuals)
+  };
+}
+
+function estimateAmountVerticalOffset(model,amounts){
+  if(!model||!amounts.length)return 0;
+
+  const candidates=[];
+
+  model.anchors.forEach(anchor=>{
+    const nearest=amounts
+      .map((amountRow,amountIndex)=>({
+        amountIndex,
+        distance:Math.abs(amountRow.y-anchor.y),
+        delta:amountRow.y-anchor.y
       }))
-      .filter(candidate=>{
-        return candidate.distance<=tolerance&&!usedCategories.has(candidate.categoryIndex);
-      })
-      .sort((a,b)=>a.distance-b.distance);
+      .filter(candidate=>candidate.distance<=model.slope*0.72)
+      .sort((a,b)=>a.distance-b.distance)[0];
 
-    const nearest=candidates[0];
-
-    if(nearest){
-      matches.set(amountIndex,{
-        category:nearest.categoryRow.category,
-        categoryIndex:MONEY_FORWARD_CATEGORY_ORDER.indexOf(nearest.categoryRow.category),
-        distance:nearest.distance,
-        source:"direct"
-      });
-      usedCategories.add(nearest.categoryIndex);
-    }
+    if(nearest)candidates.push(nearest.delta);
   });
 
-  return matches;
+  return medianNumber(candidates);
 }
 
-function bestGlobalCategoryOffset(directMatches){
-  const scores=new Map();
+function categoryIndexForAmountPosition(amountRow,model,amountOffset){
+  if(!model)return null;
 
-  directMatches.forEach((match,amountIndex)=>{
-    if(match.categoryIndex<0)return;
+  const raw=(amountRow.y-amountOffset-model.intercept)/model.slope;
+  const categoryIndex=Math.round(raw);
+  const predictedY=model.intercept+model.slope*categoryIndex+amountOffset;
+  const residual=Math.abs(amountRow.y-predictedY);
 
-    const offset=match.categoryIndex-amountIndex;
-    const current=scores.get(offset)||{count:0,distance:0};
-    current.count++;
-    current.distance+=match.distance;
-    scores.set(offset,current);
-  });
+  if(
+    categoryIndex<0||
+    categoryIndex>=MONEY_FORWARD_CATEGORY_ORDER.length||
+    residual>model.slope*0.43
+  ){
+    return null;
+  }
 
-  const ranked=[...scores.entries()].sort((left,right)=>{
-    return (
-      right[1].count-left[1].count||
-      left[1].distance-right[1].distance||
-      Math.abs(left[0])-Math.abs(right[0])
+  return {
+    categoryIndex,
+    residual,
+    raw
+  };
+}
+
+function fallbackSequenceOffset(categories,amounts){
+  const anchors=uniqueCategoryAnchors(categories);
+  if(!anchors.length||!amounts.length)return null;
+
+  const scores=[];
+
+  for(let offset=-MONEY_FORWARD_CATEGORY_ORDER.length;offset<=MONEY_FORWARD_CATEGORY_ORDER.length;offset++){
+    const pairs=[];
+
+    anchors.forEach(anchor=>{
+      const amountIndex=anchor.categoryIndex-offset;
+
+      if(amountIndex>=0&&amountIndex<amounts.length){
+        pairs.push({
+          anchor,
+          amount:amounts[amountIndex],
+          delta:amounts[amountIndex].y-anchor.y
+        });
+      }
+    });
+
+    if(pairs.length<2)continue;
+
+    const delta=medianNumber(pairs.map(pair=>pair.delta));
+    const residual=medianNumber(
+      pairs.map(pair=>Math.abs(pair.delta-delta))
     );
-  });
 
-  return ranked.length?ranked[0][0]:null;
-}
-
-function inferredCategoryIndexForAmount(amountIndex,directMatches,globalOffset){
-  if(directMatches.has(amountIndex)){
-    return directMatches.get(amountIndex).categoryIndex;
+    scores.push({
+      offset,
+      pairCount:pairs.length,
+      residual
+    });
   }
 
-  const anchors=[...directMatches.entries()]
-    .filter(([,match])=>match.categoryIndex>=0)
-    .sort((a,b)=>a[0]-b[0]);
-
-  const previous=[...anchors]
-    .reverse()
-    .find(([index])=>index<amountIndex);
-
-  const next=anchors.find(([index])=>index>amountIndex);
-
-  if(previous&&next){
-    const fromPrevious=previous[1].categoryIndex+(amountIndex-previous[0]);
-    const fromNext=next[1].categoryIndex-(next[0]-amountIndex);
-
-    if(fromPrevious===fromNext){
-      return fromPrevious;
-    }
-
-    const previousDistance=amountIndex-previous[0];
-    const nextDistance=next[0]-amountIndex;
-
-    return previousDistance<=nextDistance?fromPrevious:fromNext;
-  }
-
-  if(previous){
-    return previous[1].categoryIndex+(amountIndex-previous[0]);
-  }
-
-  if(next){
-    return next[1].categoryIndex-(next[0]-amountIndex);
-  }
-
-  return globalOffset===null?null:amountIndex+globalOffset;
+  return scores.sort((a,b)=>{
+    return b.pairCount-a.pairCount||a.residual-b.residual||Math.abs(a.offset)-Math.abs(b.offset);
+  })[0]?.offset??null;
 }
 
 function pairSplitMoneyForwardRows(categories,amounts){
   if(!amounts.length)return [];
 
-  const directMatches=directCategoryMatches(categories,amounts);
-  const globalOffset=bestGlobalCategoryOffset(directMatches);
-
-  if(!directMatches.size&&globalOffset===null){
-    return [];
-  }
-
-  const paired=[];
+  const model=buildCategoryPositionModel(categories);
+  const amountOffset=estimateAmountVerticalOffset(model,amounts);
+  const fallbackOffset=fallbackSequenceOffset(categories,amounts);
+  const selectedByCategory=new Map();
 
   amounts.forEach((amountRow,amountIndex)=>{
-    const direct=directMatches.get(amountIndex);
-    const categoryIndex=direct
-      ?direct.categoryIndex
-      :inferredCategoryIndexForAmount(amountIndex,directMatches,globalOffset);
+    const positionMatch=categoryIndexForAmountPosition(amountRow,model,amountOffset);
+    let categoryIndex=positionMatch?.categoryIndex??null;
+    let matchType=positionMatch?"direct":"inferred";
+    let residual=positionMatch?.residual??Infinity;
 
-    if(categoryIndex===null||categoryIndex<0||categoryIndex>=MONEY_FORWARD_CATEGORY_ORDER.length){
-      return;
+    if(categoryIndex===null&&fallbackOffset!==null){
+      const fallbackIndex=amountIndex+fallbackOffset;
+
+      if(fallbackIndex>=0&&fallbackIndex<MONEY_FORWARD_CATEGORY_ORDER.length){
+        categoryIndex=fallbackIndex;
+        matchType="inferred";
+        residual=Infinity;
+      }
     }
 
-    const category=direct?.category||MONEY_FORWARD_CATEGORY_ORDER[categoryIndex];
-    const item=moneyForwardCategoryItem(category);
+    if(categoryIndex===null)return;
 
-    if(!item)return;
+    const category=MONEY_FORWARD_CATEGORY_ORDER[categoryIndex];
+    const itemId=moneyForwardCategoryTargetId(category);
 
-    paired.push({
+    const row={
       id:"ocr_split_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
       label:category,
       amount:amountRow.amount,
-      itemId:item.id,
-      fallback:!direct,
-      matchType:direct?"direct":"inferred",
+      itemId,
+      fallback:matchType!=="direct",
+      matchType,
       sourceType:"category-total",
-      y:amountRow.y
-    });
-  });
+      y:amountRow.y,
+      residual
+    };
 
-  const unique=new Map();
-
-  paired.forEach(row=>{
-    const existing=unique.get(row.label);
+    const existing=selectedByCategory.get(categoryIndex);
 
     if(!existing){
-      unique.set(row.label,row);
+      selectedByCategory.set(categoryIndex,row);
       return;
     }
 
-    if(row.matchType==="direct"&&existing.matchType!=="direct"){
-      unique.set(row.label,row);
-      return;
-    }
+    const existingRank=existing.matchType==="direct"?2:1;
+    const rowRank=row.matchType==="direct"?2:1;
 
-    if(row.matchType===existing.matchType&&row.amount>existing.amount){
-      unique.set(row.label,row);
+    if(
+      rowRank>existingRank||
+      (rowRank===existingRank&&row.residual<existing.residual)||
+      (
+        rowRank===existingRank&&
+        row.residual===existing.residual&&
+        Number(amountRow.confidence||0)>Number(existing.confidence||0)
+      )
+    ){
+      selectedByCategory.set(categoryIndex,row);
     }
   });
 
-  return [...unique.values()].sort((a,b)=>a.y-b.y);
+  return [...selectedByCategory.entries()]
+    .sort((a,b)=>a[0]-b[0])
+    .map(([,row])=>row);
 }
 
 function flattenTesseractWords(ocrData){
@@ -2954,14 +3081,11 @@ function extractMoneyForwardCategoryRowsFromOcrData(ocrData){
   amountRows.forEach(row=>{
     if(!row.category)return;
 
-    const item=moneyForwardCategoryItem(row.category);
-    if(!item)return;
-
     const normalizedRow={
       id:row.id,
       label:row.category,
       amount:row.amount,
-      itemId:item.id,
+      itemId:moneyForwardCategoryTargetId(row.category),
       fallback:Boolean(row.inferred),
       matchType:row.inferred?"inferred":"direct",
       sourceType:"category-total"
@@ -3051,13 +3175,17 @@ function extractScreenshotRows(text){
 
       if(!mapped.item)return;
 
+      const canonicalCategory=canonicalMoneyForwardCategory(label);
+
       found.push({
         id:"ocr_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
-        label,
+        label:canonicalCategory||label,
         amount,
-        itemId:mapped.item.id,
-        fallback:mapped.fallback,
-        matchType:mapped.fallback?"inferred":"direct",
+        itemId:canonicalCategory
+          ?moneyForwardCategoryTargetId(canonicalCategory)
+          :mapped.item.id,
+        fallback:canonicalCategory?false:mapped.fallback,
+        matchType:canonicalCategory?"direct":mapped.fallback?"inferred":"direct",
         sourceType:"text"
       });
     });
@@ -3078,8 +3206,18 @@ function extractScreenshotRows(text){
   return [...merged.values()];
 }
 
-function screenshotItemOptions(selectedItemId){
-  return sortedItems().map(item=>{
+function screenshotItemOptions(selectedItemId,categoryLabel=""){
+  const options=[];
+
+  if(String(selectedItemId||"").startsWith(MONEY_FORWARD_AUTO_ITEM_PREFIX)){
+    const autoCategory=decodeMoneyForwardAutoCategory(selectedItemId)||categoryLabel;
+
+    options.push(
+      `<option value="${esc(selectedItemId)}" selected>自動作成｜${esc(autoCategory)}</option>`
+    );
+  }
+
+  options.push(...sortedItems().map(item=>{
     const typeLabel=item.type==="income"
       ?"収入"
       :item.type==="investment"
@@ -3089,7 +3227,9 @@ function screenshotItemOptions(selectedItemId){
     const selected=item.id===selectedItemId?" selected":"";
 
     return `<option value="${esc(item.id)}"${selected}>${typeLabel}｜${esc(item.group)}${item.detail?` / ${esc(item.detail)}`:""}</option>`;
-  }).join("");
+  }));
+
+  return options.join("");
 }
 
 function screenshotMatchLabel(row){
@@ -3134,7 +3274,7 @@ function renderScreenshotReview(){
 
         <div class="field">
           <label>アプリの入力先</label>
-          <select data-ocr-item="${index}">${screenshotItemOptions(row.itemId)}</select>
+          <select data-ocr-item="${index}">${screenshotItemOptions(row.itemId,row.label)}</select>
         </div>
 
         <div class="screenshot-review-actions">
@@ -3450,6 +3590,13 @@ async function recognizeScreenshotFiles(){
       if(amountRows.length<expectedMinimum){
         activeStage="読めなかった金額を再確認中";
 
+        await worker.setParameters({
+          tessedit_pageseg_mode:"6",
+          preserve_interword_spaces:"1",
+          user_defined_dpi:"300",
+          tessedit_char_whitelist:"0123456789,¥￥円.-% "
+        });
+
         const binaryResult=await worker.recognize(
           regions.rightBinary,
           {},
@@ -3664,15 +3811,35 @@ applyScreenshotImport.onclick=()=>{
   data.usage.lastScreenshotImportBackup={
     monthKey:data.selectedMonth,
     values:clone(data.monthly[data.selectedMonth]||{}),
+    items:clone(data.items),
     importedAt:new Date().toISOString()
   };
+
+  let createdItemCount=0;
+
+  const resolvedRows=rows.map(row=>{
+    const autoCategory=decodeMoneyForwardAutoCategory(row.itemId);
+
+    if(!autoCategory)return row;
+
+    const existed=Boolean(moneyForwardExactCategoryItem(autoCategory));
+    const item=ensureMoneyForwardCategoryItem(autoCategory);
+
+    if(!existed)createdItemCount++;
+
+    return {
+      ...row,
+      itemId:item.id,
+      label:autoCategory
+    };
+  });
 
   const mode=screenshotImportMode.value;
   const nextValues=mode==="add"
     ?clone(data.monthly[data.selectedMonth]||{})
     :Object.fromEntries(sortedItems().map(item=>[item.id,0]));
 
-  rows.forEach(row=>{
+  resolvedRows.forEach(row=>{
     nextValues[row.itemId]=normalize(nextValues[row.itemId])+row.amount;
   });
 
@@ -3681,11 +3848,14 @@ applyScreenshotImport.onclick=()=>{
 
   renderInputs();
   renderHome();
+  renderAnnual();
+  renderSettings();
 
   screenshotImportMessage.classList.remove("hidden");
   screenshotImportMessage.innerHTML=`
-    <strong>${rows.length}項目を${mode==="add"?"加算":"入力"}しました</strong>
+    <strong>${resolvedRows.length}項目を${mode==="add"?"加算":"入力"}しました</strong>
     ${salaryPeriodRange(data.selectedMonth)}へ反映済みです。
+    ${createdItemCount?`<br>${createdItemCount}件の新しい費目を自動作成しました。`:""}
   `;
 
   undoScreenshotImport.classList.remove("hidden");
@@ -3700,6 +3870,11 @@ undoScreenshotImport.onclick=()=>{
   }
 
   data.monthly[backup.monthKey]=clone(backup.values||{});
+
+  if(Array.isArray(backup.items)){
+    data.items=clone(backup.items);
+  }
+
   data.selectedMonth=backup.monthKey;
   data.usage.lastScreenshotImportBackup=null;
   save();
@@ -3709,6 +3884,8 @@ undoScreenshotImport.onclick=()=>{
   updatePeriodDisplay(data.selectedMonth);
   renderInputs();
   renderHome();
+  renderAnnual();
+  renderSettings();
 
   screenshotImportMessage.classList.remove("hidden");
   screenshotImportMessage.innerHTML="<strong>スクショ取込前の状態に戻しました</strong>";
@@ -5536,7 +5713,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:21,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:22,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -5783,6 +5960,22 @@ initRender();
 - 推定された行を黄色で強調
 - 読み取れなかった費目を確認画面から手動追加可能
 - 複数スクショの重複金額は最大値を採用し二重加算を防止
+- 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
+-->
+
+
+<!--
+変更履歴 v22
+- 通信費と衣服・美容に同じ金額が入る行ずれ問題を修正
+- 費目の縦位置を直線モデル化し、各金額を最も近い正しい行へ割当
+- 一つの金額を複数費目へ重複割当しないよう修正
+- 途中の金額が読めなくても、その後の費目が連鎖してずれない方式へ変更
+- 金額の再読取を縦一列向けOCRモードへ変更
+- マネーフォワードの費目ごとに専用の入力項目を使用
+- アプリに存在しない費目は反映時に自動作成
+- 自動作成した費目へスクショ金額をそのまま入力
+- 自動作成される費目に分類、アイコン、表示色を自動設定
+- スクショ取込前へ戻すと自動作成した費目も元に戻る
 - 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
 -->
 
