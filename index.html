@@ -270,6 +270,10 @@
     .screenshot-review-row.inferred-row{border-color:#fbbf24;background:#fffdf5}
     .screenshot-review-row.manual-row{border-color:#a5b4fc;background:#fafaff}
 
+    
+    .cash-flow-note{margin-top:10px;padding:10px 12px;border:1px solid #bbf7d0;border-radius:13px;background:#f0fdf4;color:#166534;font-size:10px;font-weight:800;line-height:1.7;text-align:center}
+    .sum.investment{background:#eff6ff!important}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -352,8 +356,8 @@
         <div id="monthlyRoutineStep" class="routine-step">
           <div class="routine-number">1</div>
           <div>
-            <div class="routine-step-title">収入・支出を保存</div>
-            <div class="routine-step-note">上に表示された期間の合計を入力</div>
+            <div class="routine-step-title">収入・生活費・投資を保存</div>
+            <div class="routine-step-note">NISA・iDeCoは投資として別入力</div>
           </div>
           <span id="monthlyRoutineStatus" class="routine-status">未入力</span>
         </div>
@@ -379,10 +383,11 @@
       <div class="title-row"><h2 id="homeResultTitle" class="title">給与期間の家計</h2><button id="goInput" class="btn outline small-btn">入力・編集</button></div>
       <div class="summary">
         <div class="sum income"><span>手取り収入</span><strong id="sumIncome">0円</strong></div>
-        <div class="sum expense"><span>支出＋投資</span><strong id="sumExpense">0円</strong></div>
-        <div class="sum balance"><span>残ったお金</span><strong id="sumBalance">0円</strong></div>
-        <div class="sum"><span>貯蓄率</span><strong id="sumRate">0%</strong></div>
+        <div class="sum expense"><span>生活支出</span><strong id="sumExpense">0円</strong></div>
+        <div class="sum investment"><span>NISA・iDeCo・投資</span><strong id="sumInvestment">0円</strong></div>
+        <div class="sum balance"><span>投資後の現金残り</span><strong id="sumBalance">0円</strong></div>
       </div>
+      <div id="homeCashFlowNote" class="cash-flow-note"></div>
     </div>
 
     <div class="card">
@@ -416,9 +421,9 @@
     </div>
 
     <div class="card">
-      <div class="title-row"><h2 class="title">費目別の支出</h2><span id="groupCount" class="small"></span></div>
+      <div class="title-row"><h2 class="title">生活費の内訳</h2><span id="groupCount" class="small"></span></div>
       <div class="chart-layout">
-        <div class="chart-wrap"><canvas id="chart" width="320" height="320"></canvas><div class="chart-center"><span>支出合計</span><strong id="chartTotal">0円</strong></div></div>
+        <div class="chart-wrap"><canvas id="chart" width="320" height="320"></canvas><div class="chart-center"><span>生活支出</span><strong id="chartTotal">0円</strong></div></div>
         <div id="homeGroups" class="group-list"></div>
       </div>
     </div>
@@ -1024,6 +1029,7 @@ const DEFAULT_ITEMS=[
 ["other_unknown","expense","その他","不明","不定・変動","●","#a8a29e"],
 ["invest_ideco","investment","株式投資","iDeCo","投資","📈","#16a34a"],
 ["invest_nisa","investment","株式投資","NISA","投資","📈","#16a34a"],
+["invest_other","investment","株式投資","その他の投資","投資","📈","#16a34a"],
 ["hobby_travel","expense","趣味・娯楽","旅行","不定・変動","✈️","#db3f82"],
 ["housing_tax","expense","住宅","固定資産税","不定・固定","🏠","#34a77b"],
 ["housing_fire","expense","住宅","火災地震保険","不定・固定","🏠","#34a77b"]
@@ -1480,6 +1486,51 @@ function correctMisassignedPeriodData(){
     targetKey
   };
 }
+function investmentItemKind(item){
+  const text=normalizedCategory(`${item?.group||""} ${item?.detail||""}`);
+
+  if(/ideco|イデコ|確定拠出|企業型dc|個人型年金/.test(text)){
+    return "ideco";
+  }
+
+  if(/nisa|ニーサ|つみたてnisa|積立nisa/.test(text)){
+    return "nisa";
+  }
+
+  if(/株式投資|投資信託|資産運用|証券積立|投資積立|投資/.test(text)){
+    return "other";
+  }
+
+  return "";
+}
+
+function migrateInvestmentItems(){
+  const defaultInvestmentItems=DEFAULT_ITEMS.filter(item=>item.type==="investment");
+
+  defaultInvestmentItems.forEach(defaultItem=>{
+    if(data.items.some(item=>item.id===defaultItem.id))return;
+
+    const order=data.items.reduce((max,item)=>Math.max(max,Number(item.order)||0),0)+1;
+    data.items.push({...clone(defaultItem),order});
+  });
+
+  data.items.forEach(item=>{
+    const kind=investmentItemKind(item);
+    if(!kind)return;
+
+    item.type="investment";
+    item.classification="投資";
+    item.icon=item.icon||"📈";
+    item.color=item.color||"#16a34a";
+
+    if(kind==="ideco"&&!item.detail){
+      item.detail="iDeCo";
+    }else if(kind==="nisa"&&!item.detail){
+      item.detail="NISA";
+    }
+  });
+}
+
 function migrateIncomeLabels(){
   const otherIncome=data.items.find(item=>item.id==="income_temp");
 
@@ -1699,7 +1750,7 @@ function renderUsageGuide(){
   nextActionButton.disabled=false;
 
   if(!hasMonthlyData){
-    nextActionButton.textContent="この期間の収入・支出を入力する";
+    nextActionButton.textContent="収入・生活費・投資を入力する";
     nextActionButton.onclick=()=>{
       setMonth(monthKey);
       activate("input");
@@ -1730,13 +1781,20 @@ function renderHome(){
   const classifications=classificationTotals(data.selectedMonth);
 
   sumIncome.textContent=yen(t.income);
-  sumExpense.textContent=yen(t.expense+t.investment);
+  sumExpense.textContent=yen(t.expense);
+  sumInvestment.textContent=yen(t.investment);
   sumBalance.textContent=yen(t.balance);
-  sumRate.textContent=pct(t.rate);
 
   sumBalance.className=t.balance>=0?"positive":"negative";
-  sumRate.className=t.rate>=0?"positive":"negative";
-  chartTotal.textContent=yen(t.expense+t.investment);
+  sumInvestment.className=t.investment>0?"positive":"";
+  chartTotal.textContent=yen(t.expense);
+
+  const livingBalance=t.income-t.expense;
+  homeCashFlowNote.innerHTML=`
+    生活費を払った後 ${yen(livingBalance)}
+    → 投資 ${yen(t.investment)}
+    → 現金残り ${yen(t.balance)}
+  `;
 
   const expenseRate=t.income>0?(t.expense/t.income)*100:0;
   expenseScoreRate.textContent=pct(expenseRate);
@@ -1920,7 +1978,10 @@ const MONEY_FORWARD_CATEGORY_DEFINITIONS=[
   {label:"その他",aliases:["その他","その地","その也"],itemId:"other_unknown",classification:"4 不定・変動",icon:"•••",color:"#a3a3a3"},
   {label:"保険",aliases:["保険","保瞼"],itemId:"insurance_1",classification:"1 毎月・固定",icon:"🛡️",color:"#ec4899"},
   {label:"交通費",aliases:["交通費","交通"],itemId:"transport",classification:"2 毎月・変動",icon:"🚃",color:"#0ea5e9"},
-  {label:"税・社会保障",aliases:["税社会保障","社会保障","税金"],itemId:"other_unknown",classification:"3 不定・固定",icon:"🧾",color:"#78716c"}
+  {label:"税・社会保障",aliases:["税社会保障","社会保障","税金"],itemId:"other_unknown",type:"expense",classification:"3 不定・固定",icon:"🧾",color:"#78716c"},
+  {label:"NISA",aliases:["nisa","ニーサ","つみたてnisa","積立nisa"],itemId:"invest_nisa",type:"investment",classification:"投資",icon:"📈",color:"#16a34a"},
+  {label:"iDeCo",aliases:["ideco","イデコ","確定拠出年金","個人型年金"],itemId:"invest_ideco",type:"investment",classification:"投資",icon:"📈",color:"#16a34a"},
+  {label:"投資・積立",aliases:["投資積立","投資","株式投資","投資信託","資産運用","証券積立"],itemId:"invest_other",type:"investment",classification:"投資",icon:"📈",color:"#16a34a"}
 ]
 
 const MONEY_FORWARD_CATEGORY_ORDER=[
@@ -1938,7 +1999,10 @@ const MONEY_FORWARD_CATEGORY_ORDER=[
   "その他",
   "保険",
   "交通費",
-  "税・社会保障"
+  "税・社会保障",
+  "NISA",
+  "iDeCo",
+  "投資・積立"
 ];
 
 function ocrComparableText(value){
@@ -2027,11 +2091,17 @@ function moneyForwardCategoryDefinition(category){
 
 function moneyForwardExactCategoryItem(category){
   const normalized=normalizedCategory(category);
+  const definition=moneyForwardCategoryDefinition(category);
+  const expectedType=definition?.type||"expense";
 
   return data.items.find(item=>{
-    return item.type==="expense"&&
-      normalizedCategory(item.group)===normalized&&
-      !String(item.detail||"").trim();
+    const itemText=normalizedCategory(`${item.group||""} ${item.detail||""}`);
+
+    return item.type===expectedType&&(
+      normalizedCategory(item.group)===normalized||
+      normalizedCategory(item.detail)===normalized||
+      itemText===normalized
+    );
   })||null;
 }
 
@@ -2048,6 +2118,13 @@ function moneyForwardAutoTargetId(category){
 }
 
 function moneyForwardCategoryTargetId(category){
+  const definition=moneyForwardCategoryDefinition(category);
+  const predefined=definition?.itemId?findItemById(definition.itemId):null;
+
+  if(predefined&&predefined.type===(definition?.type||"expense")){
+    return predefined.id;
+  }
+
   const exact=moneyForwardExactCategoryItem(category);
   return exact?.id||moneyForwardAutoTargetId(category);
 }
@@ -2091,12 +2168,14 @@ function ensureMoneyForwardCategoryItem(category){
 
   const order=data.items.reduce((max,item)=>Math.max(max,Number(item.order)||0),0)+1;
 
+  const itemType=definition.type||"expense";
+
   const item={
     id:itemId,
-    type:"expense",
-    group:category,
-    detail:"",
-    classification:definition.classification||"4 不定・変動",
+    type:itemType,
+    group:itemType==="investment"?"株式投資":category,
+    detail:itemType==="investment"?category:"",
+    classification:itemType==="investment"?"投資":definition.classification||"4 不定・変動",
     icon:definition.icon||"💰",
     color:definition.color||"#64748b",
     order
@@ -2114,6 +2193,19 @@ function findMoneyForwardItem({major,middle,content,amount}){
   const majorText=normalizedCategory(major);
   const middleText=normalizedCategory(middle);
   const fullText=normalizedCategory(`${major} ${middle} ${content}`);
+
+  if(/ideco|イデコ|確定拠出|個人型年金/.test(fullText)){
+    return {item:findItemById("invest_ideco"),fallback:false,category:"iDeCo"};
+  }
+
+  if(/nisa|ニーサ|つみたてnisa|積立nisa/.test(fullText)){
+    return {item:findItemById("invest_nisa"),fallback:false,category:"NISA"};
+  }
+
+  if(/投資信託|株式投資|資産運用|証券積立|投資積立/.test(fullText)){
+    return {item:findItemById("invest_other"),fallback:false,category:"投資・積立"};
+  }
+
   const knownExpenseCategory=canonicalMoneyForwardCategory(`${major} ${middle} ${content}`);
 
   if(knownExpenseCategory){
@@ -2133,7 +2225,9 @@ function findMoneyForwardItem({major,middle,content,amount}){
   const isIncome=explicitIncome||(!explicitExpense&&amount<0);
 
   const exactDetail=data.items.find(item=>{
-    return item.type===(isIncome?"income":"expense")&&
+    const expectedTypes=isIncome?["income"]:["expense","investment"];
+
+    return expectedTypes.includes(item.type)&&
       normalizedCategory(item.detail)===middleText&&middleText;
   });
 
@@ -4161,10 +4255,48 @@ function renderAnnual(){
     const vals=months.map(m=>amount(m,i.id)),sum=vals.reduce((a,b)=>a+b,0),avg=Math.round(sum/12);
     rows.push(`<tr><td>${esc(i.group)}</td><td>${esc(i.detail||"")}</td>${vals.map(v=>`<td>${v?yen(v):""}</td>`).join("")}<td>${yen(avg)}</td><td>${yen(sum)}</td></tr>`);
   });
-  const incomeMonths=months.map(m=>totals(m).income),expenseMonths=months.map(m=>totals(m).expense+totals(m).investment),balanceMonths=months.map(m=>totals(m).balance);
-  const totalRow=(label,arr,cls)=>`<tr class="${cls}"><td>${label}</td><td></td>${arr.map(v=>`<td>${yen(v)}</td>`).join("")}<td>${yen(Math.round(arr.reduce((a,b)=>a+b,0)/12))}</td><td>${yen(arr.reduce((a,b)=>a+b,0))}</td></tr>`;
-  const actualIncome=incomeMonths.reduce((a,b)=>a+b,0),actualOut=expenseMonths.reduce((a,b)=>a+b,0),actualBalance=balanceMonths.reduce((a,b)=>a+b,0),budget=budgetTotalsForYear(year);
-  annualTable.innerHTML=`<div class="budget-summary" style="margin-bottom:12px"><div class="budget-card"><span>実績収入 / 予算</span><strong>${yen(actualIncome)} / ${yen(budget.income)}</strong></div><div class="budget-card"><span>実績支出・投資 / 予算</span><strong>${yen(actualOut)} / ${yen(budget.expense+budget.investment)}</strong></div><div class="budget-card"><span>実績残額 / 予算</span><strong class="${actualBalance>=budget.balance?"positive":"negative"}">${yen(actualBalance)} / ${yen(budget.balance)}</strong></div><div class="budget-card"><span>差額</span><strong class="${actualBalance-budget.balance>=0?"positive":"negative"}">${yen(actualBalance-budget.balance)}</strong></div></div><div class="annual-wrap"><table class="annual"><thead><tr><th>費目</th><th>詳細</th>${months.map((_,index)=>`<th>${index+1}月給与</th>`).join("")}<th>平均</th><th>年間合計</th></tr></thead><tbody>${totalRow("収入合計",incomeMonths,"income-total")}${totalRow("支出・投資合計",expenseMonths,"group-total")}${totalRow("収支",balanceMonths,"grand-total")}${rows.join("")}</tbody></table></div>`;
+  const incomeMonths=months.map(month=>totals(month).income);
+  const expenseMonths=months.map(month=>totals(month).expense);
+  const investmentMonths=months.map(month=>totals(month).investment);
+  const balanceMonths=months.map(month=>totals(month).balance);
+
+  const totalRow=(label,arr,cls)=>`<tr class="${cls}"><td>${label}</td><td></td>${arr.map(value=>`<td>${yen(value)}</td>`).join("")}<td>${yen(Math.round(arr.reduce((sum,value)=>sum+value,0)/12))}</td><td>${yen(arr.reduce((sum,value)=>sum+value,0))}</td></tr>`;
+
+  const actualIncome=incomeMonths.reduce((sum,value)=>sum+value,0);
+  const actualExpense=expenseMonths.reduce((sum,value)=>sum+value,0);
+  const actualInvestment=investmentMonths.reduce((sum,value)=>sum+value,0);
+  const actualBalance=balanceMonths.reduce((sum,value)=>sum+value,0);
+  const budget=budgetTotalsForYear(year);
+
+  annualTable.innerHTML=`
+    <div class="budget-summary" style="margin-bottom:12px">
+      <div class="budget-card"><span>実績収入 / 予算</span><strong>${yen(actualIncome)} / ${yen(budget.income)}</strong></div>
+      <div class="budget-card"><span>生活支出 / 予算</span><strong>${yen(actualExpense)} / ${yen(budget.expense)}</strong></div>
+      <div class="budget-card"><span>投資・積立 / 予算</span><strong>${yen(actualInvestment)} / ${yen(budget.investment)}</strong></div>
+      <div class="budget-card"><span>投資後の現金残り</span><strong class="${actualBalance>=budget.balance?"positive":"negative"}">${yen(actualBalance)} / ${yen(budget.balance)}</strong></div>
+    </div>
+
+    <div class="annual-wrap">
+      <table class="annual">
+        <thead>
+          <tr>
+            <th>費目</th>
+            <th>詳細</th>
+            ${months.map((_,index)=>`<th>${index+1}月給与</th>`).join("")}
+            <th>平均</th>
+            <th>年間合計</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${totalRow("収入合計",incomeMonths,"income-total")}
+          ${totalRow("生活支出合計",expenseMonths,"group-total")}
+          ${totalRow("投資・積立合計",investmentMonths,"group-total")}
+          ${totalRow("投資後の現金残り",balanceMonths,"grand-total")}
+          ${rows.join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 function resetForm(){
   editId.value="";
@@ -5931,7 +6063,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:23,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:24,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -5939,6 +6071,7 @@ function initRender(){
   const correction=correctMisassignedPeriodData();
 
   migrateIncomeLabels();
+  migrateInvestmentItems();
   cleanupEmptyDuplicateItems();
   save();
 
@@ -6210,6 +6343,23 @@ initRender();
 - 複数スクショの同一費目は二重加算せず読取値を比較
 - アプリにないマネーフォワード費目の自動作成を維持
 - 月次、資産、証券・iDeCo分類、口座スクショ、CSV、予算、年間、ライフプランを維持
+-->
+
+
+<!--
+変更履歴 v24
+- NISA、iDeCo、投資信託を生活費の支出から分離
+- ホームの支出合計を生活支出だけに変更
+- ホームに「NISA・iDeCo・投資」を独立表示
+- 生活費支払後、投資後、現金残りの流れを表示
+- 支出80％チェックは生活支出だけで計算
+- 費目別グラフから投資を除外
+- 月次入力では投資グループとして別表示
+- 年間集計を収入、生活支出、投資、現金残りに分離
+- CSVとスクショでNISA、iDeCo、投資信託を自動的に投資へ分類
+- 既存のNISA・iDeCo・投資項目が支出になっている場合は起動時に投資へ修正
+- その他の投資項目を追加
+- 月次、資産、口座スクショ、CSV、予算、年間、ライフプランを維持
 -->
 
 </body>
