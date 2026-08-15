@@ -286,6 +286,67 @@
     .account-reflection-note{margin-top:7px;padding:7px 8px;border-radius:9px;background:#f8fafc;color:#475569;font-size:9px;font-weight:800;line-height:1.6}
     .account-destination-conflict{border-color:#ef4444!important;background:#fef2f2!important}
 
+    
+    .home-focus-card{background:linear-gradient(180deg,#fff7ed,#fff);border:2px solid #fed7aa}
+    .home-focus-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .home-status-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+    .home-status-item{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:14px;background:#fff}
+    .home-status-copy strong{display:block;font-size:12px}
+    .home-status-copy span{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+    .compact-next-action{margin-top:12px}
+    .home-result-card{border:2px solid #e5e7eb}
+    .home-summary .sum strong{font-size:19px}
+    .simple-fold{padding:0;overflow:hidden}
+    .simple-fold>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;cursor:pointer;font-size:14px;font-weight:950;list-style:none}
+    .simple-fold>summary::-webkit-details-marker{display:none}
+    .simple-fold>summary:after{content:"＋";font-size:20px;color:var(--muted)}
+    .simple-fold[open]>summary:after{content:"−"}
+    .fold-hint{margin-left:auto;color:var(--muted);font-size:9px;font-weight:800}
+    .fold-body{padding:0 16px 16px}
+    .home-detail-section{padding-top:14px;margin-top:12px;border-top:1px solid var(--line)}
+    .home-detail-section:first-child{padding-top:0;margin-top:0;border-top:0}
+
+    .life-overview-card{border:2px solid #fed7aa;background:linear-gradient(180deg,#fff7ed,#fff)}
+    .life-overview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .life-eyebrow{font-size:10px;font-weight:900;color:var(--main-dark);margin-bottom:4px}
+    .life-verdict-title{margin:0;font-size:22px;line-height:1.3}
+    .life-verdict-text{margin-top:6px;color:#57534e;font-size:11px;font-weight:700;line-height:1.7}
+    .life-verdict-badge{flex:0 0 auto;padding:6px 9px;border-radius:999px;background:#f5f5f5;font-size:10px;font-weight:950}
+    .life-verdict-badge.good{background:#dcfce7;color:#166534}
+    .life-verdict-badge.warn{background:#fef3c7;color:#92400e}
+    .life-verdict-badge.bad{background:#fee2e2;color:#991b1b}
+    .life-look-order{margin-top:13px;padding:10px 11px;border-radius:12px;background:#fff;border:1px solid #fed7aa}
+    .life-look-order strong{display:block;font-size:11px}
+    .life-look-order span{display:block;margin-top:4px;color:#57534e;font-size:9px;font-weight:800;line-height:1.6}
+    .life-key-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .life-key-card{padding:11px;border:1px solid var(--line);border-radius:14px;background:#fff}
+    .life-key-card span{display:block;color:var(--muted);font-size:9px;font-weight:800}
+    .life-key-card strong{display:block;margin-top:4px;font-size:17px;font-weight:950;overflow-wrap:anywhere}
+    .life-key-card small{display:block;margin-top:3px;color:var(--muted);font-size:8px;font-weight:700}
+    .life-action-box{margin-top:10px;padding:12px;border-radius:14px;background:#262626;color:#fff}
+    .life-action-label{font-size:9px;font-weight:900;opacity:.72}
+    .life-action-box strong{display:block;margin-top:3px;font-size:15px;line-height:1.5}
+    .life-action-sub{margin-top:4px;font-size:9px;line-height:1.6;opacity:.8}
+    .life-toggle-details{width:100%;margin-top:10px}
+    .life-secondary-card.life-collapsed{display:none}
+    .life-summary-card span{line-height:1.45}
+
+    @media(max-width:520px){
+      .home-status-strip{grid-template-columns:1fr}
+      .life-key-grid{grid-template-columns:1fr 1fr}
+      .life-verdict-title{font-size:20px}
+    }
+
+    
+    .life-asset-sync-note{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:10px 11px;border:1px solid #bbf7d0;border-radius:13px;background:#f0fdf4}
+    .life-asset-sync-note strong{display:block;color:#166534;font-size:11px}
+    .life-asset-sync-note span{display:block;margin-top:3px;color:#475569;font-size:9px;font-weight:800;line-height:1.5}
+    .life-asset-sync-note.stale{border-color:#fde68a;background:#fffbeb}
+    .life-asset-sync-note.stale strong{color:#92400e}
+    .linked-assets-card{border-color:#bbf7d0!important;background:#f0fdf4!important}
+    .field-help{margin-top:4px;color:var(--muted);font-size:9px;font-weight:700;line-height:1.5}
+    #lifeCurrentAssets[readonly]{background:#f0fdf4;color:#166534;font-weight:950}
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -335,112 +396,145 @@
 <body>
 <header class="app-header">
   <div class="header-inner">
-    <div><h1 class="app-title">家計・ライフプラン</h1><p class="app-sub">毎月1回、入力 → 資産更新 → 確認</p></div>
+    <div><h1 class="app-title">家計</h1><p class="app-sub">毎月は「入力 → 資産更新」だけ</p></div>
     <button id="monthChip" class="month-chip" type="button" title="現在の家計期間へ戻る"></button>
   </div>
 </header>
 <main>
   <nav class="tabs">
     <button class="tab active" data-tab="home">ホーム</button>
-    <button class="tab" data-tab="input">月次入力</button>
+    <button class="tab" data-tab="input">入力</button>
     <button class="tab" data-tab="assets">資産</button>
-    <button class="tab" data-tab="lifeplan">プラン</button>
+    <button class="tab" data-tab="lifeplan">将来</button>
     <button class="tab" data-tab="menu">メニュー</button>
   </nav>
 
   <section id="home" class="page">
-    <div class="card routine-card">
-      <div class="current-period-label">現在入力する家計期間</div>
-      <div id="routinePeriodRange" class="current-period-range"></div>
-      <div id="routinePeriodNote" class="current-period-note"></div>
-
-      <div class="next-action-area">
-        <div class="next-action-label">次にすること</div>
-        <button id="nextActionButton" class="btn" type="button">この期間の収入・支出を入力する</button>
-      </div>
-
-      <div class="routine-status-head">
-        <strong>この期間の更新状況</strong>
+    <div class="card home-focus-card">
+      <div class="home-focus-top">
+        <div>
+          <div class="current-period-label">いま管理している期間</div>
+          <div id="routinePeriodRange" class="current-period-range"></div>
+          <div id="routinePeriodNote" class="current-period-note"></div>
+        </div>
         <span id="routineCount" class="routine-count">0/2 完了</span>
       </div>
 
-      <div class="routine-steps">
-        <div id="monthlyRoutineStep" class="routine-step">
+      <div class="home-status-strip">
+        <div id="monthlyRoutineStep" class="home-status-item routine-step">
           <div class="routine-number">1</div>
-          <div>
-            <div class="routine-step-title">収入・生活費・投資を保存</div>
-            <div class="routine-step-note">NISA・iDeCoは投資として別入力</div>
+          <div class="home-status-copy">
+            <strong>家計を入力</strong>
+            <span>収入・生活費・投資</span>
           </div>
           <span id="monthlyRoutineStatus" class="routine-status">未入力</span>
         </div>
 
-        <div id="assetRoutineStep" class="routine-step">
+        <div id="assetRoutineStep" class="home-status-item routine-step">
           <div class="routine-number">2</div>
-          <div>
-            <div class="routine-step-title">通帳残高を最新にする</div>
-            <div class="routine-step-note">現在の口座残高だけ更新</div>
+          <div class="home-status-copy">
+            <strong>資産を更新</strong>
+            <span>口座・証券・iDeCo</span>
           </div>
           <span id="assetRoutineStatus" class="routine-status">未更新</span>
         </div>
       </div>
 
-      <div class="routine-help">予算やライフプランは、金額や予定が変わったときだけ確認します。</div>
+      <div class="next-action-area compact-next-action">
+        <div class="next-action-label">今やること</div>
+        <button id="nextActionButton" class="btn" type="button">家計を入力する</button>
+      </div>
     </div>
-    <div class="card">
-      <div class="title-row"><h2 class="title">過去・別の期間を見る</h2><span class="small">開始月を選択</span></div>
-      <div class="month-nav"><button id="homePrev">‹</button><input id="homeMonth" type="month"><button id="homeNext">›</button></div>
-      <div id="homePeriodRange" class="period-banner"></div><div id="homePeriodNote" class="period-note"></div>
-    </div>
-    <div id="homeResultCard" class="card">
-      <div class="title-row"><h2 id="homeResultTitle" class="title">給与期間の家計</h2><button id="goInput" class="btn outline small-btn">入力・編集</button></div>
-      <div class="summary">
+
+    <div id="homeResultCard" class="card home-result-card">
+      <div class="title-row">
+        <h2 id="homeResultTitle" class="title">今月の結果</h2>
+        <button id="goInput" class="btn outline small-btn">修正</button>
+      </div>
+
+      <div class="summary home-summary">
         <div class="sum income"><span>手取り収入</span><strong id="sumIncome">0円</strong></div>
         <div class="sum expense"><span>生活支出</span><strong id="sumExpense">0円</strong></div>
-        <div class="sum investment"><span>NISA・iDeCo・投資</span><strong id="sumInvestment">0円</strong></div>
-        <div class="sum balance"><span>投資後の現金残り</span><strong id="sumBalance">0円</strong></div>
+        <div class="sum investment"><span>投資</span><strong id="sumInvestment">0円</strong></div>
+        <div class="sum balance"><span>現金の残り</span><strong id="sumBalance">0円</strong></div>
       </div>
+
       <div id="homeCashFlowNote" class="cash-flow-note"></div>
     </div>
 
-    <div class="card">
-      <div class="title-row">
-        <h2 class="title">支出80％チェック</h2>
-        <span class="small">生活支出 ÷ 手取り収入</span>
-      </div>
+    <details class="card simple-fold">
+      <summary>
+        <span>過去の期間を見る</span>
+        <span class="fold-hint">必要なときだけ</span>
+      </summary>
 
-      <div class="simple-score">
-        <div class="simple-score-head">
-          <div>
-            <strong id="expenseScoreMessage">収入を入力してください</strong>
-            <div class="small">手取り収入の80％以内が目安</div>
+      <div class="fold-body">
+        <div class="month-nav">
+          <button id="homePrev">‹</button>
+          <input id="homeMonth" type="month">
+          <button id="homeNext">›</button>
+        </div>
+        <div id="homePeriodRange" class="period-banner"></div>
+        <div id="homePeriodNote" class="period-note"></div>
+      </div>
+    </details>
+
+    <details class="card simple-fold">
+      <summary>
+        <span>生活費を詳しく見る</span>
+        <span class="fold-hint">使いすぎ・内訳</span>
+      </summary>
+
+      <div class="fold-body">
+        <div class="home-detail-section">
+          <div class="title-row">
+            <h2 class="title">生活費チェック</h2>
+            <span class="small">生活支出 ÷ 手取り収入</span>
           </div>
-          <strong id="expenseScoreRate" class="simple-score-rate">0%</strong>
+
+          <div class="simple-score">
+            <div class="simple-score-head">
+              <div>
+                <strong id="expenseScoreMessage">収入を入力してください</strong>
+                <div class="small">手取り収入の80％以内が目安</div>
+              </div>
+              <strong id="expenseScoreRate" class="simple-score-rate">0%</strong>
+            </div>
+
+            <div class="simple-progress">
+              <div id="expenseScoreBar" class="simple-progress-bar"></div>
+            </div>
+          </div>
         </div>
 
-        <div class="simple-progress">
-          <div id="expenseScoreBar" class="simple-progress-bar"></div>
+        <div class="home-detail-section">
+          <div class="title-row">
+            <h2 class="title">支出の分かれ方</h2>
+            <span class="small">固定・変動・不定期・投資</span>
+          </div>
+          <div id="classificationSummary" class="summary"></div>
+        </div>
+
+        <div class="home-detail-section">
+          <div class="title-row">
+            <h2 class="title">生活費の内訳</h2>
+            <span id="groupCount" class="small"></span>
+          </div>
+
+          <div class="chart-layout">
+            <div class="chart-wrap">
+              <canvas id="chart" width="320" height="320"></canvas>
+              <div class="chart-center">
+                <span>生活支出</span>
+                <strong id="chartTotal">0円</strong>
+              </div>
+            </div>
+            <div id="homeGroups" class="group-list"></div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="title-row">
-        <h2 class="title">支出の分かれ方</h2>
-        <span class="small">固定・変動・不定期・投資</span>
-      </div>
-
-      <div id="classificationSummary" class="summary"></div>
-    </div>
-
-    <div class="card">
-      <div class="title-row"><h2 class="title">生活費の内訳</h2><span id="groupCount" class="small"></span></div>
-      <div class="chart-layout">
-        <div class="chart-wrap"><canvas id="chart" width="320" height="320"></canvas><div class="chart-center"><span>生活支出</span><strong id="chartTotal">0円</strong></div></div>
-        <div id="homeGroups" class="group-list"></div>
-      </div>
-    </div>
+    </details>
   </section>
-
   <section id="input" class="page hidden">
     <div class="card input-period-card">
       <div class="current-period-label">いま入力する期間</div>
@@ -588,7 +682,71 @@
 
 
   <section id="lifeplan" class="page hidden">
-    <div class="card">
+    <div class="card life-overview-card">
+      <div class="life-overview-head">
+        <div>
+          <div class="life-eyebrow">将来のお金</div>
+          <h2 class="life-verdict-title" id="lifeVerdictTitle">計算中</h2>
+          <div id="lifeVerdictText" class="life-verdict-text"></div>
+        </div>
+        <span id="lifeVerdictBadge" class="life-verdict-badge">確認中</span>
+      </div>
+
+      <div class="life-look-order">
+        <strong>ここだけ見ればOK</strong>
+        <span>① 資産タブが最新か　② 資産が尽きないか　③ 退職時にいくらあるか</span>
+      </div>
+
+      <div id="lifeAssetSyncNote" class="life-asset-sync-note">
+        <div>
+          <strong>資産タブと自動連携</strong>
+          <span id="lifeAssetSyncBreakdown">総資産を読み込み中</span>
+        </div>
+        <button id="lifeGoAssets" class="btn outline small-btn" type="button">資産を更新</button>
+      </div>
+
+      <div class="life-key-grid">
+        <div class="life-key-card linked-assets-card">
+          <span>現在の連携資産</span>
+          <strong id="lifeTopCurrentAssets">0円</strong>
+          <small>資産タブの総資産</small>
+        </div>
+
+        <div class="life-key-card">
+          <span>資産が尽きる年齢</span>
+          <strong id="lifeTopDepletionAge">なし</strong>
+          <small>「なし」ならまずOK</small>
+        </div>
+
+        <div class="life-key-card">
+          <span>退職時の予想資産</span>
+          <strong id="lifeTopRetirementAssets">0円</strong>
+          <small>退職時点の見込み</small>
+        </div>
+
+        <div class="life-key-card">
+          <span>毎月の現金余力</span>
+          <strong id="lifeTopMonthlyFree">0円</strong>
+          <small>収入 − 生活費 − 投資</small>
+        </div>
+
+        <div class="life-key-card">
+          <span>次の大きな予定</span>
+          <strong id="lifeTopNextEvent">未登録</strong>
+          <small id="lifeTopNextEventAmount">教育・車・住宅など</small>
+        </div>
+      </div>
+
+      <div class="life-action-box">
+        <div class="life-action-label">今やること</div>
+        <strong id="lifeActionText">計算しています</strong>
+        <div id="lifeActionSub" class="life-action-sub"></div>
+      </div>
+
+      <button id="lifeToggleDetails" class="btn outline life-toggle-details" type="button">設定・年表・イベントを開く</button>
+    </div>
+
+    <div class="card life-secondary-card">
       <div class="title-row"><h2 class="title">家族設定</h2><span class="small">年齢と進学時期を自動表示</span></div>
       <input id="familyEditId" type="hidden">
       <div class="life-controls">
@@ -600,25 +758,29 @@
       <div class="btn-row"><button id="saveFamilyMember" class="btn" type="button">家族を追加</button><button id="cancelFamilyEdit" class="btn outline hidden" type="button">編集取消</button></div>
       <div id="familyList" class="family-list" style="margin-top:12px"></div>
     </div>
-    <div class="card"><div class="title-row"><h2 class="title">家族の年齢・予定表</h2><span class="small">15年分</span></div><div id="familyTimeline"></div></div>
-    <div class="card">
+    <div class="card life-secondary-card"><div class="title-row"><h2 class="title">家族の年齢・予定表</h2><span class="small">15年分</span></div><div id="familyTimeline"></div></div>
+    <div class="card life-secondary-card">
       <div class="title-row">
         <h2 class="title">ライフプラン設定</h2>
         <button id="applyHouseholdAverage" class="btn outline small-btn" type="button">家計実績から反映</button>
       </div>
 
       <div class="life-help">
-        月次実績の平均を反映して、教育費・車・住宅修繕などを含めた将来資産を確認できます。
+        現在資産は「資産」タブから自動取得します。NISA・iDeCo・投資積立は支出ではなく、現金から投資資産への移動として計算します。
       </div>
 
       <div class="life-controls" style="margin-top:12px;">
         <div class="field"><label>本人の現在年齢</label><input id="lifeCurrentAge" type="number" min="18" max="90" value="37"></div>
         <div class="field"><label>配偶者の現在年齢</label><input id="lifeSpouseAge" type="number" min="18" max="90" value="36"></div>
-        <div class="field"><label>現在の金融資産</label><input id="lifeCurrentAssets" type="number" min="0" inputmode="numeric" value="4000000"></div>
+        <div class="field">
+          <label>現在の金融資産（資産タブと自動連携）</label>
+          <input id="lifeCurrentAssets" type="number" min="0" inputmode="numeric" value="0" readonly>
+          <div id="lifeCurrentAssetsBreakdown" class="field-help">預金・証券・iDeCoを自動集計します</div>
+        </div>
         <div class="field"><label>毎月の世帯収入</label><input id="lifeMonthlyIncome" type="number" min="0" inputmode="numeric" value="600000"></div>
         <div class="field"><label>毎月の生活支出</label><input id="lifeMonthlyExpense" type="number" min="0" inputmode="numeric" value="450000"></div>
         <div class="field"><label>毎月の投資・積立</label><input id="lifeMonthlyInvestment" type="number" min="0" inputmode="numeric" value="50000"></div>
-        <div class="field"><label>想定運用利回り（年率%）</label><input id="lifeReturnRate" type="number" step="0.1" min="-10" max="20" value="3"></div>
+        <div class="field"><label>投資資産の想定運用利回り（年率%）</label><input id="lifeReturnRate" type="number" step="0.1" min="-10" max="20" value="3"></div>
         <div class="field"><label>物価上昇率（年率%）</label><input id="lifeInflationRate" type="number" step="0.1" min="0" max="10" value="1"></div>
         <div class="field"><label>収入上昇率（年率%）</label><input id="lifeIncomeGrowth" type="number" step="0.1" min="-10" max="10" value="1"></div>
         <div class="field"><label>退職年齢</label><input id="lifeRetirementAge" type="number" min="40" max="80" value="65"></div>
@@ -633,7 +795,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card life-secondary-card">
       <div class="title-row"><h2 class="title">将来イベント</h2><span class="small">教育・車・住宅・旅行など</span></div>
 
       <div class="preset-row" style="margin-bottom:12px;">
@@ -664,19 +826,19 @@
     </div>
 
     <div class="card">
-      <div class="title-row"><h2 class="title">資産推移</h2><span id="lifeStatusText" class="small"></span></div>
+      <div class="title-row"><h2 class="title">将来の資産推移</h2><span id="lifeStatusText" class="small"></span></div>
 
       <div class="life-summary">
         <div class="life-summary-card"><span>退職時の予想資産</span><strong id="lifeRetirementAssets">0円</strong></div>
-        <div class="life-summary-card"><span>終了時の予想資産</span><strong id="lifeFinalAssets">0円</strong></div>
-        <div class="life-summary-card"><span>資産の最低額</span><strong id="lifeMinimumAssets">0円</strong></div>
+        <div class="life-summary-card"><span>シミュレーション最終年の資産</span><strong id="lifeFinalAssets">0円</strong></div>
+        <div class="life-summary-card"><span>途中で一番少ない資産</span><strong id="lifeMinimumAssets">0円</strong></div>
         <div class="life-summary-card"><span>資産が尽きる年齢</span><strong id="lifeDepletionAge">なし</strong></div>
       </div>
 
       <canvas id="lifePlanCanvas" class="life-chart" width="900" height="320" style="margin-top:14px;"></canvas>
     </div>
 
-    <div class="card">
+    <div class="card life-secondary-card">
       <div class="title-row"><h2 class="title">年ごとの見通し</h2><span class="small">5年ごと＋イベント年</span></div>
       <div id="lifeProjectionTable"></div>
     </div>
@@ -1097,7 +1259,8 @@ const DEFAULT={
   lifePlan:{
     currentAge:37,
     spouseAge:36,
-    currentAssets:4000000,
+    currentAssets:7600000,
+    assetLinkMode:"assets",
     monthlyIncome:600000,
     monthlyExpense:450000,
     monthlyInvestment:50000,
@@ -1745,6 +1908,7 @@ function monthHasActualData(monthKey){
 function markAssetsUpdated(){
   if(!data.usage)data.usage=clone(DEFAULT.usage);
   data.usage.lastAssetsUpdatedMonth=currentMonth();
+  syncLifePlanAssetsFromAccounts();
 }
 
 function renderUsageGuide(){
@@ -4856,6 +5020,47 @@ function totalPurposeAmount(account){
   return (account.purposes||[]).reduce((sum,purpose)=>sum+normalize(purpose.amount),0);
 }
 
+function financialAssetSnapshot(){
+  const accounts=Array.isArray(data.bankAccounts)?data.bankAccounts:[];
+
+  let cash=0;
+  let investment=0;
+  let pension=0;
+
+  accounts.forEach(account=>{
+    const balance=normalize(account.balance);
+    const type=detectAccountType(account.name,account.accountType);
+
+    if(type==="investment"){
+      investment+=balance;
+    }else if(type==="pension"){
+      pension+=balance;
+    }else{
+      cash+=balance;
+    }
+  });
+
+  return {
+    cash,
+    investment,
+    pension,
+    invested:investment+pension,
+    total:cash+investment+pension,
+    updatedMonth:data.usage?.lastAssetsUpdatedMonth||"",
+    updatedThisMonth:data.usage?.lastAssetsUpdatedMonth===currentMonth()
+  };
+}
+
+function syncLifePlanAssetsFromAccounts(){
+  if(!data.lifePlan)data.lifePlan=clone(DEFAULT.lifePlan);
+
+  const snapshot=financialAssetSnapshot();
+  data.lifePlan.currentAssets=snapshot.total;
+  data.lifePlan.assetLinkMode="assets";
+
+  return snapshot;
+}
+
 function resetAccountForm(){
   accountEditId.value="";
   accountName.value="";
@@ -6090,6 +6295,7 @@ function renderAssets(){
     }
   });
 
+  syncLifePlanAssetsFromAccounts();
   fillPurposeAccountOptions();
 
   const depositAccounts=data.bankAccounts.filter(account=>account.accountType==="deposit");
@@ -6431,9 +6637,13 @@ function numberValue(id,fallback=0){
 
 function loadLifePlanForm(){
   const plan=data.lifePlan||clone(DEFAULT.lifePlan);
+  const snapshot=syncLifePlanAssetsFromAccounts();
+
   lifeCurrentAge.value=plan.currentAge;
   lifeSpouseAge.value=plan.spouseAge;
-  lifeCurrentAssets.value=plan.currentAssets;
+  lifeCurrentAssets.value=snapshot.total;
+  lifeCurrentAssetsBreakdown.textContent=
+    `預金・現金 ${yen(snapshot.cash)} ＋ 証券・iDeCo ${yen(snapshot.invested)}`;
   lifeMonthlyIncome.value=plan.monthlyIncome;
   lifeMonthlyExpense.value=plan.monthlyExpense;
   lifeMonthlyInvestment.value=plan.monthlyInvestment;
@@ -6456,7 +6666,8 @@ function readLifePlanForm(){
     ...data.lifePlan,
     currentAge:Math.max(18,numberValue("lifeCurrentAge",37)),
     spouseAge:Math.max(18,numberValue("lifeSpouseAge",36)),
-    currentAssets:Math.max(0,numberValue("lifeCurrentAssets",0)),
+    currentAssets:financialAssetSnapshot().total,
+    assetLinkMode:"assets",
     monthlyIncome:Math.max(0,numberValue("lifeMonthlyIncome",0)),
     monthlyExpense:Math.max(0,numberValue("lifeMonthlyExpense",0)),
     monthlyInvestment:Math.max(0,numberValue("lifeMonthlyInvestment",0)),
@@ -6513,9 +6724,10 @@ applyHouseholdAverage.onclick=()=>{
 
 saveLifePlan.onclick=()=>{
   data.lifePlan=readLifePlanForm();
+  syncLifePlanAssetsFromAccounts();
   save();
   renderLifePlan();
-  alert("ライフプラン設定を保存しました");
+  alert("ライフプラン設定を保存しました。現在資産は資産タブから自動連携しています。");
 };
 
 function resetLifeEventForm(){
@@ -6643,13 +6855,17 @@ function renderLifeEvents(){
 
 function buildLifeProjection(){
   const plan=data.lifePlan;
+  const snapshot=syncLifePlanAssetsFromAccounts();
   const startYear=plan.startYear;
   const endYear=startYear+(plan.endAge-plan.currentAge);
   const returnRate=plan.returnRate/100;
   const inflationRate=plan.inflationRate/100;
   const incomeGrowth=plan.incomeGrowth/100;
 
-  let assets=plan.currentAssets;
+  // 現金と投資資産を分けて管理する。
+  // NISA・iDeCoへの積立は「支出」ではなく現金→投資への移動。
+  let cashAssets=snapshot.cash;
+  let investedAssets=snapshot.invested;
   let income=plan.monthlyIncome*12;
   let expense=plan.monthlyExpense*12;
   let retirementExpense=plan.retirementExpense*12;
@@ -6662,20 +6878,60 @@ function buildLifeProjection(){
 
     const eventTotal=(plan.events||[]).reduce((sum,event)=>{
       const years=Math.max(1,event.years||1);
+
       if(year>=event.year&&year<event.year+years){
         return sum+(event.type==="income"?event.amount:-event.amount);
       }
+
       return sum;
     },0);
 
     const budgetForYear=budgetTotalsForYear(year);
-    const hasBudget=(data.budgetPlan.entries||[]).some(entry=>budgetAnnualAmount(entry,year)>0);
-    const annualIncome=retired?pension:(hasBudget?budgetForYear.income:income);
-    const annualExpense=retired?retirementExpense:(hasBudget?budgetForYear.expense:expense);
-    const annualInvestment=retired?0:(hasBudget?budgetForYear.investment:plan.monthlyInvestment*12);
-    const cashFlow=annualIncome-annualExpense-annualInvestment+eventTotal;
+    const hasBudget=(data.budgetPlan.entries||[]).some(entry=>{
+      return budgetAnnualAmount(entry,year)>0;
+    });
 
-    assets=(assets+cashFlow)*(1+returnRate);
+    const annualIncome=retired
+      ?pension
+      :(hasBudget?budgetForYear.income:income);
+
+    const annualExpense=retired
+      ?retirementExpense
+      :(hasBudget?budgetForYear.expense:expense);
+
+    const plannedInvestment=retired
+      ?0
+      :(hasBudget?budgetForYear.investment:plan.monthlyInvestment*12);
+
+    // 生活収支とイベントだけが総金融資産を増減させる。
+    const operatingCashFlow=annualIncome-annualExpense+eventTotal;
+    cashAssets+=operatingCashFlow;
+
+    // 現金不足なら投資資産を取り崩して補う。
+    let investmentWithdrawal=0;
+
+    if(cashAssets<0&&investedAssets>0){
+      investmentWithdrawal=Math.min(investedAssets,-cashAssets);
+      investedAssets-=investmentWithdrawal;
+      cashAssets+=investmentWithdrawal;
+    }
+
+    // 投資積立は現金から投資への振替。総資産は減らない。
+    const actualInvestment=Math.min(
+      Math.max(0,plannedInvestment),
+      Math.max(0,cashAssets)
+    );
+
+    cashAssets-=actualInvestment;
+    investedAssets+=actualInvestment;
+
+    // 利回りは投資資産だけにかける。
+    const investmentReturn=investedAssets*returnRate;
+    investedAssets+=investmentReturn;
+
+    const assets=cashAssets+investedAssets;
+    const cashAfterPlannedInvestment=
+      annualIncome-annualExpense-plannedInvestment+eventTotal;
 
     projection.push({
       year,
@@ -6683,9 +6939,15 @@ function buildLifeProjection(){
       retired,
       income:annualIncome,
       expense:annualExpense,
-      investment:annualInvestment,
+      investment:actualInvestment,
+      plannedInvestment,
       eventTotal,
-      cashFlow,
+      cashFlow:operatingCashFlow,
+      cashAfterPlannedInvestment,
+      investmentWithdrawal,
+      investmentReturn,
+      cashAssets,
+      investedAssets,
       assets
     });
 
@@ -6699,7 +6961,6 @@ function buildLifeProjection(){
 
   return projection;
 }
-
 function drawLifeChart(projection){
   const canvas=lifePlanCanvas;
   const context=canvas.getContext("2d");
@@ -6771,7 +7032,13 @@ function renderLifeProjectionTable(projection){
   const eventYears=new Set((data.lifePlan.events||[]).map(event=>event.year));
 
   const rows=projection.filter((item,index)=>{
-    return index===0||index===projection.length-1||item.age===data.lifePlan.retirementAge||item.age%5===0||eventYears.has(item.year);
+    return (
+      index===0||
+      index===projection.length-1||
+      item.age===data.lifePlan.retirementAge||
+      item.age%5===0||
+      eventYears.has(item.year)
+    );
   });
 
   lifeProjectionTable.innerHTML=`
@@ -6782,10 +7049,12 @@ function renderLifeProjectionTable(projection){
             <th>年・年齢</th>
             <th>年間収入</th>
             <th>生活支出</th>
-            <th>積立</th>
+            <th>投資へ移動</th>
             <th>イベント</th>
-            <th>年間収支</th>
-            <th>年末資産</th>
+            <th>生活収支</th>
+            <th>現金資産</th>
+            <th>投資資産</th>
+            <th>総資産</th>
           </tr>
         </thead>
         <tbody>
@@ -6797,7 +7066,9 @@ function renderLifeProjectionTable(projection){
               <td>${yen(Math.round(item.investment))}</td>
               <td class="${item.eventTotal>=0?"positive":"negative"}">${item.eventTotal?yen(Math.round(item.eventTotal)):"－"}</td>
               <td class="${item.cashFlow>=0?"positive":"negative"}">${yen(Math.round(item.cashFlow))}</td>
-              <td class="${item.assets>=0?"positive":"negative"}">${yen(Math.round(item.assets))}</td>
+              <td class="${item.cashAssets>=0?"positive":"negative"}">${yen(Math.round(item.cashAssets))}</td>
+              <td>${yen(Math.round(item.investedAssets))}</td>
+              <td class="${item.assets>=0?"positive":"negative"}"><strong>${yen(Math.round(item.assets))}</strong></td>
             </tr>
           `).join("")}
         </tbody>
@@ -6805,9 +7076,10 @@ function renderLifeProjectionTable(projection){
     </div>
   `;
 }
-
 function renderLifePlan(){
   if(!data.lifePlan)data.lifePlan=clone(DEFAULT.lifePlan);
+
+  const assetSnapshot=syncLifePlanAssetsFromAccounts();
 
   renderFamily();
   loadLifePlanForm();
@@ -6818,6 +7090,18 @@ function renderLifePlan(){
   const finalRow=projection[projection.length-1];
   const minimum=Math.min(...projection.map(item=>item.assets));
   const depletion=projection.find(item=>item.assets<0);
+  const monthlyFree=
+    normalize(data.lifePlan.monthlyIncome)-
+    normalize(data.lifePlan.monthlyExpense)-
+    normalize(data.lifePlan.monthlyInvestment);
+
+  const currentYear=Number(data.lifePlan.startYear)||new Date().getFullYear();
+  const upcomingEvents=(data.lifePlan.events||[])
+    .filter(event=>Number(event.year)>=currentYear)
+    .sort((left,right)=>Number(left.year)-Number(right.year));
+
+  const nextEvent=upcomingEvents[0]||null;
+  const retirementReserveThreshold=normalize(data.lifePlan.retirementExpense)*12*3;
 
   lifeRetirementAssets.textContent=yen(Math.round(retirementRow.assets));
   lifeFinalAssets.textContent=yen(Math.round(finalRow.assets));
@@ -6829,10 +7113,88 @@ function renderLifePlan(){
   lifeMinimumAssets.className=minimum>=0?"positive":"negative";
   lifeDepletionAge.className=depletion?"negative":"positive";
 
+  lifeTopRetirementAssets.textContent=yen(Math.round(retirementRow.assets));
+  lifeTopRetirementAssets.className=retirementRow.assets>=0?"positive":"negative";
+  lifeTopDepletionAge.textContent=depletion?`${depletion.age}歳`:"なし";
+  lifeTopDepletionAge.className=depletion?"negative":"positive";
+  lifeTopMonthlyFree.textContent=yen(monthlyFree);
+  lifeTopMonthlyFree.className=monthlyFree>=0?"positive":"negative";
+
+  lifeTopCurrentAssets.textContent=yen(assetSnapshot.total);
+  lifeTopCurrentAssets.className=assetSnapshot.total>=0?"positive":"negative";
+
+  lifeAssetSyncBreakdown.textContent=
+    `預金・現金 ${yen(assetSnapshot.cash)} ／ 証券・iDeCo ${yen(assetSnapshot.invested)}`;
+
+  lifeAssetSyncNote.classList.toggle("stale",!assetSnapshot.updatedThisMonth);
+
+  if(assetSnapshot.updatedThisMonth){
+    lifeAssetSyncNote.querySelector("strong").textContent="資産タブと自動連携・今月更新済み";
+  }else{
+    lifeAssetSyncNote.querySelector("strong").textContent="資産タブと自動連携・残高更新待ち";
+  }
+
+  if(nextEvent){
+    lifeTopNextEvent.textContent=`${nextEvent.year}年 ${nextEvent.name}`;
+    lifeTopNextEventAmount.textContent=`${nextEvent.type==="income"?"入る":"必要"} ${yen(nextEvent.amount)}`;
+  }else{
+    lifeTopNextEvent.textContent="未登録";
+    lifeTopNextEventAmount.textContent="教育・車・住宅などを登録";
+  }
+
+  lifeVerdictBadge.className="life-verdict-badge";
+
+  if(!assetSnapshot.updatedThisMonth){
+    lifeVerdictTitle.textContent="まず資産残高を最新にしよう";
+    lifeVerdictText.textContent=`将来予測は資産タブの総資産 ${yen(assetSnapshot.total)} を使っています。残高を更新すると予測も自動で変わります。`;
+    lifeVerdictBadge.textContent="資産更新待ち";
+    lifeVerdictBadge.classList.add("warn");
+
+    lifeActionText.textContent="資産タブで預金・証券・iDeCoの残高を更新する";
+    lifeActionSub.textContent="更新後はライフプランの現在資産も自動で同期されます。";
+  }else if(depletion){
+    lifeVerdictTitle.textContent="このままだと見直しが必要";
+    lifeVerdictText.textContent=`現在の設定では${depletion.age}歳ごろに金融資産がマイナスになる予測です。`;
+    lifeVerdictBadge.textContent="要見直し";
+    lifeVerdictBadge.classList.add("bad");
+
+    lifeActionText.textContent="まず生活支出・退職後生活費・大きなイベントを見直す";
+    lifeActionSub.textContent="大きな教育費・車・住宅修繕が未登録なら、それも先に追加してください。";
+  }else if(monthlyFree<0){
+    lifeVerdictTitle.textContent="将来は維持できても、毎月の現金が赤字";
+    lifeVerdictText.textContent="資産予測はマイナスになっていませんが、現在の月収支は赤字設定です。";
+    lifeVerdictBadge.textContent="月収支確認";
+    lifeVerdictBadge.classList.add("warn");
+
+    lifeActionText.textContent="毎月の生活費か投資への振替額を調整して、現金余力を0円以上にする";
+    lifeActionSub.textContent=`現在の月の現金余力は ${yen(monthlyFree)} です。`;
+  }else if(finalRow.assets<retirementReserveThreshold){
+    lifeVerdictTitle.textContent="資産は尽きないが、余裕は小さめ";
+    lifeVerdictText.textContent="シミュレーション上は資産が残ります。ただし最終盤の余裕は大きくありません。";
+    lifeVerdictBadge.textContent="余裕少なめ";
+    lifeVerdictBadge.classList.add("warn");
+
+    lifeActionText.textContent="大きな予定を登録してから、もう一度結果を見る";
+    lifeActionSub.textContent="教育費・車・住宅修繕などが未登録だと、実際より楽な予測になります。";
+  }else{
+    lifeVerdictTitle.textContent="今の設定では資産は維持できそう";
+    lifeVerdictText.textContent="まずは「資産が尽きる年齢：なし」を確認できればOKです。";
+    lifeVerdictBadge.textContent="現状OK";
+    lifeVerdictBadge.classList.add("good");
+
+    if(!nextEvent){
+      lifeActionText.textContent="教育費・車・住宅修繕など、大きな予定だけ登録する";
+      lifeActionSub.textContent="日々の細かい支出ではなく、将来の大きなお金だけ入れると見やすくなります。";
+    }else{
+      lifeActionText.textContent="普段はこの画面を触らず、年1回か大きな変化のときだけ更新";
+      lifeActionSub.textContent=`次の大きな予定は ${nextEvent.year}年「${nextEvent.name}」です。`;
+    }
+  }
+
   if(depletion){
     lifeStatusText.textContent=`${depletion.age}歳で資産がマイナスになる予測`;
     lifeStatusText.className="small status-bad";
-  }else if(finalRow.assets<data.lifePlan.retirementExpense*12*3){
+  }else if(finalRow.assets<retirementReserveThreshold){
     lifeStatusText.textContent="資産は残りますが余裕は小さめ";
     lifeStatusText.className="small status-warn";
   }else{
@@ -6845,9 +7207,41 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:26,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:28,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
+
+
+let lifeDetailsOpen=false;
+
+function applyLifeDetailsVisibility(){
+  document.querySelectorAll("#lifeplan .life-secondary-card").forEach(card=>{
+    card.classList.toggle("life-collapsed",!lifeDetailsOpen);
+  });
+
+  lifeToggleDetails.textContent=lifeDetailsOpen
+    ?"設定・年表を閉じる"
+    :"設定・年表・イベントを開く";
+}
+
+lifeGoAssets.onclick=()=>{
+  activate("assets");
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
+lifeToggleDetails.onclick=()=>{
+  lifeDetailsOpen=!lifeDetailsOpen;
+  applyLifeDetailsVisibility();
+
+  if(lifeDetailsOpen){
+    setTimeout(()=>{
+      document.querySelector("#lifeplan .life-secondary-card")?.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      });
+    },60);
+  }
+};
 
 function initRender(){
   const correction=correctMisassignedPeriodData();
@@ -6870,6 +7264,7 @@ function initRender(){
   renderAssets();
   renderPeriodSettings();
   renderSettings();
+  applyLifeDetailsVisibility();
 
   if(correction.moved){
     setTimeout(()=>{
@@ -7179,6 +7574,46 @@ initRender();
 - 座標認識が不足した場合の収入テキスト解析を追加
 - 同じ給与スクショを重ねても二重加算しない
 - 支出、投資、資産OCR、口座反映、予算、年間、ライフプランを維持
+-->
+
+
+<!--
+変更履歴 v27
+- アプリ全体を「毎月使う場所」と「必要なときだけ見る場所」に整理
+- ヘッダーを「家計」に簡略化
+- 上部タブを「ホーム・入力・資産・将来・メニュー」に変更
+- ホームを「今月やること → 今月の結果」の順へ簡略化
+- 毎月の操作を「家計入力」「資産更新」の2つに明確化
+- 過去期間の切替を折りたたみに移動
+- 支出80％チェック、支出分類、円グラフを「生活費を詳しく見る」に収納
+- ライフプラン最上部に「ここだけ見ればOK」を追加
+- ライフプランを「結論 → 資産が尽きる年齢 → 退職時資産 → 月の現金余力」の順に表示
+- 次の大きなイベントを最上部に表示
+- ライフプランの状況に応じて「今やること」を自動表示
+- 家族設定、年表、詳細設定、将来イベント、年ごとの見通しを普段は非表示
+- 「設定・年表・イベントを開く」ボタンで詳細を展開
+- 月次OCR、給与OCR、資産OCR、投資分離、予算、年間、バックアップ機能を維持
+-->
+
+
+<!--
+変更履歴 v28
+- ライフプランと資産タブを完全自動連携
+- ライフプランの現在金融資産の手入力を廃止
+- 預金・現金、証券・投資、iDeCo・年金を資産タブから自動集計
+- ライフプラン最上部に現在の連携総資産を表示
+- 預金と証券・iDeCoの内訳を表示
+- 資産残高が今月未更新の場合はライフプランで警告
+- ライフプランから資産タブへ直接移動できるボタンを追加
+- NISA・iDeCo・投資積立を生活支出として資産から減らす計算を廃止
+- 投資積立を「現金資産→投資資産」の振替として計算
+- 投資への振替では総金融資産が減らないよう修正
+- 投資資産にだけ想定運用利回りを適用
+- 現金不足時は投資資産を取り崩して生活費・イベント費を補う計算へ変更
+- 将来表を現金資産・投資資産・総資産に分けて表示
+- 生活収支と投資への移動を別表示
+- 資産更新時にライフプランの現在資産も即時同期
+- 月次OCR、給与OCR、資産OCR、投資分離、予算、年間、バックアップ機能を維持
 -->
 
 </body>
