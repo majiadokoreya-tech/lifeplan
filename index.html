@@ -347,6 +347,41 @@
     .field-help{margin-top:4px;color:var(--muted);font-size:9px;font-weight:700;line-height:1.5}
     #lifeCurrentAssets[readonly]{background:#f0fdf4;color:#166534;font-weight:950}
 
+    
+    .compact-period-card{padding-top:14px;padding-bottom:14px}
+    .mini-period-fold{margin-top:9px}
+    .mini-period-fold>summary{cursor:pointer;color:var(--muted);font-size:9px;font-weight:800}
+    .mf-import-hub{border:2px solid #fed7aa;background:linear-gradient(180deg,#fff7ed,#fff)}
+    .mf-import-kicker{color:var(--main-dark);font-size:9px;font-weight:950;letter-spacing:.04em}
+    .mf-import-title{margin:3px 0 0;font-size:21px;line-height:1.3}
+    .mf-import-sub{margin-top:7px;color:#57534e;font-size:10px;font-weight:750;line-height:1.7}
+    .mf-method{margin-top:13px;border:1px solid var(--line);border-radius:15px;background:#fff;overflow:hidden}
+    .mf-method.recommended{padding:13px;border-color:#fdba74;box-shadow:0 8px 22px rgba(249,115,22,.08)}
+    .mf-method-head{display:flex;align-items:center;gap:9px}
+    .mf-method-number{display:inline-grid;place-items:center;flex:0 0 27px;width:27px;height:27px;border-radius:50%;background:var(--main);color:#fff;font-size:12px;font-weight:950}
+    .mf-method-head strong,.mf-method>summary strong{display:block;font-size:13px}
+    .mf-method-head span:not(.mf-method-number):not(.mf-recommend-badge),.mf-method>summary div span{display:block;margin-top:2px;color:var(--muted);font-size:9px;font-weight:750}
+    .mf-recommend-badge{margin-left:auto;padding:4px 7px;border-radius:999px;background:#ffedd5;color:#c2410c;font-size:8px;font-weight:950}
+    .mf-steps{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:11px;padding:9px;border-radius:10px;background:#f8fafc;color:#475569;font-size:8px;font-weight:850;line-height:1.5}
+    .mf-steps b{color:#a3a3a3}
+    .mf-main-import-button{display:flex;justify-content:center;width:100%;margin-top:11px;padding:13px;font-size:14px}
+    .mf-premium-note{margin-top:8px;color:var(--muted);font-size:8px;font-weight:750;text-align:center;line-height:1.5}
+    .mf-method.secondary{padding:0}
+    .mf-method.secondary>summary{display:grid;grid-template-columns:27px minmax(0,1fr) auto;gap:9px;align-items:center;padding:13px;cursor:pointer;list-style:none}
+    .mf-method.secondary>summary::-webkit-details-marker{display:none}
+    .fold-chevron{color:var(--muted);font-size:16px}
+    .mf-secondary-body{padding:0 13px 13px}
+    .manual-input-fold{border-style:dashed}
+    .asset-main-summary-card{padding-bottom:12px}
+    .simple-asset-update-card{border:2px solid #bbf7d0;background:linear-gradient(180deg,#f0fdf4,#fff)}
+    .asset-update-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .asset-settings-fold{border-style:dashed}
+    .asset-settings-fold>summary span:first-child{font-size:13px}
+    @media(max-width:520px){
+      .mf-import-title{font-size:19px}
+      .mf-steps{gap:3px}
+    }
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -396,17 +431,17 @@
 <body>
 <header class="app-header">
   <div class="header-inner">
-    <div><h1 class="app-title">家計</h1><p class="app-sub">毎月は「入力 → 資産更新」だけ</p></div>
+    <div><h1 class="app-title">家計</h1><p class="app-sub">マネフォ取込 → 資産更新 → 結果を見る</p></div>
     <button id="monthChip" class="month-chip" type="button" title="現在の家計期間へ戻る"></button>
   </div>
 </header>
 <main>
   <nav class="tabs">
     <button class="tab active" data-tab="home">ホーム</button>
-    <button class="tab" data-tab="input">入力</button>
+    <button class="tab" data-tab="input">取込</button>
     <button class="tab" data-tab="assets">資産</button>
     <button class="tab" data-tab="lifeplan">将来</button>
-    <button class="tab" data-tab="menu">メニュー</button>
+    <button class="tab" data-tab="menu">その他</button>
   </nav>
 
   <section id="home" class="page">
@@ -424,8 +459,8 @@
         <div id="monthlyRoutineStep" class="home-status-item routine-step">
           <div class="routine-number">1</div>
           <div class="home-status-copy">
-            <strong>家計を入力</strong>
-            <span>収入・生活費・投資</span>
+            <strong>マネフォ取込</strong>
+            <span>CSVなら1ファイルで完了</span>
           </div>
           <span id="monthlyRoutineStatus" class="routine-status">未入力</span>
         </div>
@@ -536,104 +571,155 @@
     </details>
   </section>
   <section id="input" class="page hidden">
-    <div class="card input-period-card">
-      <div class="current-period-label">いま入力する期間</div>
+    <div class="card input-period-card compact-period-card">
+      <div class="current-period-label">取り込む期間</div>
       <div id="inputPeriodRange" class="input-period-range"></div>
       <div id="inputPeriodNote" class="current-period-note"></div>
 
-      <div class="period-change-label">別の期間に変更</div>
-      <div class="month-nav"><button id="inputPrev" type="button">‹</button><input id="inputMonth" type="month"><button id="inputNext" type="button">›</button></div>
+      <details class="mini-period-fold">
+        <summary>別の期間に変更</summary>
+        <div class="month-nav" style="margin-top:9px;">
+          <button id="inputPrev" type="button">‹</button>
+          <input id="inputMonth" type="month">
+          <button id="inputNext" type="button">›</button>
+        </div>
+      </details>
     </div>
 
-    <div class="card import-card">
-      <div class="title-row"><h2 class="title">マネーフォワードから入力</h2><span class="small">CSVを選ぶだけ</span></div>
-      <div class="import-explanation">
-        マネーフォワード MEからダウンロードしたCSVを選ぶと、上の集計期間に含まれる収入・支出を自動集計します。
-        <br>収入は「トウアコウギョウ＝パパ」「入浴介護センタ＝ママ」「トウアコウギョウの賞与＝パパ賞与」、それ以外はその他収入へ入ります。
+    <div class="card mf-import-hub">
+      <div class="mf-import-kicker">毎月はここだけ</div>
+      <h2 class="mf-import-title">マネーフォワードから取り込む</h2>
+      <div class="mf-import-sub">
+        CSVなら数字の読み間違いがなく、収入・生活費・NISAなどをまとめて自動集計します。
       </div>
 
-      <label class="btn file-select-button" for="moneyForwardCsvFile">CSVを選んで自動入力</label>
-      <input id="moneyForwardCsvFile" class="hidden" type="file" accept=".csv,text/csv">
-
-      <div id="moneyForwardImportResult" class="import-result hidden"></div>
-      <button id="undoMoneyForwardImport" class="btn outline hidden" type="button">CSV取込前に戻す</button>
-    </div>
-
-    <div class="card screenshot-import-card">
-      <div class="title-row">
-        <h2 class="title">スクショから入力</h2>
-        <span class="small">画像を選択・貼り付け</span>
-      </div>
-
-      <div class="import-explanation">
-        マネーフォワード MEの「家計簿・費目一覧」と「収入明細」の両方に対応しています。
-        <br>給与 入浴介護センタはママ給料、給与 トウアコウギョウ・TOAはパパ給料へ自動で振り分けます。
-      </div>
-
-      <div id="screenshotDropZone" class="screenshot-drop-zone" tabindex="0" role="button">
-        <div class="screenshot-drop-icon">📷</div>
-        <strong>ここを押してスクショを選ぶ</strong>
-        <span>この枠を長押しして「貼り付け」でもOK</span>
-      </div>
-
-      <input id="moneyForwardScreenshotFiles" class="hidden" type="file" accept="image/*" multiple>
-
-      <div id="screenshotPreviewList" class="screenshot-preview-list hidden"></div>
-
-      <div id="screenshotOcrProgress" class="ocr-progress-wrap hidden">
-        <div class="ocr-progress-track"><div id="screenshotOcrProgressBar" class="ocr-progress-bar"></div></div>
-        <div id="screenshotOcrStatus" class="ocr-status">画像を準備しています…</div>
-      </div>
-
-      <div class="btn-row">
-        <button id="runScreenshotOcr" class="btn hidden" type="button">スクショを読み取る</button>
-        <button id="clearScreenshotImport" class="btn outline hidden" type="button">画像を取消</button>
-      </div>
-
-      <div id="screenshotReviewArea" class="screenshot-review-area hidden">
-        <div class="title-row">
-          <h3 class="review-title">読み取った内容を確認</h3>
-          <span id="screenshotReviewCount" class="small"></span>
+      <div class="mf-method recommended">
+        <div class="mf-method-head">
+          <span class="mf-method-number">1</span>
+          <div>
+            <strong>CSVを選ぶ</strong>
+            <span>いちばん正確・おすすめ</span>
+          </div>
+          <span class="mf-recommend-badge">おすすめ</span>
         </div>
 
-        <div class="review-warning">
-          金額と費目を確認してください。「表示順で推定」の行は特に確認が必要です。アプリにない費目は、反映時に自動で作成されます。
+        <div class="mf-steps">
+          <span>マネーフォワードME</span>
+          <b>→</b>
+          <span>入出金</span>
+          <b>→</b>
+          <span>上部のダウンロード</span>
+          <b>→</b>
+          <span>CSV</span>
         </div>
 
-        <div class="field">
-          <label>反映方法</label>
-          <select id="screenshotImportMode">
-            <option value="replace">この期間の入力を置き換える</option>
-            <option value="add">現在の入力に加算する</option>
-          </select>
+        <label class="btn file-select-button mf-main-import-button" for="moneyForwardCsvFile">
+          CSVファイルを選ぶ
+        </label>
+        <input id="moneyForwardCsvFile" class="hidden" type="file" accept=".csv,text/csv,application/vnd.ms-excel">
+
+        <div class="mf-premium-note">
+          CSVダウンロードが使えない場合は、下の「スクショで取り込む」を使えます。
         </div>
 
-        <div id="screenshotReviewList" class="screenshot-review-list"></div>
-
-        <button id="addScreenshotReviewRow" class="btn outline" type="button">＋ 読み取れなかった項目を追加</button>
+        <div id="moneyForwardImportResult" class="import-result hidden"></div>
 
         <div class="btn-row">
-          <button id="applyScreenshotImport" class="btn" type="button">確認した内容を入力する</button>
-          <button id="undoScreenshotImport" class="btn outline hidden" type="button">スクショ取込前に戻す</button>
+          <button id="goHomeAfterMoneyForwardImport" class="btn hidden" type="button">ホームで結果を見る</button>
+          <button id="undoMoneyForwardImport" class="btn outline hidden" type="button">CSV取込前に戻す</button>
         </div>
       </div>
 
-      <div id="screenshotImportMessage" class="import-result hidden"></div>
+      <details class="mf-method secondary">
+        <summary>
+          <span class="mf-method-number">2</span>
+          <div>
+            <strong>スクショで取り込む</strong>
+            <span>CSVが使えないとき</span>
+          </div>
+          <span class="fold-chevron">⌄</span>
+        </summary>
 
-      <div class="privacy-note">
-        画像の文字読み取りは端末内のブラウザで行います。初回は読み取り機能の読み込みに少し時間がかかります。
+        <div class="mf-secondary-body">
+          <div class="import-explanation">
+            「家計簿・費目一覧」と「収入明細」のスクショに対応しています。
+            給与 入浴介護センタはママ給料、トウアコウギョウ・TOAはパパ給料へ振り分けます。
+          </div>
+
+          <div id="screenshotDropZone" class="screenshot-drop-zone" tabindex="0" role="button">
+            <div class="screenshot-drop-icon">📷</div>
+            <strong>スクショを選ぶ</strong>
+            <span>複数枚まとめて選択できます</span>
+          </div>
+
+          <input id="moneyForwardScreenshotFiles" class="hidden" type="file" accept="image/*" multiple>
+
+          <div id="screenshotPreviewList" class="screenshot-preview-list hidden"></div>
+
+          <div id="screenshotOcrProgress" class="ocr-progress-wrap hidden">
+            <div class="ocr-progress-track"><div id="screenshotOcrProgressBar" class="ocr-progress-bar"></div></div>
+            <div id="screenshotOcrStatus" class="ocr-status">画像を準備しています…</div>
+          </div>
+
+          <div class="btn-row">
+            <button id="runScreenshotOcr" class="btn hidden" type="button">スクショを読み取る</button>
+            <button id="clearScreenshotImport" class="btn outline hidden" type="button">画像を取消</button>
+          </div>
+
+          <div id="screenshotReviewArea" class="screenshot-review-area hidden">
+            <div class="title-row">
+              <h3 class="review-title">読み取った内容を確認</h3>
+              <span id="screenshotReviewCount" class="small"></span>
+            </div>
+
+            <div class="review-warning">
+              スクショはOCRのため、反映前に金額だけ確認してください。アプリにない費目は自動作成します。
+            </div>
+
+            <div class="field">
+              <label>反映方法</label>
+              <select id="screenshotImportMode">
+                <option value="replace">この期間の入力を置き換える</option>
+                <option value="add">現在の入力に加算する</option>
+              </select>
+            </div>
+
+            <div id="screenshotReviewList" class="screenshot-review-list"></div>
+
+            <button id="addScreenshotReviewRow" class="btn outline" type="button">＋ 読み取れなかった項目を追加</button>
+
+            <div class="btn-row">
+              <button id="applyScreenshotImport" class="btn" type="button">確認した内容を入力する</button>
+              <button id="undoScreenshotImport" class="btn outline hidden" type="button">スクショ取込前に戻す</button>
+            </div>
+          </div>
+
+          <div id="screenshotImportMessage" class="import-result hidden"></div>
+        </div>
+      </details>
+    </div>
+
+    <details class="card simple-fold manual-input-fold">
+      <summary>
+        <span>手入力・細かく修正</span>
+        <span class="fold-hint">必要なときだけ</span>
+      </summary>
+
+      <div class="fold-body">
+        <div class="title-row">
+          <h2 id="inputPeriodTitle" class="title">この期間を手入力</h2>
+          <span class="small">項目別の合計</span>
+        </div>
+
+        <div id="inputGroups" class="input-groups"></div>
+
+        <div class="btn-row">
+          <button id="saveMonth" class="btn" type="button">変更を保存</button>
+          <button id="clearMonth" class="btn danger" type="button">この期間を削除</button>
+        </div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="title-row"><h2 id="inputPeriodTitle" class="title">給与期間を入力</h2><span class="small">項目別の合計額だけ</span></div>
-      <div id="inputGroups" class="input-groups"></div>
-      <div class="btn-row"><button id="saveMonth" class="btn" type="button">この給与期間を保存</button></div>
-      <div class="btn-row"><button id="clearMonth" class="btn danger" type="button">この給与期間を削除</button></div>
-    </div>
-    <div class="notice">CSVを使わない場合は、上に表示された集計期間の合計額を手入力してください。</div>
+    </details>
   </section>
-
 
   <section id="budget" class="page hidden">
     <button class="btn outline back-menu-button" data-back-menu type="button">‹ メニューへ戻る</button>
@@ -846,26 +932,32 @@
 
   
   <section id="assets" class="page hidden">
-    <div class="card">
-      <div class="title-row"><h2 class="title">通帳・口座残高</h2><span class="small">口座ごとに目的別管理</span></div>
+    <div class="card asset-main-summary-card">
+      <div class="title-row">
+        <h2 class="title">いまの資産</h2>
+        <span class="small">将来プランへ自動連携</span>
+      </div>
 
       <div id="assetSummary" class="asset-summary"></div>
     </div>
 
-    <div class="card account-screenshot-card">
-      <div class="title-row">
-        <h2 class="title">口座スクショから残高更新</h2>
-        <span class="small">画像を選択・貼り付け</span>
+    <div class="card account-screenshot-card simple-asset-update-card">
+      <div class="asset-update-heading">
+        <div>
+          <div class="mf-import-kicker">毎月1回</div>
+          <h2 class="title">資産残高を更新</h2>
+        </div>
+        <span class="small">スクショで更新</span>
       </div>
 
       <div class="import-explanation">
-        口座名と同じ高さにある残高を組み合わせて読み取ります。既存口座へ反映する場合は、口座名・種類・目的別設定を変えず、残高だけ更新します。
+        マネーフォワードMEの口座・資産一覧をスクショして選びます。既存口座は残高だけ更新し、目的別設定は残します。
       </div>
 
       <div id="accountScreenshotDropZone" class="screenshot-drop-zone account-drop-zone" tabindex="0" role="button">
         <div class="screenshot-drop-icon">🏦</div>
-        <strong>ここを押して口座スクショを選ぶ</strong>
-        <span>この枠へ画像を貼り付けてもOK</span>
+        <strong>資産スクショを選ぶ</strong>
+        <span>口座・証券・iDeCoが見える画面</span>
       </div>
 
       <input id="accountScreenshotFiles" class="hidden" type="file" accept="image/*" multiple>
@@ -884,12 +976,12 @@
 
       <div id="accountScreenshotReviewArea" class="screenshot-review-area hidden">
         <div class="title-row">
-          <h3 class="review-title">1口座ずつ確認</h3>
+          <h3 class="review-title">反映する口座を確認</h3>
           <span id="accountScreenshotReviewCount" class="small"></span>
         </div>
 
         <div class="asset-import-warning">
-          「反映先」が合っている行だけ更新します。自動一致できない行は最初から「反映しない」にしています。
+          緑の自動一致はそのままでOK。黄色の行だけ反映先を確認してください。
         </div>
 
         <div id="accountScreenshotReviewList" class="screenshot-review-list"></div>
@@ -897,74 +989,83 @@
         <button id="addAccountScreenshotReviewRow" class="btn outline" type="button">＋ 読み取れなかった口座を追加</button>
 
         <div class="btn-row">
-          <button id="applyAccountScreenshotImport" class="btn" type="button">選択した口座だけ反映する</button>
-          <button id="undoAccountScreenshotImport" class="btn outline hidden" type="button">口座取込前に戻す</button>
+          <button id="applyAccountScreenshotImport" class="btn" type="button">選択した口座だけ更新</button>
+          <button id="undoAccountScreenshotImport" class="btn outline hidden" type="button">更新前に戻す</button>
         </div>
       </div>
 
       <div id="accountScreenshotMessage" class="import-result hidden"></div>
-
-      <div class="privacy-note">
-        預金は目的別設定を残して残高だけ更新します。証券・iDeCoは投資資産として扱い、未振分金額には含めません。
-      </div>
     </div>
 
     <div class="card">
-      <div class="title-row"><h2 class="title">口座を追加・編集</h2><span class="small">残高だけ簡単入力</span></div>
-
-      <input id="accountEditId" type="hidden">
-
-      <div class="life-controls">
-        <div class="field"><label>口座名・資産名</label><input id="accountName" placeholder="例：ママゆうちょ"></div>
-        <div class="field"><label>現在の残高・評価額</label><input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：7600000"></div>
-        <div class="field">
-          <label>資産の種類</label>
-          <select id="accountType">
-            <option value="deposit">預金・現金</option>
-            <option value="investment">証券・投資</option>
-            <option value="pension">iDeCo・年金</option>
-          </select>
-        </div>
-        <div class="field"><label>アイコン</label><select id="accountIcon"><option>🏦</option><option>📮</option><option>💰</option><option>👛</option><option>📈</option><option>🏦</option><option>🧓</option></select></div>
-        <div class="field"><label>メモ</label><input id="accountMemo" placeholder="例：生活防衛資金用"></div>
+      <div class="title-row">
+        <h2 class="title">資産の内訳</h2>
+        <span id="accountCount" class="small"></span>
       </div>
-
-      <div class="btn-row">
-        <button id="saveAccountButton" class="btn" type="button">口座を追加</button>
-        <button id="cancelAccountEdit" class="btn outline hidden" type="button">編集取消</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="title-row"><h2 class="title">預金の目的を追加・編集</h2><span class="small">証券・iDeCoは対象外</span></div>
-
-      <div class="quick-purpose-row">
-        <button class="quick-purpose" data-purpose-preset="生活防衛費" type="button">＋生活防衛費</button>
-        <button class="quick-purpose" data-purpose-preset="家電買い替え" type="button">＋家電</button>
-        <button class="quick-purpose" data-purpose-preset="車買い替え" type="button">＋車</button>
-        <button class="quick-purpose" data-purpose-preset="教育費" type="button">＋教育費</button>
-        <button class="quick-purpose" data-purpose-preset="旅行費" type="button">＋旅行</button>
-      </div>
-
-      <input id="purposeEditId" type="hidden">
-
-      <div class="life-controls">
-        <div class="field"><label>口座</label><select id="purposeAccountId"></select></div>
-        <div class="field"><label>目的名</label><input id="purposeName" placeholder="例：生活防衛費"></div>
-        <div class="field"><label>現在確保している金額</label><input id="purposeAmount" type="number" min="0" inputmode="numeric" placeholder="例：3300000"></div>
-        <div class="field"><label>目標金額（任意）</label><input id="purposeTarget" type="number" min="0" inputmode="numeric" placeholder="例：3300000"></div>
-      </div>
-
-      <div class="btn-row">
-        <button id="savePurposeButton" class="btn" type="button">目的を追加</button>
-        <button id="cancelPurposeEdit" class="btn outline hidden" type="button">編集取消</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="title-row"><h2 class="title">資産の内訳</h2><span id="accountCount" class="small"></span></div>
       <div id="accountList" class="account-list"></div>
     </div>
+
+    <details class="card simple-fold asset-settings-fold">
+      <summary>
+        <span>口座・資産を追加／編集</span>
+        <span class="fold-hint">初回・変更時だけ</span>
+      </summary>
+
+      <div class="fold-body">
+        <input id="accountEditId" type="hidden">
+
+        <div class="life-controls">
+          <div class="field"><label>口座名・資産名</label><input id="accountName" placeholder="例：ママゆうちょ"></div>
+          <div class="field"><label>現在の残高・評価額</label><input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：7600000"></div>
+          <div class="field">
+            <label>資産の種類</label>
+            <select id="accountType">
+              <option value="deposit">預金・現金</option>
+              <option value="investment">証券・投資</option>
+              <option value="pension">iDeCo・年金</option>
+            </select>
+          </div>
+          <div class="field"><label>アイコン</label><select id="accountIcon"><option>🏦</option><option>📮</option><option>💰</option><option>👛</option><option>📈</option><option>🧓</option></select></div>
+          <div class="field"><label>メモ</label><input id="accountMemo" placeholder="例：生活防衛資金用"></div>
+        </div>
+
+        <div class="btn-row">
+          <button id="saveAccountButton" class="btn" type="button">口座を追加</button>
+          <button id="cancelAccountEdit" class="btn outline hidden" type="button">編集取消</button>
+        </div>
+      </div>
+    </details>
+
+    <details class="card simple-fold asset-settings-fold">
+      <summary>
+        <span>預金の目的別設定</span>
+        <span class="fold-hint">生活防衛費・車・教育費など</span>
+      </summary>
+
+      <div class="fold-body">
+        <div class="quick-purpose-row">
+          <button class="quick-purpose" data-purpose-preset="生活防衛費" type="button">＋生活防衛費</button>
+          <button class="quick-purpose" data-purpose-preset="家電買い替え" type="button">＋家電</button>
+          <button class="quick-purpose" data-purpose-preset="車買い替え" type="button">＋車</button>
+          <button class="quick-purpose" data-purpose-preset="教育費" type="button">＋教育費</button>
+          <button class="quick-purpose" data-purpose-preset="旅行費" type="button">＋旅行</button>
+        </div>
+
+        <input id="purposeEditId" type="hidden">
+
+        <div class="life-controls">
+          <div class="field"><label>口座</label><select id="purposeAccountId"></select></div>
+          <div class="field"><label>目的名</label><input id="purposeName" placeholder="例：生活防衛費"></div>
+          <div class="field"><label>現在確保している金額</label><input id="purposeAmount" type="number" min="0" inputmode="numeric" placeholder="例：3300000"></div>
+          <div class="field"><label>目標金額（任意）</label><input id="purposeTarget" type="number" min="0" inputmode="numeric" placeholder="例：3300000"></div>
+        </div>
+
+        <div class="btn-row">
+          <button id="savePurposeButton" class="btn" type="button">目的を追加</button>
+          <button id="cancelPurposeEdit" class="btn outline hidden" type="button">編集取消</button>
+        </div>
+      </div>
+    </details>
   </section>
 
 
@@ -1932,7 +2033,7 @@ function renderUsageGuide(){
   nextActionButton.disabled=false;
 
   if(!hasMonthlyData){
-    nextActionButton.textContent="収入・生活費・投資を入力する";
+    nextActionButton.textContent="マネーフォワードから取り込む";
     nextActionButton.onclick=()=>{
       setMonth(monthKey);
       activate("input");
@@ -2507,10 +2608,11 @@ function findMoneyForwardItem({major,middle,content,amount}){
 function showMoneyForwardResult({usedRows,excludedRows,outsideRows,fallbackRows,totalRows}){
   moneyForwardImportResult.classList.remove("hidden");
   moneyForwardImportResult.innerHTML=`
-    <strong>${usedRows}件を自動入力して保存しました</strong>
-    CSV全体 ${totalRows}件・対象期間外 ${outsideRows}件・計算対象外/振替 ${excludedRows}件
-    ${fallbackRows?`<br>「その他」などへまとめた明細 ${fallbackRows}件`:""}
+    <strong>取込完了</strong>
+    ${usedRows}件をこの期間へ自動入力しました。
+    ${fallbackRows?`<br>確認推奨の明細 ${fallbackRows}件`:""}
   `;
+  goHomeAfterMoneyForwardImport.classList.remove("hidden");
   undoMoneyForwardImport.classList.remove("hidden");
 }
 
@@ -2624,15 +2726,24 @@ moneyForwardCsvFile.onchange=async()=>{
 
   moneyForwardImportResult.classList.remove("hidden");
   moneyForwardImportResult.textContent="CSVを読み込んでいます…";
+  goHomeAfterMoneyForwardImport.classList.add("hidden");
 
   try{
     await importMoneyForwardCsv(file);
   }catch(error){
     moneyForwardImportResult.innerHTML=`<strong>読み込めませんでした</strong>${esc(error.message||"CSVを確認してください")}`;
+    goHomeAfterMoneyForwardImport.classList.add("hidden");
     undoMoneyForwardImport.classList.add("hidden");
   }finally{
     moneyForwardCsvFile.value="";
   }
+};
+
+goHomeAfterMoneyForwardImport.onclick=()=>{
+  activate("home");
+  setTimeout(()=>{
+    homeResultCard.scrollIntoView({behavior:"smooth",block:"start"});
+  },80);
 };
 
 undoMoneyForwardImport.onclick=()=>{
@@ -2655,6 +2766,7 @@ undoMoneyForwardImport.onclick=()=>{
   renderHome();
 
   moneyForwardImportResult.innerHTML="<strong>CSV取込前の状態に戻しました</strong>";
+  goHomeAfterMoneyForwardImport.classList.add("hidden");
   undoMoneyForwardImport.classList.add("hidden");
 };
 
@@ -7207,7 +7319,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:28,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:29,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -7614,6 +7726,26 @@ initRender();
 - 生活収支と投資への移動を別表示
 - 資産更新時にライフプランの現在資産も即時同期
 - 月次OCR、給与OCR、資産OCR、投資分離、予算、年間、バックアップ機能を維持
+-->
+
+
+<!--
+変更履歴 v29
+- アプリ全体をさらにシンプル化
+- 上部タブを「ホーム・取込・資産・将来・その他」に変更
+- 月次入力画面を「マネーフォワードから取り込む」1画面中心に再設計
+- CSV取込を最優先・おすすめとして大きく表示
+- CSV取込手順を「マネーフォワードME → 入出金 → ダウンロード → CSV」と画面内に表示
+- CSVファイルを選ぶだけで対象期間を自動集計する既存機能を維持
+- CSV取込完了後に「ホームで結果を見る」ボタンを追加
+- スクショOCRはCSVが使えない場合の予備機能として折りたたみに移動
+- 手入力と細かい修正を普段は非表示
+- 資産画面を「総資産 → 資産更新 → 内訳」の順に整理
+- 口座追加・編集を折りたたみに移動
+- 目的別設定を折りたたみに移動
+- 毎月触る場所と初回だけ触る設定を分離
+- ライフプランと資産タブの自動連携を維持
+- 給与OCR、支出OCR、資産OCR、NISA・iDeCo投資分離、予算、年間、バックアップ機能を維持
 -->
 
 </body>
