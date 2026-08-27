@@ -382,6 +382,87 @@
       .mf-steps{gap:3px}
     }
 
+    
+    .big-expense-home-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px}
+    .big-expense-home-copy{min-width:0}
+    .big-expense-home-copy>strong{display:block;margin-top:2px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .big-expense-home-sub{margin-top:3px;color:var(--muted);font-size:9px;font-weight:750;line-height:1.5}
+    .asset-big-expense-button{width:100%;margin-top:11px}
+    .asset-big-expense-status{margin-top:6px;color:var(--muted);font-size:9px;font-weight:750;text-align:center}
+    .life-overview-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .life-overview-actions .life-toggle-details{margin-top:0}
+    .big-expense-overview-card{border:2px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff,#fff)}
+    .big-expense-explanation{padding:10px 11px;border-radius:12px;background:#fff;color:#475569;font-size:10px;font-weight:750;line-height:1.7}
+    .big-expense-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+    .big-expense-summary-card{padding:10px;border:1px solid #dbeafe;border-radius:13px;background:#fff}
+    .big-expense-summary-card span{display:block;color:var(--muted);font-size:8px;font-weight:800}
+    .big-expense-summary-card strong{display:block;margin-top:3px;font-size:15px;font-weight:950;overflow-wrap:anywhere}
+    .big-expense-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .big-expense-preset{border:1px solid #bfdbfe;border-radius:999px;padding:7px 10px;background:#eff6ff;color:#1e3a8a;font-size:10px;font-weight:900}
+    .big-expense-form-hint{margin-top:10px;padding:9px 10px;border-radius:11px;background:#f8fafc;color:#475569;font-size:9px;font-weight:750;line-height:1.6}
+    .big-expense-list{display:grid;gap:10px}
+    .big-expense-item{padding:13px;border:1px solid var(--line);border-radius:16px;background:#fff}
+    .big-expense-item.ready{border-color:#86efac;background:#f0fdf4}
+    .big-expense-item.needs-date{border-color:#fde68a;background:#fffbeb}
+    .big-expense-item-head{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:9px;align-items:start}
+    .big-expense-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:#eff6ff;font-size:19px}
+    .big-expense-name{font-size:14px;font-weight:950}
+    .big-expense-date{margin-top:2px;color:var(--muted);font-size:9px;font-weight:750}
+    .big-expense-target{text-align:right;font-size:14px;font-weight:950;white-space:nowrap}
+    .big-expense-progress-row{display:flex;justify-content:space-between;gap:8px;margin-top:10px;color:#475569;font-size:9px;font-weight:850}
+    .big-expense-progress{height:9px;margin-top:6px;overflow:hidden;border-radius:999px;background:#e5e7eb}
+    .big-expense-progress-bar{height:100%;border-radius:999px;background:#3b82f6}
+    .big-expense-item.ready .big-expense-progress-bar{background:#16a34a}
+    .big-expense-pace{margin-top:7px;padding:7px 8px;border-radius:9px;background:#f8fafc;color:#334155;font-size:9px;font-weight:800;line-height:1.55}
+    .linked-plan-badge{display:inline-flex;margin-left:5px;padding:2px 5px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:7px;font-weight:950;vertical-align:middle}
+    @media(max-width:520px){
+      .big-expense-summary{grid-template-columns:1fr 1fr}
+      .big-expense-summary-card:first-child{grid-column:1/-1}
+      .life-overview-actions{grid-template-columns:1fr}
+      .big-expense-item-head{grid-template-columns:38px minmax(0,1fr)}
+      .big-expense-target{grid-column:2;text-align:left}
+    }
+
+    
+    .home-result-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+    .input-period-focus{border:3px solid #fb923c;background:linear-gradient(180deg,#fff7ed,#fff);box-shadow:0 10px 24px rgba(249,115,22,.10)}
+    .input-period-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .input-period-title-large{margin:3px 0 0;font-size:22px;font-weight:950;line-height:1.25}
+    .input-period-state-badge{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:9px;font-weight:950}
+    .input-period-state-badge.past{background:#dbeafe;color:#1d4ed8}
+    .input-period-state-badge.future{background:#fef3c7;color:#92400e}
+    .input-period-range{margin-top:10px;padding:12px;border-radius:14px;background:#fff;border:1px solid #fdba74;color:#7c2d12;font-size:18px;font-weight:950;line-height:1.45;text-align:center;letter-spacing:-.02em}
+    .input-period-navigation{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px}
+    .input-period-navigation .btn{padding:10px 5px;font-size:10px}
+    .input-period-picker{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px;margin-top:10px}
+    .input-period-picker label{color:#57534e;font-size:10px;font-weight:900}
+    .past-input-box{margin-top:12px;padding:11px;border-top:1px dashed #fdba74}
+    .past-input-head{display:flex;align-items:end;justify-content:space-between;gap:8px}
+    .past-input-head strong{font-size:12px}
+    .past-input-head span{color:var(--muted);font-size:8px;font-weight:750}
+    .input-recent-periods{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+    .input-period-chip{border:1px solid var(--line);border-radius:11px;padding:8px 5px;background:#fff;color:#404040;text-align:center;font-size:9px;font-weight:900;line-height:1.35}
+    .input-period-chip span{display:block;color:var(--muted);font-size:7px;font-weight:750}
+    .input-period-chip.active{border-color:#fb923c;background:#fff7ed;color:#9a3412}
+    .input-period-chip.has-data:after{content:"保存済";display:block;margin-top:3px;color:#166534;font-size:7px;font-weight:950}
+    .input-save-status-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid #fed7aa}
+    .input-save-status{padding:5px 8px;border-radius:999px;background:#f5f5f5;color:#525252;font-size:9px;font-weight:950;white-space:nowrap}
+    .input-save-status.saved{background:#dcfce7;color:#166534}
+    .input-save-status.dirty{background:#fef3c7;color:#92400e}
+    .input-top-save{padding:13px;font-size:14px}
+    .input-sticky-save{position:sticky;bottom:8px;z-index:35;display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:9px;align-items:center;margin:14px 0 4px;padding:9px;border:1px solid #fdba74;border-radius:16px;background:rgba(255,247,237,.96);box-shadow:0 8px 24px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
+    .input-sticky-copy{min-width:0}
+    .input-sticky-copy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#7c2d12;font-size:9px;font-weight:900}
+    .input-sticky-copy strong{display:block;margin-top:2px;font-size:10px}
+    .input-sticky-save .btn{padding:11px 8px}
+    @media(max-width:520px){
+      .home-result-actions{width:100%}
+      .home-result-actions .btn{flex:1}
+      .input-period-title-large{font-size:19px}
+      .input-period-range{font-size:16px}
+      .input-recent-periods{grid-template-columns:repeat(2,1fr)}
+    }
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -484,7 +565,10 @@
     <div id="homeResultCard" class="card home-result-card">
       <div class="title-row">
         <h2 id="homeResultTitle" class="title">今月の結果</h2>
-        <button id="goInput" class="btn outline small-btn">修正</button>
+        <div class="home-result-actions">
+          <button id="goInput" class="btn outline small-btn" type="button">この期間を修正</button>
+          <button id="goPastInput" class="btn outline small-btn" type="button">過去の入力</button>
+        </div>
       </div>
 
       <div class="summary home-summary">
@@ -495,6 +579,15 @@
       </div>
 
       <div id="homeCashFlowNote" class="cash-flow-note"></div>
+    </div>
+
+    <div class="card big-expense-home-card">
+      <div class="big-expense-home-copy">
+        <span class="small">大きな出費</span>
+        <strong id="homeBigExpenseTitle">車・外壁・教育費など</strong>
+        <div id="homeBigExpenseSub" class="big-expense-home-sub">まだ登録されていません</div>
+      </div>
+      <button id="openBigExpensesHome" class="btn outline small-btn" type="button">見る</button>
     </div>
 
     <details class="card simple-fold">
@@ -571,19 +664,41 @@
     </details>
   </section>
   <section id="input" class="page hidden">
-    <div class="card input-period-card compact-period-card">
-      <div class="current-period-label">取り込む期間</div>
+    <div class="card input-period-card input-period-focus">
+      <div class="input-period-topline">
+        <div>
+          <div class="current-period-label">いま入力・修正している期間</div>
+          <h2 id="inputPeriodTitleLarge" class="input-period-title-large">給与期間</h2>
+        </div>
+        <span id="inputPeriodStateBadge" class="input-period-state-badge">現在</span>
+      </div>
+
       <div id="inputPeriodRange" class="input-period-range"></div>
       <div id="inputPeriodNote" class="current-period-note"></div>
 
-      <details class="mini-period-fold">
-        <summary>別の期間に変更</summary>
-        <div class="month-nav" style="margin-top:9px;">
-          <button id="inputPrev" type="button">‹</button>
-          <input id="inputMonth" type="month">
-          <button id="inputNext" type="button">›</button>
+      <div class="input-period-navigation">
+        <button id="inputPrev" class="btn outline" type="button">‹ 前の期間</button>
+        <button id="inputGoCurrent" class="btn outline" type="button">今の期間</button>
+        <button id="inputNext" class="btn outline" type="button">次の期間 ›</button>
+      </div>
+
+      <div class="input-period-picker">
+        <label for="inputMonth">年月から選ぶ</label>
+        <input id="inputMonth" type="month">
+      </div>
+
+      <div class="past-input-box">
+        <div class="past-input-head">
+          <strong>過去の入力を開く</strong>
+          <span>押すだけでその期間へ移動</span>
         </div>
-      </details>
+        <div id="inputRecentPeriods" class="input-recent-periods"></div>
+      </div>
+
+      <div class="input-save-status-row">
+        <span id="inputSaveStatus" class="input-save-status">未入力</span>
+        <button id="saveMonthTop" class="btn input-top-save" type="button">この期間を保存</button>
+      </div>
     </div>
 
     <div class="card mf-import-hub">
@@ -719,6 +834,14 @@
         </div>
       </div>
     </details>
+    <div class="input-sticky-save">
+      <div class="input-sticky-copy">
+        <span id="inputStickyRange">入力期間</span>
+        <strong id="inputStickyStatus">未入力</strong>
+      </div>
+      <button id="saveMonthSticky" class="btn" type="button">保存</button>
+    </div>
+
   </section>
 
   <section id="budget" class="page hidden">
@@ -829,7 +952,10 @@
         <div id="lifeActionSub" class="life-action-sub"></div>
       </div>
 
-      <button id="lifeToggleDetails" class="btn outline life-toggle-details" type="button">設定・年表・イベントを開く</button>
+      <div class="life-overview-actions">
+        <button id="lifeOpenBigExpenses" class="btn" type="button">大きな出費を管理</button>
+        <button id="lifeToggleDetails" class="btn outline life-toggle-details" type="button">設定・年表・イベントを開く</button>
+      </div>
     </div>
 
     <div class="card life-secondary-card">
@@ -931,6 +1057,105 @@
   </section>
 
   
+  <section id="bigexpenses" class="page hidden">
+    <button id="backFromBigExpenses" class="btn outline back-menu-button" type="button">‹ 資産へ戻る</button>
+
+    <div class="card big-expense-overview-card">
+      <div class="title-row">
+        <div>
+          <div class="mf-import-kicker">将来のお金を1か所で管理</div>
+          <h2 class="title">大きな出費</h2>
+        </div>
+        <span class="small">資産＋将来へ自動連携</span>
+      </div>
+
+      <div class="big-expense-explanation">
+        ここで1回登録すると、<strong>確保済み金額は資産の目的別</strong>へ、
+        <strong>必要な年と金額はライフプラン</strong>へ自動反映します。
+      </div>
+
+      <div id="bigExpenseSummary" class="big-expense-summary"></div>
+    </div>
+
+    <div class="card big-expense-form-card">
+      <div class="title-row">
+        <h2 class="title">登録・変更</h2>
+        <span class="small">車・外壁・教育費など</span>
+      </div>
+
+      <div class="big-expense-presets">
+        <button class="big-expense-preset" data-big-expense-preset="car" type="button">🚗 車</button>
+        <button class="big-expense-preset" data-big-expense-preset="exterior" type="button">🏠 外壁・屋根</button>
+        <button class="big-expense-preset" data-big-expense-preset="education" type="button">🎓 教育費</button>
+        <button class="big-expense-preset" data-big-expense-preset="appliance" type="button">📺 家電</button>
+        <button class="big-expense-preset" data-big-expense-preset="travel" type="button">✈️ 旅行</button>
+      </div>
+
+      <input id="bigExpenseEditId" type="hidden">
+
+      <div class="life-controls">
+        <div class="field">
+          <label>種類</label>
+          <select id="bigExpenseKind">
+            <option value="car">🚗 車</option>
+            <option value="exterior">🏠 外壁・屋根</option>
+            <option value="education">🎓 教育費</option>
+            <option value="appliance">📺 家電</option>
+            <option value="travel">✈️ 旅行</option>
+            <option value="other">💰 その他</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>名前</label>
+          <input id="bigExpenseName" placeholder="例：セレナ買い替え">
+        </div>
+
+        <div class="field">
+          <label>必要になる時期</label>
+          <input id="bigExpenseTargetMonth" type="month">
+        </div>
+
+        <div class="field">
+          <label>必要額</label>
+          <input id="bigExpenseTargetAmount" type="number" min="0" inputmode="numeric" placeholder="例：3000000">
+        </div>
+
+        <div class="field">
+          <label>今すでに確保している額</label>
+          <input id="bigExpenseReservedAmount" type="number" min="0" inputmode="numeric" placeholder="例：2000000">
+        </div>
+
+        <div class="field">
+          <label>確保している預金口座</label>
+          <select id="bigExpenseAccountId"></select>
+          <div class="field-help">確保額0円なら未選択でもOK</div>
+        </div>
+
+        <div class="field">
+          <label>メモ（任意）</label>
+          <input id="bigExpenseNote" placeholder="例：次回車検までに買い替え">
+        </div>
+      </div>
+
+      <div id="bigExpenseFormHint" class="big-expense-form-hint"></div>
+
+      <div class="btn-row">
+        <button id="saveBigExpense" class="btn" type="button">大きな出費を登録</button>
+        <button id="cancelBigExpenseEdit" class="btn outline hidden" type="button">編集取消</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title-row">
+        <h2 class="title">これから必要なお金</h2>
+        <span id="bigExpenseCount" class="small"></span>
+      </div>
+
+      <div id="bigExpenseList" class="big-expense-list"></div>
+    </div>
+  </section>
+
   <section id="assets" class="page hidden">
     <div class="card asset-main-summary-card">
       <div class="title-row">
@@ -939,6 +1164,11 @@
       </div>
 
       <div id="assetSummary" class="asset-summary"></div>
+
+      <button id="openBigExpensesAssets" class="btn outline asset-big-expense-button" type="button">
+        🚗 大きな出費を管理
+      </button>
+      <div id="assetBigExpenseStatus" class="asset-big-expense-status"></div>
     </div>
 
     <div class="card account-screenshot-card simple-asset-update-card">
@@ -1382,6 +1612,7 @@ const DEFAULT={
     events:[]
   },
   budgetPlan:{startYear:new Date().getFullYear(),endYear:new Date().getFullYear()+30,viewYear:new Date().getFullYear(),entries:[]},
+  bigExpenses:[],
   bankAccounts:[
     {
       id:"account_mama_yucho",
@@ -1408,7 +1639,8 @@ const DEFAULT={
     periodCorrectionV12Backup:null,
     lastCsvImportBackup:null,
     lastScreenshotImportBackup:null,
-    lastAccountScreenshotImportBackup:null
+    lastAccountScreenshotImportBackup:null,
+    bigExpenseMigrationV30Done:false
   }
 };
 let data=load();
@@ -1617,17 +1849,12 @@ function salaryMonthShort(key){
 
 function salaryPeriodRange(key){
   const {start,end}=salaryPeriodDates(key);
-  const startText=`${start.getFullYear()}年${start.getMonth()+1}月25日`;
-  const endText=start.getFullYear()===end.getFullYear()
-    ?`${end.getMonth()+1}月24日`
-    :`${end.getFullYear()}年${end.getMonth()+1}月24日`;
-
-  return `${startText}〜${endText}`;
+  return `${start.getFullYear()}年${start.getMonth()+1}月${start.getDate()}日 ～ ${end.getFullYear()}年${end.getMonth()+1}月${end.getDate()}日`;
 }
 
 function salaryPeriodCompact(key){
   const {start,end}=salaryPeriodDates(key);
-  return `${start.getMonth()+1}/25〜${end.getMonth()+1}/24`;
+  return `${start.getMonth()+1}/${start.getDate()}〜${end.getMonth()+1}/${end.getDate()}`;
 }
 
 function formatShortDate(date){
@@ -1688,6 +1915,19 @@ function migrate(v){
     annualYear:Number(v.annualYear)||new Date().getFullYear(),
     lifePlan:{...clone(DEFAULT.lifePlan),...sourceLife,family:Array.isArray(sourceLife.family)&&sourceLife.family.length?sourceLife.family:clone(DEFAULT.lifePlan.family),events:Array.isArray(sourceLife.events)?sourceLife.events:[]},
     budgetPlan:{...clone(DEFAULT.budgetPlan),...sourceBudget,entries:Array.isArray(sourceBudget.entries)?sourceBudget.entries:[]},
+    bigExpenses:Array.isArray(v.bigExpenses)?v.bigExpenses.map(expense=>({
+      id:expense.id||id(),
+      kind:String(expense.kind||"other"),
+      name:String(expense.name||"大きな出費"),
+      icon:String(expense.icon||"💰"),
+      targetMonth:String(expense.targetMonth||""),
+      targetAmount:normalize(expense.targetAmount),
+      reservedAmount:normalize(expense.reservedAmount),
+      accountId:String(expense.accountId||""),
+      purposeId:String(expense.purposeId||""),
+      eventId:String(expense.eventId||""),
+      note:String(expense.note||"")
+    })):[],
     periodSettings:{...runtimePeriodSettings},
     bankAccounts:sourceAccounts.map(account=>({
       id:account.id||id(),
@@ -1700,7 +1940,8 @@ function migrate(v){
         id:purpose.id||id(),
         name:String(purpose.name||"目的"),
         amount:normalize(purpose.amount),
-        target:normalize(purpose.target)
+        target:normalize(purpose.target),
+        bigExpenseId:String(purpose.bigExpenseId||"")
       })):[]
     })),
     usage:{
@@ -1838,20 +2079,111 @@ function grouped(typeFilter=null){
   sortedItems().filter(i=>!typeFilter||i.type===typeFilter).forEach(i=>{if(!map.has(i.group))map.set(i.group,[]);map.get(i.group).push(i)});
   return map;
 }
+function inputPeriodRelation(monthKey){
+  const current=currentMonth();
+
+  if(monthKey===current)return "current";
+  return monthKey<current?"past":"future";
+}
+
+function inputPeriodRelationLabel(monthKey){
+  const relation=inputPeriodRelation(monthKey);
+  if(relation==="past")return "過去";
+  if(relation==="future")return "未来";
+  return "現在";
+}
+
+function renderInputRecentPeriods(){
+  if(!inputRecentPeriods)return;
+
+  const current=currentMonth();
+  const keys=[];
+
+  for(let offset=0;offset<12;offset++){
+    keys.push(shiftMonth(current,-offset));
+  }
+
+  if(!keys.includes(data.selectedMonth)){
+    keys.unshift(data.selectedMonth);
+  }
+
+  inputRecentPeriods.innerHTML=keys.map(key=>{
+    const active=key===data.selectedMonth;
+    const hasData=monthHasActualData(key);
+    return `
+      <button
+        class="input-period-chip ${active?"active":""} ${hasData?"has-data":""}"
+        type="button"
+        data-input-period="${esc(key)}"
+      >
+        ${esc(salaryMonthShort(key))}
+        <span>${esc(salaryPeriodCompact(key))}</span>
+      </button>
+    `;
+  }).join("");
+
+  inputRecentPeriods.querySelectorAll("[data-input-period]").forEach(button=>{
+    button.onclick=()=>setMonth(button.dataset.inputPeriod);
+  });
+}
+
+function setInputSaveStatus(state="auto"){
+  if(!inputSaveStatus)return;
+
+  let resolved=state;
+
+  if(state==="auto"){
+    resolved=monthHasActualData(data.selectedMonth)?"saved":"empty";
+  }
+
+  inputSaveStatus.className="input-save-status";
+  inputStickyStatus.className="";
+
+  if(resolved==="dirty"){
+    inputSaveStatus.textContent="未保存の変更あり";
+    inputSaveStatus.classList.add("dirty");
+    inputStickyStatus.textContent="未保存の変更あり";
+    inputStickyStatus.style.color="#92400e";
+  }else if(resolved==="saved"){
+    inputSaveStatus.textContent="保存済み";
+    inputSaveStatus.classList.add("saved");
+    inputStickyStatus.textContent="保存済み";
+    inputStickyStatus.style.color="#166534";
+  }else{
+    inputSaveStatus.textContent="未入力";
+    inputStickyStatus.textContent="未入力";
+    inputStickyStatus.style.color="";
+  }
+}
+
 function updatePeriodDisplay(monthKey){
   const title=salaryMonthTitle(monthKey);
   const range=salaryPeriodRange(monthKey);
   const note=salaryPaydayNote(monthKey);
+  const relation=inputPeriodRelation(monthKey);
 
   monthChip.textContent=salaryPeriodCompact(monthKey);
   homePeriodRange.innerHTML=`${range}<span>${title}</span>`;
   homePeriodNote.textContent=note;
+
+  inputPeriodTitleLarge.textContent=title;
   inputPeriodRange.textContent=range;
   inputPeriodNote.textContent=note;
+  inputPeriodStateBadge.textContent=inputPeriodRelationLabel(monthKey);
+  inputPeriodStateBadge.className=`input-period-state-badge ${relation==="current"?"":relation}`;
+  inputStickyRange.textContent=`${title}｜${salaryPeriodCompact(monthKey)}`;
+
   homeResultTitle.textContent=`${range}の家計`;
-  inputPeriodTitle.textContent=`この期間の金額を入力`;
-  saveMonth.textContent=`この期間を保存`;
-  clearMonth.textContent=`この期間を削除`;
+  inputPeriodTitle.textContent=`${title}を手入力・修正`;
+
+  [saveMonth,saveMonthTop,saveMonthSticky].forEach(button=>{
+    button.textContent=button===saveMonthSticky?"保存":`${title}を保存`;
+  });
+
+  clearMonth.textContent=`${title}を削除`;
+
+  renderInputRecentPeriods();
+  setInputSaveStatus("auto");
 }
 
 function setMonth(m){
@@ -1867,7 +2199,11 @@ function setMonth(m){
   renderInputs();
 }
 function activate(tab){
-  const mainTab=["budget","annual","settings"].includes(tab)?"menu":tab;
+  const mainTab=tab==="bigexpenses"
+    ?"assets"
+    :["budget","annual","settings"].includes(tab)
+      ?"menu"
+      :tab;
 
   document.querySelectorAll(".tab").forEach(button=>{
     button.classList.toggle("active",button.dataset.tab===mainTab);
@@ -1881,6 +2217,7 @@ function activate(tab){
   if(tab==="annual")renderAnnual();
   if(tab==="lifeplan")renderLifePlan();
   if(tab==="assets")renderAssets();
+  if(tab==="bigexpenses")renderBigExpenses();
   if(tab==="menu")renderPeriodSettings();
   if(tab==="settings")renderSettings();
 
@@ -1892,11 +2229,19 @@ document.querySelectorAll(".tab").forEach(button=>{
   });
 });
 homePrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));homeNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
-inputPrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));inputNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
+inputPrev.onclick=()=>setMonth(shiftMonth(data.selectedMonth,-1));
+inputNext.onclick=()=>setMonth(shiftMonth(data.selectedMonth,1));
+inputGoCurrent.onclick=()=>setMonth(currentMonth());
 homeMonth.onchange=()=>setMonth(homeMonth.value);
 inputMonth.onchange=()=>setMonth(inputMonth.value);
 monthChip.onclick=()=>{setMonth(currentMonth());activate("home")};
 goInput.onclick=()=>activate("input");
+goPastInput.onclick=()=>{
+  activate("input");
+  setTimeout(()=>{
+    document.querySelector(".past-input-box")?.scrollIntoView({behavior:"smooth",block:"center"});
+  },80);
+};
 
 openBudgetMenu.onclick=()=>activate("budget");
 openAnnualMenu.onclick=()=>activate("annual");
@@ -2059,6 +2404,7 @@ function renderUsageGuide(){
 
 function renderHome(){
   renderUsageGuide();
+  renderBigExpenseQuickSummaries();
 
   const t=totals(data.selectedMonth);
   const classifications=classificationTotals(data.selectedMonth);
@@ -2123,6 +2469,12 @@ function drawChart(entries){
 function renderInputs(){
   const map=grouped(),v=values(data.selectedMonth);
   inputGroups.innerHTML=[...map.entries()].map(([g,items])=>`<div class="group-card"><div class="group-head"><span>${esc(g)}</span><span class="small">${items[0].type==="income"?"収入":items[0].type==="investment"?"投資":"支出"}</span></div>${items.map(i=>`<div class="input-row"><div><div class="detail-name">${esc(i.detail||i.group)}</div><div class="detail-meta">${esc(i.classification)}</div></div><div class="money"><input type="number" min="0" step="1" inputmode="numeric" data-id="${esc(i.id)}" value="${normalize(v[i.id]||0)||""}" placeholder="0"></div></div>`).join("")}</div>`).join("");
+
+  inputGroups.querySelectorAll("[data-id]").forEach(element=>{
+    element.addEventListener("input",()=>setInputSaveStatus("dirty"));
+  });
+
+  setInputSaveStatus("auto");
 }
 
 function parseCsvRows(text){
@@ -2710,6 +3062,8 @@ async function importMoneyForwardCsv(file){
 
   renderInputs();
   renderHome();
+  renderInputRecentPeriods();
+  setInputSaveStatus("saved");
 
   showMoneyForwardResult({
     usedRows,
@@ -4860,19 +5214,25 @@ undoScreenshotImport.onclick=()=>{
   undoScreenshotImport.classList.add("hidden");
 };
 
-saveMonth.onclick=()=>{
+function saveSelectedMonth(){
   const out={};
 
-  document.querySelectorAll("[data-id]").forEach(element=>{
+  inputGroups.querySelectorAll("[data-id]").forEach(element=>{
     out[element.dataset.id]=normalize(element.value);
   });
 
   data.monthly[data.selectedMonth]=out;
   save();
   renderHome();
+  renderInputRecentPeriods();
+  setInputSaveStatus("saved");
 
-  alert(`${salaryPeriodFullLabel(data.selectedMonth)}を保存しました。次は資産タブで通帳残高を更新してください。`);
-};
+  alert(`${salaryPeriodFullLabel(data.selectedMonth)}を保存しました。`);
+}
+
+saveMonth.onclick=saveSelectedMonth;
+saveMonthTop.onclick=saveSelectedMonth;
+saveMonthSticky.onclick=saveSelectedMonth;
 clearMonth.onclick=()=>{
   if(!confirm(`${salaryPeriodFullLabel(data.selectedMonth)}の入力をすべて削除しますか？`))return;
 
@@ -4880,6 +5240,8 @@ clearMonth.onclick=()=>{
   save();
   renderInputs();
   renderHome();
+  renderInputRecentPeriods();
+  setInputSaveStatus("empty");
 };
 
 yearPrev.onclick=()=>{data.annualYear--;annualYear.value=data.annualYear;save();renderAnnual()};yearNext.onclick=()=>{data.annualYear++;annualYear.value=data.annualYear;save();renderAnnual()};annualYear.onchange=()=>{data.annualYear=Number(annualYear.value)||new Date().getFullYear();save();renderAnnual()};
@@ -5132,6 +5494,261 @@ function totalPurposeAmount(account){
   return (account.purposes||[]).reduce((sum,purpose)=>sum+normalize(purpose.amount),0);
 }
 
+const BIG_EXPENSE_KIND_META={
+  car:{label:"車",icon:"🚗",name:"車の買い替え",amount:3000000,years:4},
+  exterior:{label:"外壁・屋根",icon:"🏠",name:"外壁・屋根塗装",amount:1500000,years:6},
+  education:{label:"教育費",icon:"🎓",name:"教育費",amount:2000000,years:8},
+  appliance:{label:"家電",icon:"📺",name:"家電買い替え",amount:500000,years:4},
+  travel:{label:"旅行",icon:"✈️",name:"家族旅行",amount:300000,years:1},
+  other:{label:"その他",icon:"💰",name:"大きな出費",amount:500000,years:3}
+};
+
+function bigExpenseKindFromName(name){
+  const text=normalizedCategory(name);
+
+  if(/車|セレナ|エブリイ|エブリィ/.test(text))return "car";
+  if(/外壁|屋根|塗装|住宅修繕|修繕/.test(text))return "exterior";
+  if(/教育|大学|学費|入学/.test(text))return "education";
+  if(/家電|冷蔵庫|洗濯機|テレビ|エアコン/.test(text))return "appliance";
+  if(/旅行/.test(text))return "travel";
+  return "other";
+}
+
+function bigExpenseMeta(expense){
+  const kind=expense?.kind&&BIG_EXPENSE_KIND_META[expense.kind]?expense.kind:bigExpenseKindFromName(expense?.name||"");
+  return BIG_EXPENSE_KIND_META[kind]||BIG_EXPENSE_KIND_META.other;
+}
+
+function bigExpenseTargetYear(expense){
+  const match=String(expense?.targetMonth||"").match(/^(\d{4})-(\d{2})$/);
+  return match?Number(match[1]):0;
+}
+
+function monthsUntilBigExpense(targetMonth){
+  const match=String(targetMonth||"").match(/^(\d{4})-(\d{2})$/);
+  if(!match)return 0;
+
+  const today=new Date();
+  const currentIndex=today.getFullYear()*12+today.getMonth();
+  const targetIndex=Number(match[1])*12+(Number(match[2])-1);
+
+  return Math.max(0,targetIndex-currentIndex);
+}
+
+function bigExpenseProgress(expense){
+  const target=Math.max(0,normalize(expense?.targetAmount));
+  const reserved=Math.max(0,normalize(expense?.reservedAmount));
+  const remaining=Math.max(0,target-reserved);
+  const rate=target?Math.min(100,(reserved/target)*100):0;
+  const months=monthsUntilBigExpense(expense?.targetMonth);
+  const monthlyPace=remaining&&months?Math.ceil(remaining/months):remaining;
+
+  return {target,reserved,remaining,rate,months,monthlyPace};
+}
+
+function findLinkedPurpose(bigExpenseId){
+  for(const account of data.bankAccounts||[]){
+    const purpose=(account.purposes||[]).find(item=>item.bigExpenseId===bigExpenseId);
+    if(purpose)return {account,purpose};
+  }
+  return null;
+}
+
+function findLinkedLifeEvent(bigExpenseId){
+  return (data.lifePlan?.events||[]).find(event=>event.bigExpenseId===bigExpenseId)||null;
+}
+
+function migratePurposePlansToBigExpenses(){
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+  if(data.usage.bigExpenseMigrationV30Done)return;
+
+  if(!Array.isArray(data.bigExpenses))data.bigExpenses=[];
+
+  (data.bankAccounts||[]).forEach(account=>{
+    if(!isDepositAccount(account))return;
+
+    (account.purposes||[]).forEach(purpose=>{
+      if(purpose.bigExpenseId)return;
+
+      const kind=bigExpenseKindFromName(purpose.name);
+      if(kind==="other")return;
+
+      const expenseId="big_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);
+
+      purpose.bigExpenseId=expenseId;
+
+      data.bigExpenses.push({
+        id:expenseId,
+        kind,
+        name:purpose.name,
+        icon:BIG_EXPENSE_KIND_META[kind].icon,
+        targetMonth:"",
+        targetAmount:normalize(purpose.target)||normalize(purpose.amount),
+        reservedAmount:normalize(purpose.amount),
+        accountId:account.id,
+        purposeId:purpose.id,
+        eventId:"",
+        note:"既存の目的別資金から移行"
+      });
+    });
+  });
+
+  data.usage.bigExpenseMigrationV30Done=true;
+}
+
+function matchingManualLifeEvent(expense){
+  const year=bigExpenseTargetYear(expense);
+  if(!year)return null;
+
+  const nameKey=normalizedCategory(expense.name);
+
+  return (data.lifePlan.events||[]).find(event=>{
+    if(event.bigExpenseId)return false;
+
+    const sameName=normalizedCategory(event.name)===nameKey;
+    const sameYear=Number(event.year)===year;
+    const sameAmount=normalize(event.amount)===normalize(expense.targetAmount);
+
+    return sameName&&sameYear&&sameAmount;
+  })||null;
+}
+
+function syncBigExpenseLinks(){
+  if(!Array.isArray(data.bigExpenses))data.bigExpenses=[];
+  if(!data.lifePlan)data.lifePlan=clone(DEFAULT.lifePlan);
+  if(!Array.isArray(data.lifePlan.events))data.lifePlan.events=[];
+
+  data.bigExpenses.forEach(expense=>{
+    const meta=bigExpenseMeta(expense);
+    expense.kind=meta===BIG_EXPENSE_KIND_META.other?"other":expense.kind||bigExpenseKindFromName(expense.name);
+    expense.icon=expense.icon||meta.icon;
+
+    let account=(data.bankAccounts||[]).find(item=>{
+      return item.id===expense.accountId&&isDepositAccount(item);
+    })||null;
+
+    const currentlyLinked=findLinkedPurpose(expense.id);
+
+    if(!account&&currentlyLinked){
+      account=currentlyLinked.account;
+      expense.accountId=account.id;
+    }
+
+    if(account){
+      let purpose=(account.purposes||[]).find(item=>{
+        return item.id===expense.purposeId||item.bigExpenseId===expense.id;
+      })||null;
+
+      if(currentlyLinked&&currentlyLinked.account.id!==account.id){
+        currentlyLinked.account.purposes=currentlyLinked.account.purposes.filter(item=>item.id!==currentlyLinked.purpose.id);
+        purpose=null;
+      }
+
+      if(!purpose){
+        purpose={
+          id:"purpose_big_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),
+          name:expense.name,
+          amount:normalize(expense.reservedAmount),
+          target:normalize(expense.targetAmount),
+          bigExpenseId:expense.id
+        };
+        account.purposes.push(purpose);
+      }
+
+      purpose.name=expense.name;
+      purpose.amount=normalize(expense.reservedAmount);
+      purpose.target=normalize(expense.targetAmount);
+      purpose.bigExpenseId=expense.id;
+      expense.purposeId=purpose.id;
+      expense.accountId=account.id;
+    }else{
+      if(currentlyLinked){
+        currentlyLinked.account.purposes=currentlyLinked.account.purposes.filter(item=>item.id!==currentlyLinked.purpose.id);
+      }
+      expense.accountId="";
+      expense.purposeId="";
+      expense.reservedAmount=0;
+    }
+
+    const targetYear=bigExpenseTargetYear(expense);
+    let event=findLinkedLifeEvent(expense.id);
+
+    if(targetYear&&normalize(expense.targetAmount)>0){
+      if(!event){
+        event=matchingManualLifeEvent(expense);
+      }
+
+      if(!event){
+        event={
+          id:"life_big_"+Date.now()+"_"+Math.random().toString(36).slice(2,7)
+        };
+        data.lifePlan.events.push(event);
+      }
+
+      Object.assign(event,{
+        name:expense.name,
+        year:targetYear,
+        amount:normalize(expense.targetAmount),
+        type:"expense",
+        years:1,
+        icon:expense.icon||meta.icon,
+        personId:event.personId||"",
+        bigExpenseId:expense.id
+      });
+
+      expense.eventId=event.id;
+    }else if(event){
+      data.lifePlan.events=data.lifePlan.events.filter(item=>item.id!==event.id);
+      expense.eventId="";
+    }
+  });
+}
+
+function removeBigExpenseLinks(expense){
+  const linked=findLinkedPurpose(expense.id);
+
+  if(linked){
+    linked.account.purposes=linked.account.purposes.filter(item=>item.id!==linked.purpose.id);
+  }
+
+  data.lifePlan.events=(data.lifePlan.events||[]).filter(event=>{
+    return event.bigExpenseId!==expense.id;
+  });
+}
+
+function bigExpenseDepositOptions(selectedId=""){
+  const depositAccounts=(data.bankAccounts||[]).filter(isDepositAccount);
+
+  return `
+    <option value="">確保先なし</option>
+    ${depositAccounts.map(account=>{
+      const selected=account.id===selectedId?" selected":"";
+      const unallocated=normalize(account.balance)-totalPurposeAmount(account);
+      return `<option value="${esc(account.id)}"${selected}>${esc(account.name)}｜未振分 ${yen(unallocated)}</option>`;
+    }).join("")}
+  `;
+}
+
+function bigExpenseRequiredPaceText(expense){
+  const progress=bigExpenseProgress(expense);
+
+  if(!expense.targetMonth){
+    return "必要時期を設定すると、毎月いくら準備すればよいか表示します。";
+  }
+
+  if(progress.remaining<=0){
+    return "必要額を確保済みです。";
+  }
+
+  if(progress.months<=0){
+    return `必要時期です。あと ${yen(progress.remaining)} 必要です。`;
+  }
+
+  return `あと${progress.months}か月。毎月 約${yen(progress.monthlyPace)}ずつ確保すると目標ペースです。`;
+}
+
+
+
 function financialAssetSnapshot(){
   const accounts=Array.isArray(data.bankAccounts)?data.bankAccounts:[];
 
@@ -5172,6 +5789,347 @@ function syncLifePlanAssetsFromAccounts(){
 
   return snapshot;
 }
+
+function resetBigExpenseForm(){
+  const now=new Date();
+  const meta=BIG_EXPENSE_KIND_META.car;
+
+  bigExpenseEditId.value="";
+  bigExpenseKind.value="car";
+  bigExpenseName.value=meta.name;
+  bigExpenseTargetMonth.value=`${now.getFullYear()+meta.years}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  bigExpenseTargetAmount.value=meta.amount;
+  bigExpenseReservedAmount.value=0;
+  bigExpenseAccountId.innerHTML=bigExpenseDepositOptions("");
+  bigExpenseAccountId.value="";
+  bigExpenseNote.value="";
+  saveBigExpense.textContent="大きな出費を登録";
+  cancelBigExpenseEdit.classList.add("hidden");
+  updateBigExpenseFormHint();
+}
+
+function fillBigExpenseAccountOptions(selectedId=""){
+  bigExpenseAccountId.innerHTML=bigExpenseDepositOptions(selectedId);
+
+  if(selectedId&&(data.bankAccounts||[]).some(account=>account.id===selectedId&&isDepositAccount(account))){
+    bigExpenseAccountId.value=selectedId;
+  }
+}
+
+function updateBigExpenseFormHint(){
+  const target=normalize(bigExpenseTargetAmount.value);
+  const reserved=normalize(bigExpenseReservedAmount.value);
+  const remaining=Math.max(0,target-reserved);
+  const months=monthsUntilBigExpense(bigExpenseTargetMonth.value);
+  const pace=remaining&&months?Math.ceil(remaining/months):remaining;
+
+  if(!bigExpenseTargetMonth.value){
+    bigExpenseFormHint.textContent=`あと ${yen(remaining)}。必要になる時期を入力してください。`;
+    return;
+  }
+
+  if(remaining<=0){
+    bigExpenseFormHint.textContent="必要額はすでに確保できています。";
+    return;
+  }
+
+  if(months<=0){
+    bigExpenseFormHint.textContent=`あと ${yen(remaining)} 必要です。`;
+    return;
+  }
+
+  bigExpenseFormHint.textContent=`あと ${yen(remaining)}。残り${months}か月なら、毎月 約${yen(pace)}が目安です。`;
+}
+
+function renderBigExpenseQuickSummaries(){
+  const expenses=[...(data.bigExpenses||[])]
+    .sort((left,right)=>{
+      const leftMonth=left.targetMonth||"9999-99";
+      const rightMonth=right.targetMonth||"9999-99";
+      return leftMonth.localeCompare(rightMonth);
+    });
+
+  const next=expenses.find(expense=>expense.targetMonth)||expenses[0]||null;
+
+  if(next){
+    const progress=bigExpenseProgress(next);
+    homeBigExpenseTitle.textContent=`${next.icon||bigExpenseMeta(next).icon} ${next.name}`;
+    homeBigExpenseSub.textContent=next.targetMonth
+      ?`${next.targetMonth.replace("-","年")}月・あと ${yen(progress.remaining)}`
+      :`時期未設定・あと ${yen(progress.remaining)}`;
+
+    assetBigExpenseStatus.textContent=
+      `${expenses.length}件登録・確保済み ${yen(expenses.reduce((sum,item)=>sum+normalize(item.reservedAmount),0))}`;
+  }else{
+    homeBigExpenseTitle.textContent="車・外壁・教育費など";
+    homeBigExpenseSub.textContent="まだ登録されていません";
+    assetBigExpenseStatus.textContent="まだ大きな出費は登録されていません";
+  }
+}
+
+function renderBigExpenses(){
+  if(!Array.isArray(data.bigExpenses))data.bigExpenses=[];
+  syncBigExpenseLinks();
+
+  const expenses=[...data.bigExpenses].sort((left,right)=>{
+    const leftMonth=left.targetMonth||"9999-99";
+    const rightMonth=right.targetMonth||"9999-99";
+    return leftMonth.localeCompare(rightMonth)||left.name.localeCompare(right.name,"ja");
+  });
+
+  const totalTarget=expenses.reduce((sum,item)=>sum+normalize(item.targetAmount),0);
+  const totalReserved=expenses.reduce((sum,item)=>sum+normalize(item.reservedAmount),0);
+  const totalRemaining=Math.max(0,totalTarget-totalReserved);
+
+  bigExpenseSummary.innerHTML=`
+    <div class="big-expense-summary-card">
+      <span>これから必要</span>
+      <strong>${yen(totalTarget)}</strong>
+    </div>
+    <div class="big-expense-summary-card">
+      <span>確保済み</span>
+      <strong class="positive">${yen(totalReserved)}</strong>
+    </div>
+    <div class="big-expense-summary-card">
+      <span>あと必要</span>
+      <strong>${yen(totalRemaining)}</strong>
+    </div>
+  `;
+
+  bigExpenseCount.textContent=`${expenses.length}件`;
+  fillBigExpenseAccountOptions(bigExpenseAccountId.value);
+
+  if(!expenses.length){
+    bigExpenseList.innerHTML=`
+      <div class="empty">
+        まだ登録されていません。<br>
+        上の「🚗 車」「🏠 外壁・屋根」などを押すとすぐ入力できます。
+      </div>
+    `;
+    renderBigExpenseQuickSummaries();
+    return;
+  }
+
+  bigExpenseList.innerHTML=expenses.map(expense=>{
+    const progress=bigExpenseProgress(expense);
+    const account=(data.bankAccounts||[]).find(item=>item.id===expense.accountId);
+    const ready=progress.target>0&&progress.remaining<=0;
+    const needsDate=!expense.targetMonth;
+
+    return `
+      <div class="big-expense-item ${ready?"ready":""} ${needsDate?"needs-date":""}">
+        <div class="big-expense-item-head">
+          <div class="big-expense-icon">${esc(expense.icon||bigExpenseMeta(expense).icon)}</div>
+          <div>
+            <div class="big-expense-name">
+              ${esc(expense.name)}
+              <span class="linked-plan-badge">資産・将来と連携</span>
+            </div>
+            <div class="big-expense-date">
+              ${expense.targetMonth?`${esc(expense.targetMonth.replace("-","年"))}月`:"⚠ 時期を設定してください"}
+              ${account?`・${esc(account.name)}から確保`:"・確保先なし"}
+            </div>
+          </div>
+          <div class="big-expense-target">${yen(progress.target)}</div>
+        </div>
+
+        <div class="big-expense-progress-row">
+          <span>確保済み ${yen(progress.reserved)}</span>
+          <span>あと ${yen(progress.remaining)}</span>
+        </div>
+
+        <div class="big-expense-progress">
+          <div class="big-expense-progress-bar" style="width:${progress.rate}%"></div>
+        </div>
+
+        <div class="big-expense-pace">${esc(bigExpenseRequiredPaceText(expense))}</div>
+
+        <div class="actions" style="margin-top:9px;">
+          <button class="btn outline small-btn" onclick="openBigExpenseEditor('${esc(expense.id)}')">編集</button>
+          <button class="btn danger small-btn" onclick="deleteBigExpense('${esc(expense.id)}')">削除</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  renderBigExpenseQuickSummaries();
+}
+
+function openBigExpenseEditor(expenseId){
+  const expense=(data.bigExpenses||[]).find(item=>item.id===expenseId);
+
+  activate("bigexpenses");
+
+  if(!expense){
+    resetBigExpenseForm();
+    return;
+  }
+
+  bigExpenseEditId.value=expense.id;
+  bigExpenseKind.value=expense.kind||bigExpenseKindFromName(expense.name);
+  bigExpenseName.value=expense.name;
+  bigExpenseTargetMonth.value=expense.targetMonth||"";
+  bigExpenseTargetAmount.value=normalize(expense.targetAmount)||"";
+  bigExpenseReservedAmount.value=normalize(expense.reservedAmount)||"";
+  fillBigExpenseAccountOptions(expense.accountId||"");
+  bigExpenseAccountId.value=expense.accountId||"";
+  bigExpenseNote.value=expense.note||"";
+  saveBigExpense.textContent="変更を保存";
+  cancelBigExpenseEdit.classList.remove("hidden");
+  updateBigExpenseFormHint();
+
+  setTimeout(()=>{
+    document.querySelector(".big-expense-form-card")?.scrollIntoView({behavior:"smooth",block:"start"});
+  },80);
+}
+
+function deleteBigExpense(expenseId){
+  const expense=(data.bigExpenses||[]).find(item=>item.id===expenseId);
+  if(!expense)return;
+
+  if(!confirm(`「${expense.name}」を削除しますか？\n資産の目的別設定とライフプランからも連携分を削除します。`))return;
+
+  removeBigExpenseLinks(expense);
+  data.bigExpenses=data.bigExpenses.filter(item=>item.id!==expenseId);
+  save();
+  renderBigExpenses();
+  renderAssets();
+  renderLifePlan();
+  renderHome();
+}
+
+const BIG_EXPENSE_PRESETS={
+  car:"car",
+  exterior:"exterior",
+  education:"education",
+  appliance:"appliance",
+  travel:"travel"
+};
+
+document.querySelectorAll("[data-big-expense-preset]").forEach(button=>{
+  button.onclick=()=>{
+    const kind=BIG_EXPENSE_PRESETS[button.dataset.bigExpensePreset]||"other";
+    const meta=BIG_EXPENSE_KIND_META[kind];
+    const now=new Date();
+
+    bigExpenseKind.value=kind;
+    bigExpenseName.value=meta.name;
+    bigExpenseTargetMonth.value=`${now.getFullYear()+meta.years}-${String(now.getMonth()+1).padStart(2,"0")}`;
+    bigExpenseTargetAmount.value=meta.amount;
+
+    if(!bigExpenseEditId.value){
+      bigExpenseReservedAmount.value=0;
+    }
+
+    updateBigExpenseFormHint();
+  };
+});
+
+bigExpenseKind.onchange=()=>{
+  const meta=BIG_EXPENSE_KIND_META[bigExpenseKind.value]||BIG_EXPENSE_KIND_META.other;
+
+  if(!bigExpenseName.value.trim()||BIG_EXPENSE_KIND_META[bigExpenseKind.value]?.name){
+    bigExpenseName.value=meta.name;
+  }
+
+  updateBigExpenseFormHint();
+};
+
+[bigExpenseTargetMonth,bigExpenseTargetAmount,bigExpenseReservedAmount,bigExpenseAccountId].forEach(element=>{
+  element.addEventListener("input",updateBigExpenseFormHint);
+  element.addEventListener("change",updateBigExpenseFormHint);
+});
+
+saveBigExpense.onclick=()=>{
+  const editId=bigExpenseEditId.value;
+  const kind=BIG_EXPENSE_KIND_META[bigExpenseKind.value]?bigExpenseKind.value:"other";
+  const meta=BIG_EXPENSE_KIND_META[kind];
+  const name=bigExpenseName.value.trim();
+  const targetMonth=bigExpenseTargetMonth.value;
+  const targetAmount=normalize(bigExpenseTargetAmount.value);
+  const reservedAmount=normalize(bigExpenseReservedAmount.value);
+  const accountId=bigExpenseAccountId.value||"";
+  const note=bigExpenseNote.value.trim();
+
+  if(!name){
+    alert("名前を入力してください");
+    return;
+  }
+
+  if(!targetAmount){
+    alert("必要額を入力してください");
+    return;
+  }
+
+  if(reservedAmount>targetAmount){
+    alert("確保済み金額が必要額を超えています");
+    return;
+  }
+
+  if(reservedAmount>0&&!accountId){
+    alert("確保済み金額がある場合は、預金口座を選んでください");
+    return;
+  }
+
+  const account=(data.bankAccounts||[]).find(item=>item.id===accountId);
+
+  if(accountId&&(!account||!isDepositAccount(account))){
+    alert("確保先には預金・現金の口座を選んでください");
+    return;
+  }
+
+  if(account){
+    const currentExpense=(data.bigExpenses||[]).find(item=>item.id===editId);
+    const currentLinked=currentExpense?findLinkedPurpose(currentExpense.id):null;
+    const currentLinkedAmount=currentLinked?.account.id===account.id?normalize(currentLinked.purpose.amount):0;
+    const otherAllocated=totalPurposeAmount(account)-currentLinkedAmount;
+    const available=Math.max(0,normalize(account.balance)-otherAllocated);
+
+    if(reservedAmount>available){
+      alert(`この口座で新たに確保できる未振分は ${yen(available)} です。\n他の目的別金額との合計を確認してください。`);
+      return;
+    }
+  }
+
+  let expense=(data.bigExpenses||[]).find(item=>item.id===editId);
+
+  if(!expense){
+    expense={
+      id:"big_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
+      purposeId:"",
+      eventId:""
+    };
+    data.bigExpenses.push(expense);
+  }
+
+  Object.assign(expense,{
+    kind,
+    name,
+    icon:meta.icon,
+    targetMonth,
+    targetAmount,
+    reservedAmount,
+    accountId,
+    note
+  });
+
+  syncBigExpenseLinks();
+  save();
+  resetBigExpenseForm();
+  renderBigExpenses();
+  renderAssets();
+  renderLifePlan();
+  renderHome();
+
+  alert("大きな出費を保存しました。資産の目的別とライフプランへ自動反映しています。");
+};
+
+cancelBigExpenseEdit.onclick=resetBigExpenseForm;
+
+openBigExpensesHome.onclick=()=>activate("bigexpenses");
+openBigExpensesAssets.onclick=()=>activate("bigexpenses");
+lifeOpenBigExpenses.onclick=()=>activate("bigexpenses");
+backFromBigExpenses.onclick=()=>activate("assets");
 
 function resetAccountForm(){
   accountEditId.value="";
@@ -6371,6 +7329,11 @@ function editPurpose(accountId,purposeId){
 
   if(!account||!purpose)return;
 
+  if(purpose.bigExpenseId){
+    openBigExpenseEditor(purpose.bigExpenseId);
+    return;
+  }
+
   purposeEditId.value=purpose.id;
   purposeAccountId.value=account.id;
   purposeName.value=purpose.name;
@@ -6386,6 +7349,12 @@ function deletePurpose(accountId,purposeId){
   const purpose=account?.purposes.find(item=>item.id===purposeId);
 
   if(!account||!purpose)return;
+
+  if(purpose.bigExpenseId){
+    alert("この目的は「大きな出費」と連携しています。大きな出費画面から編集・削除してください。");
+    openBigExpenseEditor(purpose.bigExpenseId);
+    return;
+  }
 
   if(!confirm(`「${purpose.name}」を削除しますか？`))return;
 
@@ -6408,7 +7377,9 @@ function renderAssets(){
   });
 
   syncLifePlanAssetsFromAccounts();
+  syncBigExpenseLinks();
   fillPurposeAccountOptions();
+  renderBigExpenseQuickSummaries();
 
   const depositAccounts=data.bankAccounts.filter(account=>account.accountType==="deposit");
   const investmentAccounts=data.bankAccounts.filter(account=>account.accountType==="investment");
@@ -6471,12 +7442,18 @@ function renderAssets(){
         ?account.purposes.map(purpose=>{
           const target=normalize(purpose.target);
           const rate=target?Math.min(100,(normalize(purpose.amount)/target)*100):0;
+          const linkedBigExpense=purpose.bigExpenseId
+            ?(data.bigExpenses||[]).find(item=>item.id===purpose.bigExpenseId)
+            :null;
 
           return `
             <div class="purpose-item">
               <div class="purpose-top">
                 <div>
-                  <div class="purpose-name">・${esc(purpose.name)}</div>
+                  <div class="purpose-name">
+                    ・${esc(purpose.name)}
+                    ${linkedBigExpense?'<span class="linked-plan-badge">大きな出費と連携</span>':""}
+                  </div>
                   <div class="purpose-meta">${target?`目標 ${yen(target)}・達成 ${pct(rate)}`:"目標金額なし"}</div>
                 </div>
                 <div class="purpose-amount">${yen(purpose.amount)}</div>
@@ -6485,8 +7462,11 @@ function renderAssets(){
               ${target?`<div class="purpose-progress"><div class="purpose-progress-bar" style="width:${rate}%"></div></div>`:""}
 
               <div class="actions" style="margin-top:7px;">
-                <button class="btn outline small-btn" onclick="editPurpose('${esc(account.id)}','${esc(purpose.id)}')">編集</button>
-                <button class="btn danger small-btn" onclick="deletePurpose('${esc(account.id)}','${esc(purpose.id)}')">削除</button>
+                ${linkedBigExpense
+                  ?`<button class="btn outline small-btn" onclick="openBigExpenseEditor('${esc(linkedBigExpense.id)}')">大きな出費で編集</button>`
+                  :`<button class="btn outline small-btn" onclick="editPurpose('${esc(account.id)}','${esc(purpose.id)}')">編集</button>
+                    <button class="btn danger small-btn" onclick="deletePurpose('${esc(account.id)}','${esc(purpose.id)}')">削除</button>`
+                }
               </div>
             </div>
           `;
@@ -6915,6 +7895,11 @@ function editLifeEvent(eventId){
   const event=data.lifePlan.events.find(item=>item.id===eventId);
   if(!event)return;
 
+  if(event.bigExpenseId){
+    openBigExpenseEditor(event.bigExpenseId);
+    return;
+  }
+
   lifeEventEditId.value=event.id;
   lifeEventName.value=event.name;
   lifeEventYear.value=event.year;
@@ -6932,6 +7917,12 @@ function deleteLifeEvent(eventId){
   const event=data.lifePlan.events.find(item=>item.id===eventId);
   if(!event)return;
 
+  if(event.bigExpenseId){
+    alert("この予定は「大きな出費」と連携しています。大きな出費画面から編集・削除してください。");
+    openBigExpenseEditor(event.bigExpenseId);
+    return;
+  }
+
   if(!confirm(`「${event.name}」を削除しますか？`))return;
 
   data.lifePlan.events=data.lifePlan.events.filter(item=>item.id!==eventId);
@@ -6947,22 +7938,34 @@ function renderLifeEvents(){
     return;
   }
 
-  lifeEventList.innerHTML=events.map(event=>`
-    <div class="event-item">
-      <div class="event-icon">${esc(event.icon||"📦")}</div>
-      <div>
-        <div class="event-name">${esc(event.name)}</div>
-        <div class="event-meta">${event.year}年${(event.years||1)>1?`から${event.years}年間`:""}・${event.type==="income"?"収入":"支出"}</div>
-      </div>
-      <div>
-        <div class="event-amount ${event.type==="income"?"positive":"negative"}">${event.type==="income"?"+":"-"}${yen(event.amount)}</div>
-        <div class="actions" style="margin-top:5px;">
-          <button class="btn outline small-btn" onclick="editLifeEvent('${esc(event.id)}')">編集</button>
-          <button class="btn danger small-btn" onclick="deleteLifeEvent('${esc(event.id)}')">削除</button>
+  lifeEventList.innerHTML=events.map(event=>{
+    const linkedBigExpense=event.bigExpenseId
+      ?(data.bigExpenses||[]).find(item=>item.id===event.bigExpenseId)
+      :null;
+
+    return `
+      <div class="event-item">
+        <div class="event-icon">${esc(event.icon||"📦")}</div>
+        <div>
+          <div class="event-name">
+            ${esc(event.name)}
+            ${linkedBigExpense?'<span class="linked-plan-badge">大きな出費と連携</span>':""}
+          </div>
+          <div class="event-meta">${event.year}年${(event.years||1)>1?`から${event.years}年間`:""}・${event.type==="income"?"収入":"支出"}</div>
+        </div>
+        <div>
+          <div class="event-amount ${event.type==="income"?"positive":"negative"}">${event.type==="income"?"+":"-"}${yen(event.amount)}</div>
+          <div class="actions" style="margin-top:5px;">
+            ${linkedBigExpense
+              ?`<button class="btn outline small-btn" onclick="openBigExpenseEditor('${esc(linkedBigExpense.id)}')">大きな出費で編集</button>`
+              :`<button class="btn outline small-btn" onclick="editLifeEvent('${esc(event.id)}')">編集</button>
+                <button class="btn danger small-btn" onclick="deleteLifeEvent('${esc(event.id)}')">削除</button>`
+            }
+          </div>
         </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 function buildLifeProjection(){
@@ -7191,6 +8194,7 @@ function renderLifeProjectionTable(projection){
 function renderLifePlan(){
   if(!data.lifePlan)data.lifePlan=clone(DEFAULT.lifePlan);
 
+  syncBigExpenseLinks();
   const assetSnapshot=syncLifePlanAssetsFromAccounts();
 
   renderFamily();
@@ -7319,7 +8323,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:29,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:31,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);save();resetForm();initRender();activate("home")}};
 
@@ -7361,6 +8365,8 @@ function initRender(){
   migrateIncomeLabels();
   migrateInvestmentItems();
   cleanupEmptyDuplicateItems();
+  migratePurposePlansToBigExpenses();
+  syncBigExpenseLinks();
   save();
 
   homeMonth.value=data.selectedMonth;
@@ -7374,9 +8380,11 @@ function initRender(){
   renderAnnual();
   renderLifePlan();
   renderAssets();
+  renderBigExpenses();
   renderPeriodSettings();
   renderSettings();
   applyLifeDetailsVisibility();
+  resetBigExpenseForm();
 
   if(correction.moved){
     setTimeout(()=>{
@@ -7746,6 +8754,52 @@ initRender();
 - 毎月触る場所と初回だけ触る設定を分離
 - ライフプランと資産タブの自動連携を維持
 - 給与OCR、支出OCR、資産OCR、NISA・iDeCo投資分離、予算、年間、バックアップ機能を維持
+-->
+
+
+<!--
+変更履歴 v30
+- 「大きな出費」専用画面を追加
+- 車買い替え、外壁・屋根塗装、教育費、家電、旅行のプリセットを追加
+- 大きな出費を1回登録すると資産の目的別設定へ自動反映
+- 大きな出費を1回登録するとライフプランの将来イベントへ自動反映
+- 必要時期を年月で登録できるよう変更
+- 必要額、確保済み額、あと必要な金額を一覧表示
+- 残り月数から毎月いくら確保すればよいか自動計算
+- 確保済み額は指定した預金口座の目的別金額として連携
+- 同じ口座の他目的を考慮し、未振分を超える確保額の登録を防止
+- 大きな出費の変更時に資産目的・ライフイベントも同時更新
+- 大きな出費の削除時に連携した目的・ライフイベントも同時削除
+- 既存の車、家電、教育費、旅行、住宅修繕系の目的別資金を初回だけ自動移行
+- 既存目的から移行した項目は必要時期だけ追加すればライフプランへ連携
+- 資産画面の連携目的は「大きな出費で編集」に統一して二重編集を防止
+- ライフプランの連携イベントも「大きな出費で編集」に統一
+- ホームに次の大きな出費をコンパクト表示
+- 資産画面・ライフプランから大きな出費へ直接移動
+- マネーフォワードCSV、給与OCR、支出OCR、資産OCR、NISA・iDeCo分離、年間、予算、バックアップを維持
+-->
+
+
+<!--
+変更履歴 v31
+- 入力画面の最上部を「いま入力・修正している期間」中心に再設計
+- 「2026年7月給与分」のように対象給与月を大きく表示
+- 「2026年7月24日 ～ 2026年8月24日」のように実際の開始日・終了日を大きく表示
+- 土日祝日調整後の実際の日付を期間表示へ反映
+- これまで固定表示だった25日〜24日の表記を修正
+- 選択期間が「現在・過去・未来」のどれかをバッジ表示
+- 「前の期間・今の期間・次の期間」を常時表示
+- 年月入力を折りたたみから外して常時表示
+- 過去12期間をボタン一覧から1タップで開けるように変更
+- 過去期間で保存済みデータがある場合は「保存済」を表示
+- ホームの結果カードに「過去の入力」ボタンを追加
+- 入力画面上部に常時見える保存ボタンを追加
+- 入力画面下部に追従する保存バーを追加
+- 既存の手入力欄内の保存ボタンも維持
+- 手入力を変更すると「未保存の変更あり」を表示
+- 保存後は「保存済み」を表示
+- CSV取込後も保存済み状態を反映
+- マネーフォワードCSV、給与OCR、支出OCR、資産OCR、大きな出費、資産・ライフプラン連携、予算、年間、バックアップ機能を維持
 -->
 
 </body>
