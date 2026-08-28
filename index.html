@@ -607,6 +607,38 @@
       .mama-purpose-summary-item:first-child{grid-column:1/-1}
     }
 
+
+    .asset-month-row{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;gap:8px;align-items:center;margin:10px 0 4px}
+    .asset-month-row>div{text-align:center}
+    .asset-month-row strong{display:block;font-size:13px;font-weight:950}
+    .asset-month-row small{display:block;margin-top:2px;color:var(--muted);font-size:8px;font-weight:700}
+    .asset-breakdown-card{border:2px solid #e5e7eb;background:#fff}
+    .asset-hierarchy-help{margin-bottom:11px;padding:10px;border-radius:12px;background:#f8fafc;color:#475569;font-size:10px;font-weight:750;line-height:1.7}
+    .asset-hierarchy-list{display:grid;gap:9px;margin-bottom:10px}
+    .asset-category-block{overflow:hidden;border:1px solid var(--line);border-radius:15px;background:#fff}
+    .asset-category-summary{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:9px;align-items:center;padding:12px;background:#fafafa}
+    .asset-category-title{font-size:13px;font-weight:950}
+    .asset-category-total{font-size:15px;font-weight:950;text-align:right;white-space:nowrap}
+    .asset-category-diff{margin-top:2px;color:var(--muted);font-size:8px;font-weight:750;text-align:right}
+    .asset-account-list{display:grid;gap:7px;padding:10px}
+    .asset-account-row{padding:10px;border:1px solid #f1f5f9;border-radius:12px;background:#fff}
+    .asset-account-top{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center}
+    .asset-account-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:#f8fafc;font-size:17px}
+    .asset-account-name{font-size:12px;font-weight:950}
+    .asset-account-meta{margin-top:2px;color:var(--muted);font-size:8px;font-weight:700}
+    .asset-account-balance{font-size:14px;font-weight:950;text-align:right;white-space:nowrap}
+    .asset-account-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+    .asset-account-actions .btn{padding:6px 8px;font-size:8px}
+    .asset-purpose-mini-list{display:grid;gap:5px;margin-top:8px;padding-top:8px;border-top:1px dashed #e5e7eb}
+    .asset-purpose-mini{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;font-size:9px;font-weight:800}
+    .asset-purpose-mini span:first-child{color:#475569}
+    .asset-purpose-mini span:last-child{font-weight:950}
+    .asset-unallocated-line{margin-top:6px;color:#166534;font-size:9px;font-weight:900}
+    .asset-transfer-card{border:2px solid #c4b5fd;background:linear-gradient(180deg,#fff,#f5f3ff)}
+    .asset-transfer-example{margin-bottom:11px;padding:9px 10px;border-radius:11px;background:#fff;color:#5b21b6;font-size:9px;font-weight:800;line-height:1.6}
+    .selected-purpose-account{margin-bottom:10px;padding:10px;border-radius:12px;background:#fff7ed;color:#9a3412;font-size:11px;font-weight:900}
+    .asset-category-empty{padding:10px;color:var(--muted);font-size:9px;font-weight:700;text-align:center}
+
     /* v34: ホーム中心・モバイルファースト */
     main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
     .tabs{
@@ -1538,9 +1570,18 @@
       <div class="title-row">
         <div>
           <div class="mf-import-kicker">資産</div>
-          <h2 class="title">いま持っている資産</h2>
+          <h2 class="title">資産の全体</h2>
         </div>
         <span id="assetOverviewUpdatedLabel" class="small">未更新</span>
+      </div>
+
+      <div class="asset-month-row">
+        <button id="assetPrevMonth" class="period-arrow" type="button">‹</button>
+        <div>
+          <strong id="assetOverviewMonthLabel">今月</strong>
+          <small>毎月のスクショを保存</small>
+        </div>
+        <button id="assetNextMonth" class="period-arrow" type="button">›</button>
       </div>
 
       <div id="assetSummary" class="asset-summary"></div>
@@ -1550,21 +1591,21 @@
     <div class="card account-screenshot-card asset-mf-import-card">
       <div class="asset-update-heading">
         <div>
-          <div class="mf-import-kicker">STEP 1</div>
-          <h2 class="title">資産画面をスクショで取り込む</h2>
+          <div class="mf-import-kicker">毎月 STEP 1</div>
+          <h2 class="title">マネフォ資産画面を読み取る</h2>
         </div>
         <span class="small">現在額だけ</span>
       </div>
 
       <div class="import-explanation">
-        マネーフォワードMEの「資産」画面をスクショして選びます。
-        <strong>前日比・前月比・増減額はすべて無視して、資産名と現在金額だけ保存します。</strong>
+        スクショから<strong>預金・現金 / 投資信託 / 債券 / 年金 / 株式 / ポイント</strong>を読み取ります。
+        前日比・前月比・増減額は保存しません。
       </div>
 
       <div id="accountScreenshotDropZone" class="screenshot-drop-zone account-drop-zone" tabindex="0" role="button">
         <div class="screenshot-drop-icon">📱</div>
         <strong>資産画面のスクショを選ぶ</strong>
-        <span>預金・投資信託・債券・年金・株式・ポイントなど</span>
+        <span>マネーフォワードMEの資産画面</span>
       </div>
 
       <input id="accountScreenshotFiles" class="hidden" type="file" accept="image/*" multiple>
@@ -1582,19 +1623,19 @@
 
       <div id="accountScreenshotReviewArea" class="screenshot-review-area hidden">
         <div class="title-row">
-          <h3 class="review-title">読み取った資産</h3>
+          <h3 class="review-title">読み取った現在額</h3>
           <span id="accountScreenshotReviewCount" class="small"></span>
         </div>
 
         <div class="asset-import-warning">
-          前日比・前月比・増減額は保存対象外です。資産名と現在金額だけ確認してください。
+          前日比などは無視しています。資産名と現在額だけ確認してください。
         </div>
 
         <div id="accountScreenshotReviewList" class="screenshot-review-list"></div>
         <button id="addAccountScreenshotReviewRow" class="btn outline" type="button">＋ 読み取れなかった資産を追加</button>
 
         <div class="btn-row">
-          <button id="applyAccountScreenshotImport" class="btn" type="button">この資産一覧を保存</button>
+          <button id="applyAccountScreenshotImport" class="btn" type="button">この月の資産として保存</button>
           <button id="undoAccountScreenshotImport" class="btn outline hidden" type="button">保存前に戻す</button>
         </div>
       </div>
@@ -1602,22 +1643,115 @@
       <div id="accountScreenshotMessage" class="import-result hidden"></div>
     </div>
 
-    <div class="card purpose-allocation-card">
+    <div class="card asset-breakdown-card">
       <div class="title-row">
         <div>
           <div class="mf-import-kicker">STEP 2</div>
-          <h2 class="title">預金を用途別に分ける</h2>
+          <h2 class="title">資産の中身</h2>
         </div>
-        <span class="small">手入力</span>
+        <span class="small">種類 → 口座 → 用途</span>
       </div>
 
-      <div class="purpose-allocation-explanation">
-        普通預金・ゆうちょ・定期預金など、<strong>登録してある預金口座から好きな口座を選んで</strong>
-        学費・家電・生活防衛費・車・修繕費などへ振り分けます。
-        用途分けは総資産へ二重加算しません。
+      <div class="asset-hierarchy-help">
+        例：<strong>預金・現金 → ママ通帳 → 生活防衛費</strong><br>
+        国債を買ったら「資産を移す」で、通帳を減らして債券を増やせます。
       </div>
 
-      <div id="purposeAllocationSummary" class="mama-purpose-summary"></div>
+      <div id="assetHierarchyList" class="asset-hierarchy-list"></div>
+
+      <button id="openAssetAccountForm" class="btn outline" type="button">＋ 口座・資産を追加</button>
+    </div>
+
+    <div class="card asset-transfer-card">
+      <div class="title-row">
+        <div>
+          <div class="mf-import-kicker">かんたん変更</div>
+          <h2 class="title">資産を移す</h2>
+        </div>
+        <span class="small">総資産は変えない</span>
+      </div>
+
+      <div class="asset-transfer-example">
+        例：ママ通帳から100万円で国債購入<br>
+        → ママ通帳 -100万円 / 国債 +100万円
+      </div>
+
+      <div class="life-controls">
+        <div class="field">
+          <label>移動元</label>
+          <select id="assetTransferFrom"></select>
+        </div>
+        <div class="field">
+          <label>移動先</label>
+          <select id="assetTransferTo"></select>
+        </div>
+        <div class="field">
+          <label>金額</label>
+          <input id="assetTransferAmount" type="number" min="0" inputmode="numeric" placeholder="例：1000000">
+        </div>
+      </div>
+
+      <button id="executeAssetTransfer" class="btn" type="button">この金額を移す</button>
+    </div>
+
+    <div id="assetAccountFormCard" class="card hidden">
+      <div class="title-row">
+        <h2 class="title">口座・資産を追加・編集</h2>
+        <button id="closeAssetAccountForm" class="btn outline small-btn" type="button">閉じる</button>
+      </div>
+
+      <input id="accountEditId" type="hidden">
+
+      <div class="life-controls">
+        <div class="field">
+          <label>資産の種類</label>
+          <select id="accountType">
+            <option value="deposit">預金・現金</option>
+            <option value="fund">投資信託</option>
+            <option value="bond">債券</option>
+            <option value="pension">年金</option>
+            <option value="stock">株式(現物)</option>
+            <option value="points">ポイント</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>口座・資産名</label>
+          <input id="accountName" placeholder="例：ママ通帳 / パパ通帳 / 個人向け国債">
+        </div>
+        <div class="field">
+          <label>現在額</label>
+          <input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：2000000">
+        </div>
+        <div class="field">
+          <label>アイコン</label>
+          <select id="accountIcon">
+            <option>🏦</option><option>📮</option><option>💰</option><option>👛</option>
+            <option>📊</option><option>📜</option><option>🧓</option><option>📉</option><option>🟣</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>メモ</label>
+          <input id="accountMemo" placeholder="例：妻ゆうちょ定期 / 楽天証券">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button id="saveAccountButton" class="btn" type="button">保存</button>
+        <button id="cancelAccountEdit" class="btn outline hidden" type="button">編集取消</button>
+      </div>
+    </div>
+
+    <div id="assetPurposeFormCard" class="card purpose-allocation-card hidden">
+      <div class="title-row">
+        <div>
+          <div class="mf-import-kicker">預金の用途分け</div>
+          <h2 class="title">この口座のお金を分ける</h2>
+        </div>
+        <button id="closeAssetPurposeForm" class="btn outline small-btn" type="button">閉じる</button>
+      </div>
+
+      <div id="selectedPurposeAccountLabel" class="selected-purpose-account"></div>
 
       <div class="quick-purpose-row">
         <button class="quick-purpose" data-purpose-preset="生活防衛費" type="button">＋生活防衛費</button>
@@ -1632,7 +1766,7 @@
 
       <div class="life-controls">
         <div class="field">
-          <label>どの預金口座から分ける？</label>
+          <label>口座</label>
           <select id="purposeAccountId"></select>
         </div>
         <div class="field">
@@ -1640,11 +1774,11 @@
           <input id="purposeName" placeholder="例：上の子大学費用">
         </div>
         <div class="field">
-          <label>この用途に確保している金額</label>
+          <label>確保額</label>
           <input id="purposeAmount" type="number" min="0" inputmode="numeric" placeholder="例：1000000">
         </div>
         <div class="field">
-          <label>目標金額（任意）</label>
+          <label>目標額（任意）</label>
           <input id="purposeTarget" type="number" min="0" inputmode="numeric" placeholder="例：2000000">
         </div>
       </div>
@@ -1653,45 +1787,15 @@
         <button id="savePurposeButton" class="btn" type="button">用途を保存</button>
         <button id="cancelPurposeEdit" class="btn outline hidden" type="button">編集取消</button>
       </div>
-
-      <div id="purposeAllocationList" class="purpose-master-list"></div>
     </div>
-
-    <details class="card simple-fold asset-settings-fold">
-      <summary>
-        <span>預金口座を追加・編集</span>
-        <span class="fold-hint">普通預金・定期預金など</span>
-      </summary>
-
-      <div class="fold-body">
-        <input id="accountEditId" type="hidden">
-        <div class="life-controls">
-          <div class="field"><label>口座名</label><input id="accountName" placeholder="例：妻ゆうちょ定期"></div>
-          <div class="field"><label>残高</label><input id="accountBalance" type="number" min="0" inputmode="numeric" placeholder="例：1400000"></div>
-          <div class="field">
-            <label>種類</label>
-            <select id="accountType">
-              <option value="deposit">預金・現金</option>
-              <option value="investment">証券・投資</option>
-              <option value="pension">iDeCo・年金</option>
-            </select>
-          </div>
-          <div class="field"><label>アイコン</label><select id="accountIcon"><option>🏦</option><option>📮</option><option>💰</option><option>👛</option><option>📈</option><option>🧓</option></select></div>
-          <div class="field"><label>メモ</label><input id="accountMemo" placeholder="例：定期預金"></div>
-        </div>
-
-        <div class="btn-row">
-          <button id="saveAccountButton" class="btn" type="button">口座を追加</button>
-          <button id="cancelAccountEdit" class="btn outline hidden" type="button">編集取消</button>
-        </div>
-      </div>
-    </details>
 
     <div class="hidden">
       <span id="accountCount"></span>
       <div id="accountList"></div>
       <button id="openBigExpensesAssets" type="button">大きな出費</button>
       <div id="assetBigExpenseStatus"></div>
+      <div id="purposeAllocationSummary"></div>
+      <div id="purposeAllocationList"></div>
     </div>
   </section>
 
@@ -2014,8 +2118,111 @@ function cleanAssetOverviewName(value){
     .trim();
 }
 
+function assetAccountTypeToOverviewCategory(type){
+  const normalized=normalizeAccountType(type);
+  if(normalized==="fund")return "fund";
+  if(normalized==="bond")return "bond";
+  if(normalized==="pension")return "pension";
+  if(normalized==="stock")return "stock";
+  if(normalized==="points")return "points";
+  if(normalized==="deposit")return "deposit";
+  if(normalized==="investment")return "fund";
+  return "other";
+}
+
+function assetCategoryOrder(){
+  return ["deposit","fund","bond","pension","stock","points","other"];
+}
+
+function accountTypeOptions(selected="deposit"){
+  const types=[
+    ["deposit","預金・現金"],
+    ["fund","投資信託"],
+    ["bond","債券"],
+    ["pension","年金"],
+    ["stock","株式(現物)"],
+    ["points","ポイント"],
+    ["other","その他"]
+  ];
+  return types.map(([value,label])=>`<option value="${value}"${value===selected?" selected":""}>${label}</option>`).join("");
+}
+
+function accountBreakdownTotalByCategory(category){
+  return (data.bankAccounts||[])
+    .filter(account=>assetAccountTypeToOverviewCategory(detectAccountType(account.name,account.accountType))===category)
+    .reduce((sum,account)=>sum+normalize(account.balance),0);
+}
+
+function assetOverviewAmountByCategory(category){
+  return assetOverviewRows()
+    .filter(row=>row.category===category)
+    .reduce((sum,row)=>sum+normalize(row.amount),0);
+}
+
+function ensureAssetOverviewRow(category){
+  if(!data.assetOverview)data.assetOverview={rows:[],updatedAt:"",month:"",history:{}};
+  if(!Array.isArray(data.assetOverview.rows))data.assetOverview.rows=[];
+
+  let row=data.assetOverview.rows.find(item=>item.category===category);
+  if(!row){
+    row={
+      id:id(),
+      name:assetOverviewLabel(category),
+      amount:0,
+      category,
+      source:"manual"
+    };
+    data.assetOverview.rows.push(row);
+  }
+  return row;
+}
+
+function adjustAssetOverviewCategory(category,delta){
+  if(!delta)return;
+  const row=ensureAssetOverviewRow(category);
+  row.amount=Math.max(0,normalize(row.amount)+normalize(delta));
+  data.assetOverview.updatedAt=new Date().toISOString();
+  data.assetOverview.month=currentMonth();
+}
+
+function saveAssetOverviewHistory(monthKey=currentMonth()){
+  if(!data.assetOverview)data.assetOverview={rows:[],updatedAt:"",month:"",history:{}};
+  if(!data.assetOverview.history||typeof data.assetOverview.history!=="object")data.assetOverview.history={};
+
+  data.assetOverview.month=monthKey;
+  data.assetOverview.history[monthKey]={
+    rows:clone(data.assetOverview.rows||[]),
+    updatedAt:data.assetOverview.updatedAt||new Date().toISOString()
+  };
+}
+
+function loadAssetOverviewMonth(monthKey){
+  const history=data.assetOverview?.history||{};
+  const record=history[monthKey];
+  if(!record)return false;
+
+  data.assetOverview.rows=clone(record.rows||[]);
+  data.assetOverview.updatedAt=String(record.updatedAt||"");
+  data.assetOverview.month=monthKey;
+  save();
+  renderAssets();
+  renderHome();
+  return true;
+}
+
+function purposeIconForName(name){
+  const text=normalizedCategory(name);
+  if(/教育|学費|大学|学校|進学/.test(text))return "🎓";
+  if(/家電|テレビ|洗濯機|冷蔵庫|エアコン/.test(text))return "📺";
+  if(/生活防衛|緊急|予備/.test(text))return "🛟";
+  if(/車|自動車|セレナ|エブリィ|エブリイ/.test(text))return "🚗";
+  if(/外壁|屋根|修繕|住宅/.test(text))return "🏠";
+  if(/旅行/.test(text))return "✈️";
+  return "💰";
+}
+
 function normalizeAccountType(value){
-  return ["deposit","investment","pension"].includes(value)?value:"";
+  return ["deposit","fund","bond","investment","pension","stock","points","other"].includes(value)?value:"";
 }
 
 function detectAccountType(name,currentType=""){
@@ -2023,26 +2230,37 @@ function detectAccountType(name,currentType=""){
     .replace(/\s/g,"")
     .toLowerCase();
 
-  if(/ideco|イデコ|確定拠出|企業型dc|個人型年金|年金/.test(normalized)){
-    return "pension";
-  }
+  const explicit=normalizeAccountType(currentType);
+  if(explicit)return explicit;
 
-  if(/証券|投資信託|株式|nisa|ニーサ|ファンド|ロボアド|ウェルスナビ/.test(normalized)){
-    return "investment";
-  }
-
-  return normalizeAccountType(currentType)||"deposit";
+  if(/ideco|イデコ|確定拠出|企業型dc|個人型年金|年金/.test(normalized))return "pension";
+  if(/国債|債券|bond/.test(normalized))return "bond";
+  if(/投資信託|投信|ファンド/.test(normalized))return "fund";
+  if(/株式|現物株/.test(normalized))return "stock";
+  if(/ポイント/.test(normalized))return "points";
+  if(/証券|nisa|ニーサ|ロボアド|ウェルスナビ/.test(normalized))return "investment";
+  return "deposit";
 }
 
 function accountTypeLabel(type){
+  if(type==="fund")return "投資信託";
+  if(type==="bond")return "債券";
   if(type==="investment")return "証券・投資";
-  if(type==="pension")return "iDeCo・年金";
+  if(type==="pension")return "年金";
+  if(type==="stock")return "株式(現物)";
+  if(type==="points")return "ポイント";
+  if(type==="other")return "その他";
   return "預金・現金";
 }
 
 function accountTypeIcon(type){
+  if(type==="fund")return "📊";
+  if(type==="bond")return "📜";
   if(type==="investment")return "📈";
   if(type==="pension")return "🧓";
+  if(type==="stock")return "📉";
+  if(type==="points")return "🟣";
+  if(type==="other")return "💼";
   return "🏦";
 }
 
@@ -2081,7 +2299,7 @@ const DEFAULT={
   },
   budgetPlan:{startYear:new Date().getFullYear(),endYear:new Date().getFullYear()+30,viewYear:new Date().getFullYear(),entries:[]},
   bigExpenses:[],
-  assetOverview:{rows:[],updatedAt:""},
+  assetOverview:{rows:[],updatedAt:"",month:"",history:{}},
   bankAccounts:[
     {
       id:"account_mama_yucho",
@@ -2423,7 +2641,11 @@ function migrate(v){
         category:String(row.category||assetOverviewCategory(row.name)),
         source:String(row.source||"moneyforward")
       })):[],
-      updatedAt:String(v.assetOverview?.updatedAt||"")
+      updatedAt:String(v.assetOverview?.updatedAt||""),
+      month:String(v.assetOverview?.month||""),
+      history:v.assetOverview?.history&&typeof v.assetOverview.history==="object"
+        ?clone(v.assetOverview.history)
+        :{}
     },
     bigExpenses:Array.isArray(v.bigExpenses)?v.bigExpenses.map(expense=>({
       id:expense.id||id(),
@@ -6474,13 +6696,9 @@ function financialAssetSnapshot(){
     overviewRows.forEach(row=>{
       const amount=normalize(row.amount);
 
-      if(row.category==="deposit"){
-        cash+=amount;
-      }else if(row.category==="pension"){
-        pension+=amount;
-      }else if(["fund","bond","stock"].includes(row.category)){
-        investment+=amount;
-      }
+      if(row.category==="deposit")cash+=amount;
+      else if(row.category==="pension")pension+=amount;
+      else if(["fund","bond","stock"].includes(row.category))investment+=amount;
     });
 
     return {
@@ -6503,9 +6721,9 @@ function financialAssetSnapshot(){
     const balance=normalize(account.balance);
     const type=detectAccountType(account.name,account.accountType);
 
-    if(type==="investment")investment+=balance;
+    if(type==="deposit")cash+=balance;
     else if(type==="pension")pension+=balance;
-    else cash+=balance;
+    else if(["fund","bond","stock","investment"].includes(type))investment+=balance;
   });
 
   return {
@@ -6877,7 +7095,7 @@ function resetAccountForm(){
   accountType.value="deposit";
   accountIcon.value="🏦";
   accountMemo.value="";
-  saveAccountButton.textContent="口座を追加";
+  saveAccountButton.textContent="保存";
   cancelAccountEdit.classList.add("hidden");
 }
 
@@ -7703,11 +7921,16 @@ applyAccountScreenshotImport.onclick=()=>{
     assetOverview:clone(data.assetOverview||{rows:[],updatedAt:""})
   };
 
+  const saveMonthKey=data.assetOverview?.month||currentMonth();
+
   data.assetOverview={
     rows,
-    updatedAt:new Date().toISOString()
+    updatedAt:new Date().toISOString(),
+    month:saveMonthKey,
+    history:data.assetOverview?.history||{}
   };
 
+  saveAssetOverviewHistory(saveMonthKey);
   markAssetsUpdated();
   save();
   renderAssets();
@@ -7954,7 +8177,8 @@ function deletePurpose(accountId,purposeId){
 
 function renderAssets(){
   if(!Array.isArray(data.bankAccounts))data.bankAccounts=clone(DEFAULT.bankAccounts);
-  if(!data.assetOverview)data.assetOverview={rows:[],updatedAt:""};
+  if(!data.assetOverview)data.assetOverview={rows:[],updatedAt:"",month:"",history:{}};
+  if(!data.assetOverview.history)data.assetOverview.history={};
 
   data.bankAccounts.forEach(account=>{
     account.accountType=detectAccountType(account.name,account.accountType);
@@ -7965,120 +8189,247 @@ function renderAssets(){
   fillPurposeAccountOptions();
   renderBigExpenseQuickSummaries();
 
-  const overviewRows=assetOverviewRows();
-  const overviewTotal=assetOverviewTotal();
-  const overviewDeposit=assetOverviewDepositTotal();
-
-  const depositAccounts=data.bankAccounts.filter(isDepositAccount);
-  const allocated=depositAccounts.reduce((sum,account)=>sum+totalPurposeAmount(account),0);
-  const accountDepositTotal=depositAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
-  const depositBase=overviewDeposit||accountDepositTotal;
-  const unallocated=depositBase-allocated;
+  const rows=assetOverviewRows();
+  const total=assetOverviewTotal()||financialAssetSnapshot().total;
+  const cash=assetOverviewAmountByCategory("deposit")||accountBreakdownTotalByCategory("deposit");
+  const allocated=(data.bankAccounts||[])
+    .filter(isDepositAccount)
+    .reduce((sum,account)=>sum+totalPurposeAmount(account),0);
 
   assetSummary.innerHTML=`
     <div class="asset-summary-card total-assets">
       <span>総資産</span>
-      <strong>${yen(overviewTotal||financialAssetSnapshot().total)}</strong>
+      <strong>${yen(total)}</strong>
     </div>
     <div class="asset-summary-card deposit-assets">
       <span>預金・現金</span>
-      <strong>${yen(depositBase)}</strong>
+      <strong>${yen(cash)}</strong>
     </div>
     <div class="asset-summary-card purpose-assets">
       <span>用途別に確保</span>
       <strong>${yen(allocated)}</strong>
     </div>
     <div class="asset-summary-card unallocated-assets">
-      <span>まだ未振分</span>
-      <strong class="${unallocated>=0?"positive":"negative"}">${yen(unallocated)}</strong>
+      <span>預金の未振分</span>
+      <strong>${yen(cash-allocated)}</strong>
     </div>
   `;
 
+  const monthKey=data.assetOverview.month||currentMonth();
+  assetOverviewMonthLabel.textContent=`${monthKey.replace("-","年")}月`;
   assetOverviewUpdatedLabel.textContent=data.assetOverview.updatedAt
     ?new Date(data.assetOverview.updatedAt).toLocaleString("ja-JP",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})
     :"未更新";
 
-  assetOverviewList.innerHTML=overviewRows.length
-    ?overviewRows.map(row=>`
-      <div class="mf-asset-row">
-        <span class="mf-asset-dot ${esc(row.category)}"></span>
-        <div class="mf-asset-name">${esc(assetOverviewLabel(row.category,row.name))}</div>
-        <div class="mf-asset-amount">${yen(row.amount)}</div>
-      </div>
-    `).join("")
-    :`<div class="mf-asset-empty">
-        まだ資産一覧がありません。<br>
-        STEP 1でマネーフォワードMEの資産画面をスクショして取り込んでください。
-      </div>`;
-
-  purposeAccountId.innerHTML=depositAccounts.length
-    ?depositAccounts.map(account=>`
-      <option value="${esc(account.id)}">
-        ${esc(account.name)}｜残高 ${yen(account.balance)}｜未振分 ${yen(normalize(account.balance)-totalPurposeAmount(account))}
-      </option>
-    `).join("")
-    :'<option value="">預金口座がありません</option>';
-
-  const purposeRows=[];
-
-  depositAccounts.forEach(account=>{
-    (account.purposes||[]).forEach(purpose=>{
-      purposeRows.push({account,purpose});
-    });
-  });
-
-  purposeAllocationSummary.innerHTML=`
-    <div class="mama-purpose-summary-item">
-      <span>預金・現金</span>
-      <strong>${yen(depositBase)}</strong>
-    </div>
-    <div class="mama-purpose-summary-item">
-      <span>用途別に確保</span>
-      <strong>${yen(allocated)}</strong>
-    </div>
-    <div class="mama-purpose-summary-item">
-      <span>未振分</span>
-      <strong class="${unallocated>=0?"positive":"negative"}">${yen(unallocated)}</strong>
-    </div>
-  `;
-
-  purposeAllocationList.innerHTML=purposeRows.length
-    ?purposeRows.map(({account,purpose})=>{
-      const target=normalize(purpose.target);
-      const rate=target?Math.min(100,(normalize(purpose.amount)/target)*100):0;
-      const linked=purpose.bigExpenseId
-        ?(data.bigExpenses||[]).find(item=>item.id===purpose.bigExpenseId)
-        :null;
-
-      return `
-        <div class="purpose-master-item">
-          <div class="purpose-master-top">
-            <div>
-              <div class="purpose-master-name">${esc(purpose.name)}</div>
-              <div class="purpose-master-accounts">${esc(account.name)}</div>
-              <div class="purpose-master-meta">
-                ${target?`目標 ${yen(target)}・達成 ${pct(rate)}`:"目標金額なし"}
-              </div>
-            </div>
-            <div class="purpose-master-amount">${yen(purpose.amount)}</div>
-          </div>
-          ${target?`<div class="purpose-progress"><div class="purpose-progress-bar" style="width:${rate}%"></div></div>`:""}
-          <div class="actions" style="margin-top:7px;">
-            ${linked
-              ?`<button class="btn outline small-btn" onclick="openBigExpenseEditor('${esc(linked.id)}')">大きな出費で編集</button>`
-              :`<button class="btn outline small-btn" onclick="editPurpose('${esc(account.id)}','${esc(purpose.id)}')">編集</button>
-                <button class="btn danger small-btn" onclick="deletePurpose('${esc(account.id)}','${esc(purpose.id)}')">削除</button>`
-            }
-          </div>
+  assetOverviewList.innerHTML=rows.length
+    ?rows
+      .sort((a,b)=>assetCategoryOrder().indexOf(a.category)-assetCategoryOrder().indexOf(b.category))
+      .map(row=>`
+        <div class="mf-asset-row">
+          <span class="mf-asset-dot ${esc(row.category)}"></span>
+          <div class="mf-asset-name">${esc(assetOverviewLabel(row.category,row.name))}</div>
+          <div class="mf-asset-amount">${yen(row.amount)}</div>
         </div>
-      `;
-    }).join("")
-    :'<div class="empty">まだ用途分けしていません。上で口座を選び、学費・家電・車などを追加してください。</div>';
+      `).join("")
+    :`<div class="mf-asset-empty">まだこの月の資産一覧がありません。<br>STEP 1でスクショを取り込んでください。</div>`;
 
-  accountCount.textContent=`${data.bankAccounts.length}口座`;
+  const allAccounts=data.bankAccounts||[];
+  const categoryBlocks=assetCategoryOrder().map(category=>{
+    const categoryAccounts=allAccounts.filter(account=>{
+      return assetAccountTypeToOverviewCategory(detectAccountType(account.name,account.accountType))===category;
+    });
+    const overviewAmount=assetOverviewAmountByCategory(category);
+    const breakdownAmount=categoryAccounts.reduce((sum,account)=>sum+normalize(account.balance),0);
+    const difference=overviewAmount-breakdownAmount;
+
+    if(!overviewAmount&&!categoryAccounts.length)return "";
+
+    const accountRows=categoryAccounts.length
+      ?categoryAccounts.map(account=>{
+        const isDeposit=isDepositAccount(account);
+        const purposeHtml=isDeposit&&(account.purposes||[]).length
+          ?`<div class="asset-purpose-mini-list">
+              ${(account.purposes||[]).map(purpose=>`
+                <div class="asset-purpose-mini">
+                  <span>${purposeIconForName(purpose.name)} ${esc(purpose.name)}</span>
+                  <span>${yen(purpose.amount)}</span>
+                </div>
+              `).join("")}
+              <div class="asset-unallocated-line">
+                未振分 ${yen(normalize(account.balance)-totalPurposeAmount(account))}
+              </div>
+            </div>`
+          :"";
+
+        return `
+          <div class="asset-account-row">
+            <div class="asset-account-top">
+              <div class="asset-account-icon">${esc(account.icon||accountTypeIcon(account.accountType))}</div>
+              <div>
+                <div class="asset-account-name">${esc(account.name)}</div>
+                <div class="asset-account-meta">${esc(account.memo||accountTypeLabel(account.accountType))}</div>
+              </div>
+              <div class="asset-account-balance">${yen(account.balance)}</div>
+            </div>
+
+            ${purposeHtml}
+
+            <div class="asset-account-actions">
+              <button class="btn outline" type="button" onclick="editAccount('${esc(account.id)}');openAssetAccountEditor();">金額・名前を変更</button>
+              ${isDeposit?`<button class="btn outline" type="button" onclick="openPurposeForAccount('${esc(account.id)}')">用途を分ける</button>`:""}
+              <button class="btn danger" type="button" onclick="deleteAccount('${esc(account.id)}')">削除</button>
+            </div>
+          </div>
+        `;
+      }).join("")
+      :'<div class="asset-category-empty">まだ内訳口座がありません</div>';
+
+    return `
+      <details class="asset-category-block"${category==="deposit"?" open":""}>
+        <summary class="asset-category-summary">
+          <span class="mf-asset-dot ${esc(category)}"></span>
+          <div class="asset-category-title">${esc(assetOverviewLabel(category))}</div>
+          <div>
+            <div class="asset-category-total">${yen(overviewAmount||breakdownAmount)}</div>
+            <div class="asset-category-diff">
+              内訳 ${yen(breakdownAmount)}
+              ${overviewAmount?` / 差 ${yen(difference)}`:""}
+            </div>
+          </div>
+        </summary>
+        <div class="asset-account-list">${accountRows}</div>
+      </details>
+    `;
+  }).join("");
+
+  assetHierarchyList.innerHTML=categoryBlocks||'<div class="empty">口座・資産を追加すると、ここに内訳が表示されます。</div>';
+
+  const accountOptions=allAccounts.map(account=>{
+    const type=detectAccountType(account.name,account.accountType);
+    return `<option value="${esc(account.id)}">${esc(account.name)}｜${esc(accountTypeLabel(type))}｜${yen(account.balance)}</option>`;
+  }).join("");
+
+  assetTransferFrom.innerHTML='<option value="">移動元を選ぶ</option>'+accountOptions;
+  assetTransferTo.innerHTML='<option value="">移動先を選ぶ</option>'+accountOptions;
+
+  accountCount.textContent=`${allAccounts.length}件`;
   accountList.innerHTML="";
   save();
 }
+
+function openAssetAccountEditor(){
+  assetAccountFormCard.classList.remove("hidden");
+  setTimeout(()=>assetAccountFormCard.scrollIntoView({behavior:"smooth",block:"start"}),40);
+}
+
+function openPurposeForAccount(accountId){
+  const account=(data.bankAccounts||[]).find(item=>item.id===accountId);
+  if(!account||!isDepositAccount(account))return;
+
+  fillPurposeAccountOptions(accountId);
+  purposeAccountId.value=accountId;
+  selectedPurposeAccountLabel.textContent=`${account.name}｜残高 ${yen(account.balance)}｜未振分 ${yen(normalize(account.balance)-totalPurposeAmount(account))}`;
+  assetPurposeFormCard.classList.remove("hidden");
+  resetPurposeForm();
+  fillPurposeAccountOptions(accountId);
+  purposeAccountId.value=accountId;
+
+  setTimeout(()=>assetPurposeFormCard.scrollIntoView({behavior:"smooth",block:"start"}),40);
+}
+
+openAssetAccountForm.onclick=()=>{
+  resetAccountForm();
+  openAssetAccountEditor();
+};
+
+closeAssetAccountForm.onclick=()=>{
+  resetAccountForm();
+  assetAccountFormCard.classList.add("hidden");
+};
+
+closeAssetPurposeForm.onclick=()=>{
+  resetPurposeForm();
+  assetPurposeFormCard.classList.add("hidden");
+};
+
+executeAssetTransfer.onclick=()=>{
+  const fromId=assetTransferFrom.value;
+  const toId=assetTransferTo.value;
+  const amount=normalize(assetTransferAmount.value);
+
+  if(!fromId||!toId){
+    alert("移動元と移動先を選んでください");
+    return;
+  }
+
+  if(fromId===toId){
+    alert("移動元と移動先は別の資産を選んでください");
+    return;
+  }
+
+  if(!amount){
+    alert("移す金額を入力してください");
+    return;
+  }
+
+  const from=(data.bankAccounts||[]).find(account=>account.id===fromId);
+  const to=(data.bankAccounts||[]).find(account=>account.id===toId);
+
+  if(!from||!to)return;
+
+  if(normalize(from.balance)<amount){
+    alert(`${from.name} の残高を超えています`);
+    return;
+  }
+
+  const fromType=detectAccountType(from.name,from.accountType);
+  const toType=detectAccountType(to.name,to.accountType);
+
+  from.balance=normalize(from.balance)-amount;
+  to.balance=normalize(to.balance)+amount;
+
+  const fromCategory=assetAccountTypeToOverviewCategory(fromType);
+  const toCategory=assetAccountTypeToOverviewCategory(toType);
+
+  if(fromCategory!==toCategory&&assetOverviewRows().length){
+    adjustAssetOverviewCategory(fromCategory,-amount);
+    adjustAssetOverviewCategory(toCategory,amount);
+    saveAssetOverviewHistory(data.assetOverview.month||currentMonth());
+  }
+
+  save();
+  renderAssets();
+  renderHome();
+  renderLifePlan();
+
+  assetTransferAmount.value="";
+  alert(`${yen(amount)} を\n${from.name} → ${to.name}\nへ移しました。`);
+};
+
+assetPrevMonth.onclick=()=>{
+  const current=data.assetOverview.month||currentMonth();
+  const target=shiftMonth(current,-1);
+
+  if(!loadAssetOverviewMonth(target)){
+    data.assetOverview.month=target;
+    data.assetOverview.rows=[];
+    data.assetOverview.updatedAt="";
+    renderAssets();
+  }
+};
+
+assetNextMonth.onclick=()=>{
+  const current=data.assetOverview.month||currentMonth();
+  const target=shiftMonth(current,1);
+
+  if(!loadAssetOverviewMonth(target)){
+    data.assetOverview.month=target;
+    data.assetOverview.rows=[];
+    data.assetOverview.updatedAt="";
+    renderAssets();
+  }
+};
+
 
 let movingItemId=null;
 
@@ -8844,7 +9195,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:39,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:40,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);localStorage.setItem(SELECTED_MONTH_KEY,data.selectedMonth);save();resetForm();initRender();activate("home")}};
 
@@ -9461,6 +9812,26 @@ initRender();
 - 生活防衛費、上の子学費、下の子学費、家電、車、住宅修繕のクイック用途を追加
 - 用途分けは資産合計へ二重加算しない設計を維持
 - 既存の大きな出費・ライフプラン・家計入力・CSV/OCR・予算・年間・バックアップ機能を維持
+-->
+
+
+<!--
+変更履歴 v40
+- 資産画面を「資産種類 → 口座・資産 → 用途」の3階層へ全面再設計
+- 毎月マネーフォワードME資産画面のスクショを読み取り、その月の資産種類一覧として保存
+- 資産一覧は預金・現金、投資信託、債券、年金、株式(現物)、ポイント、その他に対応
+- 前日比・前月比・増減額は引き続き保存対象外
+- 資産スクショを月別履歴として保存できるよう変更
+- 資産画面で前月・次月の保存済み資産一覧へ切替可能
+- 預金・現金の中にママ通帳、パパ通帳、普通預金、定期預金など複数口座を登録可能
+- 投資信託、国債、年金、株式なども口座・資産単位で登録可能
+- 各資産種類の合計と、手入力した口座内訳の合計差を表示
+- 預金口座だけ用途別に生活防衛費、学費、家電、車、修繕費などへ振分可能
+- 「資産を移す」機能を追加
+- ママ通帳から国債へ100万円など、移動元を減らし移動先を同額増やす操作を1回で実行
+- 異なる資産種類への移動時は資産種類合計も同額移動し、総資産は変えない
+- 国債購入など将来の資産組替えを簡単に変更できるよう改善
+- 既存の家計入力、CSV/OCR、大きな出費、ライフプラン、予算、年間、バックアップを維持
 -->
 
 </body>
