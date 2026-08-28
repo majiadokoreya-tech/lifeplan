@@ -450,7 +450,7 @@
     .input-save-status.saved{background:#dcfce7;color:#166534}
     .input-save-status.dirty{background:#fef3c7;color:#92400e}
     .input-top-save{padding:13px;font-size:14px}
-    .input-sticky-save{position:sticky;bottom:8px;z-index:35;display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:9px;align-items:center;margin:14px 0 4px;padding:9px;border:1px solid #fdba74;border-radius:16px;background:rgba(255,247,237,.96);box-shadow:0 8px 24px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
+    .input-sticky-save{position:sticky;bottom:calc(82px + env(safe-area-inset-bottom));z-index:60;display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:9px;align-items:center;margin:14px 0 4px;padding:9px;border:1px solid #fdba74;border-radius:16px;background:rgba(255,247,237,.98);box-shadow:0 8px 24px rgba(0,0,0,.14);backdrop-filter:blur(10px)}
     .input-sticky-copy{min-width:0}
     .input-sticky-copy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#7c2d12;font-size:9px;font-weight:900}
     .input-sticky-copy strong{display:block;margin-top:2px;font-size:10px}
@@ -527,19 +527,27 @@
 
     
     /* v34: ホーム中心・モバイルファースト */
-    main{padding-bottom:118px}
+    main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
     .tabs{
-      position:fixed;
-      top:auto;
-      bottom:10px;
-      left:50%;
+      position:fixed!important;
+      top:auto!important;
+      right:auto!important;
+      bottom:max(10px,env(safe-area-inset-bottom))!important;
+      left:50%!important;
       transform:translateX(-50%);
       z-index:70;
+      display:grid;
       width:min(calc(100% - 20px),680px);
-      grid-template-columns:repeat(4,1fr);
+      height:64px!important;
+      min-height:64px!important;
+      max-height:64px!important;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-rows:52px;
+      align-items:center;
       gap:4px;
-      margin:0;
+      margin:0!important;
       padding:6px;
+      overflow:hidden;
       border:1px solid rgba(229,231,235,.95);
       border-radius:19px;
       background:rgba(255,255,255,.96);
@@ -547,18 +555,38 @@
       backdrop-filter:blur(14px);
     }
     .tab{
-      display:grid;
+      display:grid!important;
       place-items:center;
-      gap:1px;
-      min-height:52px;
-      padding:5px 3px;
+      align-content:center;
+      gap:2px;
+      width:100%;
+      height:52px!important;
+      min-height:52px!important;
+      max-height:52px!important;
+      margin:0!important;
+      padding:5px 3px!important;
+      overflow:hidden;
       border-radius:14px;
       background:transparent;
       color:#737373;
       box-shadow:none;
     }
-    .tab span{font-size:18px;line-height:1}
-    .tab b{font-size:9px;font-weight:900}
+    .tab span{
+      display:block;
+      margin:0;
+      padding:0;
+      font-size:18px!important;
+      line-height:1!important;
+    }
+    .tab b{
+      display:block;
+      margin:0;
+      padding:0;
+      font-size:9px!important;
+      line-height:1.2!important;
+      font-weight:900;
+      white-space:nowrap;
+    }
     .tab.active{background:var(--main-soft);color:var(--main-dark);box-shadow:none}
     .dashboard-main-card{padding:15px;border:0;background:#fff}
     .dashboard-period-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -668,7 +696,27 @@
     .move-close{margin-top:10px}
 
     @media(max-width:720px){.chart-layout{grid-template-columns:1fr}.chart-wrap{width:230px}.form-grid,.life-controls{grid-template-columns:1fr}}
-    @media(max-width:520px){.tabs{top:68px}.tab{font-size:11px;padding:9px 2px}.input-row{grid-template-columns:1fr}.summary strong{font-size:18px}.manage-item{grid-template-columns:36px minmax(0,1fr)}.manage-item .actions{grid-column:1/-1;justify-content:flex-end}.actions{justify-content:flex-start}}
+    @media(max-width:520px){
+      .tabs{
+        top:auto!important;
+        bottom:max(10px,env(safe-area-inset-bottom))!important;
+        height:64px!important;
+        min-height:64px!important;
+        max-height:64px!important;
+      }
+      .tab{
+        height:52px!important;
+        min-height:52px!important;
+        max-height:52px!important;
+        padding:5px 3px!important;
+        font-size:inherit;
+      }
+      .input-row{grid-template-columns:1fr}
+      .summary strong{font-size:18px}
+      .manage-item{grid-template-columns:36px minmax(0,1fr)}
+      .manage-item .actions{grid-column:1/-1;justify-content:flex-end}
+      .actions{justify-content:flex-start}
+    }
   </style>
 </head>
 <body>
@@ -3564,10 +3612,8 @@ moneyForwardCsvFile.onchange=async()=>{
 };
 
 goHomeAfterMoneyForwardImport.onclick=()=>{
+  // ホームは結果が最上部にあるため、旧レイアウトの隠しアンカーへスクロールしない。
   activate("home");
-  setTimeout(()=>{
-    homeResultCard.scrollIntoView({behavior:"smooth",block:"start"});
-  },80);
 };
 
 undoMoneyForwardImport.onclick=()=>{
@@ -8817,7 +8863,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:34,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:37,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);localStorage.setItem(SELECTED_MONTH_KEY,data.selectedMonth);save();resetForm();initRender();activate("home")}};
 
@@ -9358,6 +9404,52 @@ initRender();
 - 生活費の細かい分析は折りたたみ内に維持
 - 詳細設定・年間実績・予算・項目設定は「その他」へ集約
 - 既存の収入8項目、CSV取込、給与OCR、支出OCR、資産OCR、選択月保持、保存ボタン、大きな出費、資産・ライフプラン連携、予算、年間、バックアップ機能を維持
+-->
+
+
+<!--
+変更履歴 v35
+- Androidスマホで下部ナビが画面全体に巨大化する表示崩れを修正
+- 原因だった旧スマホCSSの「.tabs top:68px」を完全に無効化
+- 下部ナビのtopを常にautoへ固定
+- 下部ナビの高さを64pxへ固定
+- 各ナビボタンの高さを52pxへ固定
+- gridの行高さを52pxへ固定して縦方向へ伸びないよう修正
+- 下部ナビのoverflowをhiddenにして異常拡張を防止
+- タブ内のアイコンと文字サイズを明示して旧CSSの影響を防止
+- Android・iPhoneのsafe-areaを考慮した下端位置へ変更
+- コンテンツ下余白もsafe-area対応
+- v34のホーム中心UI、入力、収入8項目、資産、大きな出費、将来プラン、CSV/OCR、選択月保持、予算、年間、バックアップをすべて維持
+-->
+
+
+<!--
+変更履歴 v36
+- 最新版をスマホ幅で実描画して下部ナビの巨大化が再発しないことを確認
+- 下部ナビは高さ64px、各ボタン52pxで固定されることを確認
+- ホーム・入力・資産・その他の画面切替を実動作確認
+- 収入クイック入力8項目の表示を確認
+- その他収入の保存と既存生活費データを消さない動作を確認
+- 選択月変更と専用localStorageへの保持を確認
+- 大きな出費の既存目的別資金からの移行を確認
+- 車買い替えの必要年月を設定した際、ライフプランへ自動連携する動作を確認
+- 集計期間設定を変更しても選択月が勝手に戻らないことを確認
+- マネーフォワードCSVでパパ給料・手当・食費の自動分類を実動作確認
+- CSV取込後の「ホームで結果を見る」が旧隠しアンカーへスクロールする不具合を修正
+- CSV取込後はホーム最上部の家計結果へ戻るよう変更
+- 既存のホーム中心UI、入力、資産、大きな出費、将来プラン、CSV/OCR、予算、年間、バックアップを維持
+-->
+
+
+<!--
+変更履歴 v37
+- 実クリックテストで入力画面の追従保存ボタンが下部ナビに遮られる不具合を発見
+- 追従保存バーの下端位置を下部ナビより上へ変更
+- Android・iPhoneのsafe-areaを含めて保存バー位置を計算
+- 追従保存バーのz-indexを60へ調整
+- 下部ナビはz-index70のまま維持し、互いのタップ領域が重ならない配置へ変更
+- v36のCSV取込後ホーム遷移修正を維持
+- ホーム・入力・資産・その他、大きな出費、将来プラン、収入8項目、CSV/OCR、月保持、予算、年間、バックアップを維持
 -->
 
 </body>
