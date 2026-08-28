@@ -482,6 +482,49 @@
       .home-period-actions span{max-width:none;text-align:center}
     }
 
+    
+    .home-action-hub{border:2px solid #fed7aa;background:linear-gradient(180deg,#fff,#fffaf5)}
+    .home-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .home-action-tile{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:72px;padding:11px;border:1px solid var(--line);border-radius:15px;background:#fff;color:var(--text);text-align:left}
+    .home-action-tile.done{border-color:#86efac;background:#f0fdf4}
+    .home-action-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#f8fafc;font-size:20px}
+    .home-action-main{min-width:0}
+    .home-action-main strong{display:block;font-size:13px;font-weight:950}
+    .home-action-main small{display:block;margin-top:3px;color:var(--muted);font-size:8px;font-weight:750;line-height:1.45;white-space:normal}
+    .home-action-arrow{font-size:22px;color:#a3a3a3}
+    .home-action-tile .routine-status{font-size:8px;white-space:nowrap}
+    .home-action-context{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-top:10px;padding:10px;border-radius:13px;background:#fff7ed}
+    .home-action-context>div{min-width:0}
+    .home-action-context span{display:block;color:#9a3412;font-size:8px;font-weight:900}
+    .home-action-context strong{display:block;margin-top:2px;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .home-action-context small{display:block;margin-top:2px;color:var(--muted);font-size:8px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .input-choice-card{padding-bottom:13px}
+    .input-choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .input-choice-button{display:grid;place-items:center;gap:4px;min-height:92px;padding:10px 6px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--text);text-align:center}
+    .input-choice-button.income-choice{border-color:#bfdbfe;background:#eff6ff}
+    .input-choice-button>span{font-size:23px}
+    .input-choice-button strong{font-size:11px;font-weight:950}
+    .input-choice-button small{color:var(--muted);font-size:7px;font-weight:750;line-height:1.35}
+    .quick-income-card{border:2px solid #bfdbfe;background:linear-gradient(180deg,#eff6ff,#fff)}
+    .quick-income-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .quick-income-field{padding:9px;border:1px solid #dbeafe;border-radius:13px;background:#fff}
+    .quick-income-field label{display:flex;align-items:center;gap:5px;margin-bottom:5px;color:#334155;font-size:9px;font-weight:900}
+    .quick-income-field input{padding:9px 8px;text-align:right;font-size:15px;font-weight:900}
+    .quick-income-footer{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.8fr);gap:10px;align-items:center;margin-top:11px;padding-top:11px;border-top:1px dashed #93c5fd}
+    .quick-income-footer span{display:block;color:var(--muted);font-size:8px;font-weight:800}
+    .quick-income-footer strong{display:block;margin-top:2px;color:#1d4ed8;font-size:18px;font-weight:950}
+    #quickIncomeStatus.dirty{color:#92400e;font-weight:900}
+    #quickIncomeStatus.saved{color:#166534;font-weight:900}
+    @media(max-width:520px){
+      .home-action-grid{grid-template-columns:1fr}
+      .home-action-context{grid-template-columns:1fr}
+      .home-action-context .btn{width:100%}
+      .input-choice-grid{grid-template-columns:1fr 1fr}
+      .input-choice-button:last-child{grid-column:1/-1}
+      .quick-income-grid{grid-template-columns:1fr 1fr}
+      .quick-income-footer{grid-template-columns:1fr}
+    }
+
         .history-empty,.empty{padding:22px 12px;text-align:center;color:var(--muted);font-size:13px}.notice{padding:12px;border-radius:13px;background:var(--main-soft);color:#9a3412;font-size:12px;font-weight:700}
 
     .move-button{background:#fff;color:#404040;border:1px solid var(--line)}
@@ -531,14 +574,14 @@
 <body>
 <header class="app-header">
   <div class="header-inner">
-    <div><h1 class="app-title">家計</h1><p class="app-sub">マネフォ取込 → 資産更新 → 結果を見る</p></div>
+    <div><h1 class="app-title">家計</h1><p class="app-sub">ホームからやりたいことを選ぶだけ</p></div>
     <button id="monthChip" class="month-chip" type="button" title="現在の家計期間へ戻る"></button>
   </div>
 </header>
 <main>
   <nav class="tabs">
     <button class="tab active" data-tab="home">ホーム</button>
-    <button class="tab" data-tab="input">取込</button>
+    <button class="tab" data-tab="input">入力</button>
     <button class="tab" data-tab="assets">資産</button>
     <button class="tab" data-tab="lifeplan">将来</button>
     <button class="tab" data-tab="menu">その他</button>
@@ -574,40 +617,63 @@
       </div>
     </div>
 
-    <div class="card home-focus-card">
-      <div class="home-focus-top">
+    <div class="card home-action-hub">
+      <div class="title-row">
         <div>
-          <div class="current-period-label">今の期間の更新状況</div>
-          <div id="routinePeriodRange" class="current-period-range"></div>
-          <div id="routinePeriodNote" class="current-period-note"></div>
+          <div class="mf-import-kicker">迷ったらここ</div>
+          <h2 class="title">何をする？</h2>
         </div>
-        <span id="routineCount" class="routine-count">0/2 完了</span>
+        <span id="routineCount" class="routine-count">確認中</span>
       </div>
 
-      <div class="home-status-strip">
-        <div id="monthlyRoutineStep" class="home-status-item routine-step">
-          <div class="routine-number">1</div>
-          <div class="home-status-copy">
-            <strong>マネフォ取込</strong>
-            <span>CSVなら1ファイルで完了</span>
-          </div>
+      <div class="home-action-grid">
+        <button id="monthlyRoutineStep" class="home-action-tile routine-step" type="button">
+          <span class="home-action-icon">✍️</span>
+          <span class="home-action-main">
+            <strong>家計を入力</strong>
+            <small>給料・その他収入・生活費</small>
+          </span>
           <span id="monthlyRoutineStatus" class="routine-status">未入力</span>
-        </div>
+        </button>
 
-        <div id="assetRoutineStep" class="home-status-item routine-step">
-          <div class="routine-number">2</div>
-          <div class="home-status-copy">
+        <button id="assetRoutineStep" class="home-action-tile routine-step" type="button">
+          <span class="home-action-icon">🏦</span>
+          <span class="home-action-main">
             <strong>資産を更新</strong>
-            <span>口座・証券・iDeCo</span>
-          </div>
+            <small>預金・証券・iDeCo</small>
+          </span>
           <span id="assetRoutineStatus" class="routine-status">未更新</span>
-        </div>
+        </button>
+
+        <button id="openBigExpensesHome" class="home-action-tile" type="button">
+          <span class="home-action-icon">🚗</span>
+          <span class="home-action-main">
+            <strong>大きな出費</strong>
+            <small id="homeBigExpenseTitle">車・外壁・教育費など</small>
+          </span>
+          <span class="home-action-arrow">›</span>
+        </button>
+
+        <button id="homeGoLifePlan" class="home-action-tile" type="button">
+          <span class="home-action-icon">📈</span>
+          <span class="home-action-main">
+            <strong>将来を見る</strong>
+            <small>退職・教育・資産の見通し</small>
+          </span>
+          <span class="home-action-arrow">›</span>
+        </button>
       </div>
 
-      <div class="next-action-area compact-next-action">
-        <div class="next-action-label">今やること</div>
-        <button id="nextActionButton" class="btn" type="button">家計を入力する</button>
+      <div class="home-action-context">
+        <div>
+          <span>選択中</span>
+          <strong id="routinePeriodRange"></strong>
+          <small id="routinePeriodNote"></small>
+        </div>
+        <button id="nextActionButton" class="btn small-btn" type="button">おすすめを開く</button>
       </div>
+
+      <div id="homeBigExpenseSub" class="hidden"></div>
     </div>
 
     <div id="homeResultCard" class="card home-result-card">
@@ -620,22 +686,13 @@
       </div>
 
       <div class="summary home-summary">
-        <div class="sum income"><span>手取り収入</span><strong id="sumIncome">0円</strong></div>
+        <div class="sum income"><span>収入合計</span><strong id="sumIncome">0円</strong></div>
         <div class="sum expense"><span>生活支出</span><strong id="sumExpense">0円</strong></div>
         <div class="sum investment"><span>投資</span><strong id="sumInvestment">0円</strong></div>
         <div class="sum balance"><span>現金の残り</span><strong id="sumBalance">0円</strong></div>
       </div>
 
       <div id="homeCashFlowNote" class="cash-flow-note"></div>
-    </div>
-
-    <div class="card big-expense-home-card">
-      <div class="big-expense-home-copy">
-        <span class="small">大きな出費</span>
-        <strong id="homeBigExpenseTitle">車・外壁・教育費など</strong>
-        <div id="homeBigExpenseSub" class="big-expense-home-sub">まだ登録されていません</div>
-      </div>
-      <button id="openBigExpensesHome" class="btn outline small-btn" type="button">見る</button>
     </div>
 
     <details class="card simple-fold">
@@ -648,7 +705,7 @@
         <div class="home-detail-section">
           <div class="title-row">
             <h2 class="title">生活費チェック</h2>
-            <span class="small">生活支出 ÷ 手取り収入</span>
+            <span class="small">生活支出 ÷ 収入合計</span>
           </div>
 
           <div class="simple-score">
@@ -732,11 +789,61 @@
       </div>
     </div>
 
-    <div class="card mf-import-hub">
+    <div class="card input-choice-card">
+      <div class="title-row">
+        <div>
+          <div class="mf-import-kicker">入力方法を選ぶ</div>
+          <h2 class="title">何を入力する？</h2>
+        </div>
+        <span class="small">3つだけ</span>
+      </div>
+
+      <div class="input-choice-grid">
+        <button id="inputJumpIncome" class="input-choice-button income-choice" type="button">
+          <span>💴</span>
+          <strong>収入を入力</strong>
+          <small>給料・副業・その他</small>
+        </button>
+
+        <button id="inputJumpMoneyForward" class="input-choice-button" type="button">
+          <span>📥</span>
+          <strong>マネフォ取込</strong>
+          <small>CSV・スクショ</small>
+        </button>
+
+        <button id="inputJumpManual" class="input-choice-button" type="button">
+          <span>🧾</span>
+          <strong>生活費を手入力</strong>
+          <small>必要なときだけ</small>
+        </button>
+      </div>
+    </div>
+
+    <div id="quickIncomeCard" class="card quick-income-card">
+      <div class="title-row">
+        <div>
+          <div class="mf-import-kicker">必要な欄だけ入れる</div>
+          <h2 class="title">収入</h2>
+        </div>
+        <span id="quickIncomeStatus" class="small">未変更</span>
+      </div>
+
+      <div id="quickIncomeGrid" class="quick-income-grid"></div>
+
+      <div class="quick-income-footer">
+        <div>
+          <span>この期間の収入合計</span>
+          <strong id="quickIncomeTotal">0円</strong>
+        </div>
+        <button id="saveQuickIncome" class="btn" type="button">収入を保存</button>
+      </div>
+    </div>
+
+    <div id="moneyForwardInputCard" class="card mf-import-hub">
       <div class="mf-import-kicker">毎月はここだけ</div>
       <h2 class="mf-import-title">マネーフォワードから取り込む</h2>
       <div class="mf-import-sub">
-        CSVなら数字の読み間違いがなく、収入・生活費・NISAなどをまとめて自動集計します。
+        CSVを選ぶだけで、この期間の収入・生活費・投資を自動入力します。
       </div>
 
       <div class="mf-method recommended">
@@ -845,7 +952,7 @@
       </details>
     </div>
 
-    <details class="card simple-fold manual-input-fold">
+    <details id="manualInputFold" class="card simple-fold manual-input-fold">
       <summary>
         <span>手入力・細かく修正</span>
         <span class="fold-hint">必要なときだけ</span>
@@ -1537,12 +1644,14 @@ let runtimePeriodSettings={...DEFAULT_PERIOD_SETTINGS};
 const japaneseHolidayCache=new Map();
 const GROUP_COLORS={"収入":"#2563eb","住宅":"#34a77b","食費":"#ef4444","水道光熱費":"#eab308","教養・教育":"#6b82c4","自動車":"#52525b","日用品":"#86c995","保険":"#0f766e","通信費":"#9333ea","衣服・美容":"#f8b84e","健康・医療":"#ec4899","交通費":"#64748b","趣味・娯楽":"#db3f82","交際費":"#f97316","その他":"#a8a29e","株式投資":"#16a34a"};
 const DEFAULT_ITEMS=[
-["income_papa","income","収入","パパ","収入・予算内","💰","#2563eb"],
-["income_overtime","income","残業","パパ","収入・予算内","💰","#0ea5e9"],
-["income_mama","income","収入","ママ","収入・予算内","💰","#3b82f6"],
-["income_side","income","副業","","収入・予算外","💰","#64748b"],
-["income_temp","income","その他収入","","収入・予算外","💰","#64748b"],
-["income_bonus","income","賞与","ボーナス","収入・予算外","🎁","#0284c7"],
+["income_papa","income","収入","パパ給料","収入・予算内","👨","#2563eb"],
+["income_mama","income","収入","ママ給料","収入・予算内","👩","#3b82f6"],
+["income_overtime","income","収入","残業代","収入・予算内","⏱️","#0ea5e9"],
+["income_bonus","income","収入","ボーナス","収入・予算外","🎁","#0284c7"],
+["income_side","income","収入","副業収入","収入・予算外","💼","#64748b"],
+["income_benefit","income","収入","手当・給付金","収入・予算外","🏛️","#7c3aed"],
+["income_refund","income","収入","返金・還付","収入・予算外","↩️","#0891b2"],
+["income_temp","income","収入","その他収入","収入・予算外","💰","#64748b"],
 ["housing_loan","expense","住宅","住宅ローン","毎月・固定","🏠","#34a77b"],
 ["food_grocery","expense","食費","食料品","毎月・変動","🍚","#ef4444"],
 ["food_eatout","expense","食費","外食","毎月・変動","🍽️","#ef4444"],
@@ -2123,16 +2232,45 @@ function migrateInvestmentItems(){
   });
 }
 
-function migrateIncomeLabels(){
-  const otherIncome=data.items.find(item=>item.id==="income_temp");
+const CORE_INCOME_ITEMS=[
+  {id:"income_papa",group:"収入",detail:"パパ給料",classification:"収入・予算内",icon:"👨",color:"#2563eb"},
+  {id:"income_mama",group:"収入",detail:"ママ給料",classification:"収入・予算内",icon:"👩",color:"#3b82f6"},
+  {id:"income_overtime",group:"収入",detail:"残業代",classification:"収入・予算内",icon:"⏱️",color:"#0ea5e9"},
+  {id:"income_bonus",group:"収入",detail:"ボーナス",classification:"収入・予算外",icon:"🎁",color:"#0284c7"},
+  {id:"income_side",group:"収入",detail:"副業収入",classification:"収入・予算外",icon:"💼",color:"#64748b"},
+  {id:"income_benefit",group:"収入",detail:"手当・給付金",classification:"収入・予算外",icon:"🏛️",color:"#7c3aed"},
+  {id:"income_refund",group:"収入",detail:"返金・還付",classification:"収入・予算外",icon:"↩️",color:"#0891b2"},
+  {id:"income_temp",group:"収入",detail:"その他収入",classification:"収入・予算外",icon:"💰",color:"#64748b"}
+];
 
-  if(otherIncome){
-    otherIncome.group="その他収入";
-    otherIncome.detail="";
-    otherIncome.type="income";
-    otherIncome.classification="収入・予算外";
-    otherIncome.icon=otherIncome.icon||"💰";
-  }
+function migrateIncomeLabels(){
+  const maxOrder=Math.max(0,...data.items.map(item=>Number(item.order)||0));
+
+  CORE_INCOME_ITEMS.forEach((definition,index)=>{
+    let item=data.items.find(entry=>entry.id===definition.id);
+
+    if(!item){
+      item={
+        id:definition.id,
+        type:"income",
+        group:definition.group,
+        detail:definition.detail,
+        classification:definition.classification,
+        icon:definition.icon,
+        color:definition.color,
+        order:maxOrder+index+1
+      };
+      data.items.push(item);
+      return;
+    }
+
+    item.type="income";
+    item.group=definition.group;
+    item.detail=definition.detail;
+    item.classification=definition.classification;
+    item.icon=definition.icon;
+    item.color=item.color||definition.color;
+  });
 }
 
 function sortedItems(){return [...data.items].sort((a,b)=>(a.order||0)-(b.order||0))}
@@ -2313,6 +2451,10 @@ homeMonth.onchange=()=>setMonth(homeMonth.value);
 inputMonth.onchange=()=>setMonth(inputMonth.value);
 
 homeEditSelectedPeriod.onclick=()=>activate("input");
+monthlyRoutineStep.onclick=()=>activate("input");
+assetRoutineStep.onclick=()=>activate("assets");
+homeGoLifePlan.onclick=()=>activate("lifeplan");
+
 monthChip.onclick=()=>{setMonth(currentMonth());activate("home")};
 goInput.onclick=()=>activate("input");
 goPastInput.onclick=()=>{
@@ -2438,48 +2580,41 @@ function markAssetsUpdated(){
 function renderUsageGuide(){
   if(!data.usage)data.usage=clone(DEFAULT.usage);
 
-  const monthKey=currentMonth();
+  const monthKey=data.selectedMonth;
+  const relation=inputPeriodRelation(monthKey);
   const hasMonthlyData=monthHasActualData(monthKey);
-  const assetsUpdated=data.usage.lastAssetsUpdatedMonth===monthKey;
-  const completed=(hasMonthlyData?1:0)+(assetsUpdated?1:0);
+  const assetsUpdated=data.usage.lastAssetsUpdatedMonth===currentMonth();
 
-  routinePeriodRange.textContent=salaryPeriodRange(monthKey);
-  routinePeriodNote.textContent=salaryPaydayNote(monthKey);
-  routineCount.textContent=`${completed}/2 完了`;
+  routinePeriodRange.textContent=salaryMonthTitle(monthKey);
+  routinePeriodNote.textContent=salaryPeriodRange(monthKey);
+  routineCount.textContent=
+    `${hasMonthlyData?"家計 保存済":"家計 未入力"}・${assetsUpdated?"資産 最新":"資産 未更新"}`;
 
   monthlyRoutineStep.classList.toggle("done",hasMonthlyData);
-  monthlyRoutineStatus.textContent=hasMonthlyData?"入力済み":"未入力";
+  monthlyRoutineStatus.textContent=hasMonthlyData?"保存済":"入力する";
 
   assetRoutineStep.classList.toggle("done",assetsUpdated);
-  assetRoutineStatus.textContent=assetsUpdated?"更新済み":"未更新";
+  assetRoutineStatus.textContent=assetsUpdated?"更新済":"更新する";
 
   nextActionButton.disabled=false;
 
   if(!hasMonthlyData){
-    nextActionButton.textContent="マネーフォワードから取り込む";
-    nextActionButton.onclick=()=>{
-      setMonth(monthKey);
-      activate("input");
-    };
+    nextActionButton.textContent="この期間の家計を入力";
+    nextActionButton.onclick=()=>activate("input");
     return;
   }
 
-  if(!assetsUpdated){
-    nextActionButton.textContent="通帳残高を最新にする";
+  if(relation==="current"&&!assetsUpdated){
+    nextActionButton.textContent="次は資産を更新";
     nextActionButton.onclick=()=>activate("assets");
     return;
   }
 
-  nextActionButton.textContent="更新完了・この期間の結果を見る";
+  nextActionButton.textContent="この期間の結果を見る";
   nextActionButton.onclick=()=>{
-    setMonth(monthKey);
-    activate("home");
-    setTimeout(()=>{
-      homeResultCard.scrollIntoView({behavior:"smooth",block:"start"});
-    },80);
+    homeResultCard.scrollIntoView({behavior:"smooth",block:"start"});
   };
 }
-
 function renderHome(){
   renderUsageGuide();
   renderBigExpenseQuickSummaries();
@@ -2544,14 +2679,131 @@ function drawChart(entries){
   if(!total){x.beginPath();x.arc(cx,cy,R,0,Math.PI*2);x.arc(cx,cy,r,0,Math.PI*2,true);x.fillStyle="#e5e7eb";x.fill("evenodd");return}
   let start=-Math.PI/2;entries.forEach(([g,a])=>{const end=start+(a/total)*Math.PI*2;x.beginPath();x.arc(cx,cy,R,start,end);x.arc(cx,cy,r,end,start,true);x.closePath();x.fillStyle=GROUP_COLORS[g]||"#64748b";x.fill();x.strokeStyle="#fff";x.lineWidth=3;x.stroke();start=end})
 }
+const QUICK_INCOME_ORDER=[
+  "income_papa",
+  "income_mama",
+  "income_overtime",
+  "income_bonus",
+  "income_side",
+  "income_benefit",
+  "income_refund",
+  "income_temp"
+];
+
+function quickIncomeItems(){
+  return QUICK_INCOME_ORDER
+    .map(itemId=>data.items.find(item=>item.id===itemId&&item.type==="income"))
+    .filter(Boolean);
+}
+
+function updateQuickIncomeTotal(){
+  if(!quickIncomeGrid)return;
+
+  const total=[...quickIncomeGrid.querySelectorAll("[data-quick-income-id]")]
+    .reduce((sum,input)=>sum+normalize(input.value),0);
+
+  quickIncomeTotal.textContent=yen(total);
+}
+
+function renderQuickIncomeEditor(){
+  if(!quickIncomeGrid)return;
+
+  const monthValues=values(data.selectedMonth);
+
+  quickIncomeGrid.innerHTML=quickIncomeItems().map(item=>`
+    <div class="quick-income-field">
+      <label for="quick_${esc(item.id)}">
+        <span>${esc(item.icon||"💰")}</span>
+        ${esc(item.detail||item.group)}
+      </label>
+      <input
+        id="quick_${esc(item.id)}"
+        type="number"
+        min="0"
+        step="1"
+        inputmode="numeric"
+        data-quick-income-id="${esc(item.id)}"
+        value="${normalize(monthValues[item.id]||0)||""}"
+        placeholder="0"
+      >
+    </div>
+  `).join("");
+
+  quickIncomeGrid.querySelectorAll("[data-quick-income-id]").forEach(input=>{
+    input.addEventListener("input",()=>{
+      quickIncomeStatus.textContent="未保存の変更あり";
+      quickIncomeStatus.className="small dirty";
+      updateQuickIncomeTotal();
+
+      const fullInput=inputGroups?.querySelector(`[data-id="${CSS.escape(input.dataset.quickIncomeId)}"]`);
+      if(fullInput)fullInput.value=input.value;
+    });
+  });
+
+  quickIncomeStatus.textContent=monthHasActualData(data.selectedMonth)?"保存済み":"未入力";
+  quickIncomeStatus.className=monthHasActualData(data.selectedMonth)?"small saved":"small";
+  updateQuickIncomeTotal();
+}
+
+function saveQuickIncomeValues(){
+  const monthValues={...(data.monthly[data.selectedMonth]||{})};
+
+  quickIncomeGrid.querySelectorAll("[data-quick-income-id]").forEach(input=>{
+    monthValues[input.dataset.quickIncomeId]=normalize(input.value);
+  });
+
+  data.monthly[data.selectedMonth]=monthValues;
+  save();
+  renderInputs();
+  renderHome();
+  renderInputRecentPeriods();
+  setInputSaveStatus("saved");
+
+  quickIncomeStatus.textContent="保存済み";
+  quickIncomeStatus.className="small saved";
+
+  alert(`${salaryMonthTitle(data.selectedMonth)}の収入を保存しました。`);
+}
+
+saveQuickIncome.onclick=saveQuickIncomeValues;
+
+inputJumpIncome.onclick=()=>{
+  quickIncomeCard.scrollIntoView({behavior:"smooth",block:"start"});
+};
+
+inputJumpMoneyForward.onclick=()=>{
+  moneyForwardInputCard.scrollIntoView({behavior:"smooth",block:"start"});
+};
+
+inputJumpManual.onclick=()=>{
+  manualInputFold.open=true;
+  setTimeout(()=>{
+    manualInputFold.scrollIntoView({behavior:"smooth",block:"start"});
+  },40);
+};
+
 function renderInputs(){
   const map=grouped(),v=values(data.selectedMonth);
   inputGroups.innerHTML=[...map.entries()].map(([g,items])=>`<div class="group-card"><div class="group-head"><span>${esc(g)}</span><span class="small">${items[0].type==="income"?"収入":items[0].type==="investment"?"投資":"支出"}</span></div>${items.map(i=>`<div class="input-row"><div><div class="detail-name">${esc(i.detail||i.group)}</div><div class="detail-meta">${esc(i.classification)}</div></div><div class="money"><input type="number" min="0" step="1" inputmode="numeric" data-id="${esc(i.id)}" value="${normalize(v[i.id]||0)||""}" placeholder="0"></div></div>`).join("")}</div>`).join("");
 
   inputGroups.querySelectorAll("[data-id]").forEach(element=>{
-    element.addEventListener("input",()=>setInputSaveStatus("dirty"));
+    element.addEventListener("input",()=>{
+      setInputSaveStatus("dirty");
+
+      const quickInput=quickIncomeGrid?.querySelector(
+        `[data-quick-income-id="${CSS.escape(element.dataset.id)}"]`
+      );
+
+      if(quickInput){
+        quickInput.value=element.value;
+        updateQuickIncomeTotal();
+        quickIncomeStatus.textContent="未保存の変更あり";
+        quickIncomeStatus.className="small dirty";
+      }
+    });
   });
 
+  renderQuickIncomeEditor();
   setInputSaveStatus("auto");
 }
 
@@ -2962,6 +3214,18 @@ function findMoneyForwardItem({major,middle,content,amount}){
 
     if(isSalary&&isBathCareCenter){
       return {item:findItemById("income_mama"),fallback:false};
+    }
+
+    if(/児童手当|子ども手当|給付金|助成金|補助金|手当/.test(fullText)){
+      return {item:findItemById("income_benefit"),fallback:false};
+    }
+
+    if(/還付|返金|払い戻し|キャッシュバック/.test(fullText)){
+      return {item:findItemById("income_refund"),fallback:false};
+    }
+
+    if(/副業|売上|報酬|フリマ|メルカリ|ヤフフリ/.test(fullText)){
+      return {item:findItemById("income_side"),fallback:false};
     }
 
     return {item:findItemById("income_temp"),fallback:true};
@@ -3979,6 +4243,30 @@ function incomeDestinationFromLabel(value){
     };
   }
 
+  if(/児童手当|子ども手当|給付金|助成金|補助金|手当/.test(text)){
+    return {
+      itemId:"income_benefit",
+      label:"手当・給付金",
+      source:"手当・給付金"
+    };
+  }
+
+  if(/還付|返金|払い戻し|キャッシュバック/.test(text)){
+    return {
+      itemId:"income_refund",
+      label:"返金・還付",
+      source:"返金・還付"
+    };
+  }
+
+  if(/副業|売上|報酬|フリマ|メルカリ|ヤフフリ/.test(text)){
+    return {
+      itemId:"income_side",
+      label:"副業収入",
+      source:"副業・売上"
+    };
+  }
+
   if(/給与|給料/.test(text)){
     return {
       itemId:"income_temp",
@@ -4003,7 +4291,7 @@ function looksLikeIncomeScreenshot(text){
 
   return (
     /収入/.test(normalized)&&
-    /給与|給料|賞与|ボーナス|入浴介護|トウアコウギョウ|東亜工業|toa/.test(normalized)
+    /給与|給料|賞与|ボーナス|入浴介護|トウアコウギョウ|東亜工業|toa|給付金|手当|還付|返金|副業|売上|報酬/.test(normalized)
   );
 }
 
@@ -8401,7 +8689,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:32,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:33,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);localStorage.setItem(SELECTED_MONTH_KEY,data.selectedMonth);save();resetForm();initRender();activate("home")}};
 
@@ -8895,6 +9183,28 @@ initRender();
 - 集計開始日設定を変更しても選択月を現在月へ勝手に戻さないよう修正
 - ホームの更新状況カードを「今の期間の更新状況」と明記して選択月との混同を防止
 - 既存のCSV取込、OCR、保存ボタン、大きな出費、資産・ライフプラン連携、予算、年間、バックアップを維持
+-->
+
+
+<!--
+変更履歴 v33
+- ホームを「何をする？」中心の操作ハブへ再設計
+- ホームから家計入力、資産更新、大きな出費、将来確認へ1タップ移動
+- 選択中期間の家計保存状況と資産更新状況をホームで直接表示
+- 入力タブ名を「取込」から「入力」へ変更
+- 入力画面に「何を入力する？」の3択を追加
+- 収入入力、マネーフォワード取込、生活費手入力へ1タップ移動
+- 収入専用の大きく見やすいクイック入力欄を追加
+- パパ給料、ママ給料、残業代、ボーナス、副業収入、手当・給付金、返金・還付、その他収入を標準収入項目に統一
+- 既存データでも不足している収入項目を起動時に自動追加
+- 給料以外の収入を収入画面から直接入力・保存可能
+- 収入だけを保存しても既存の生活費・投資データを消さない方式に変更
+- 収入の入力中に合計金額をリアルタイム表示
+- 手入力の収入欄とクイック収入欄を相互同期
+- マネーフォワードCSVで手当・給付金、返金・還付、副業・売上を専用項目へ自動分類
+- 収入スクショOCRでも手当・給付金、返金・還付、副業収入を判別
+- ホームの「手取り収入」を「収入合計」に変更
+- 既存の月保持、期間選択、保存ボタン、資産OCR、大きな出費、ライフプラン、予算、年間、バックアップを維持
 -->
 
 </body>
