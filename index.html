@@ -110,13 +110,53 @@
     .timeline-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.timeline{min-width:1050px;width:100%;border-collapse:collapse;font-size:11px;background:#fff}.timeline th,.timeline td{padding:8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}.timeline th:first-child,.timeline td:first-child{position:sticky;left:0;background:#fff;z-index:2;text-align:left;min-width:110px}.milestone{display:inline-block;margin-top:3px;padding:3px 6px;border-radius:999px;background:var(--main-soft);color:#9a3412;font-size:9px;font-weight:900}
 
 
-    .asset-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+    .asset-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
     .asset-summary-card{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fafafa}
     .asset-summary-card span{display:block;color:var(--muted);font-size:10px;font-weight:800}
     .asset-summary-card strong{display:block;margin-top:2px;font-size:18px;font-weight:900;overflow-wrap:anywhere}
+    .asset-summary-card.total-assets{grid-column:1/-1;border-color:#fdba74;background:#fff7ed}
+    .asset-summary-card.deposit-assets{border-color:#bbf7d0;background:#f0fdf4}
+    .asset-summary-card.investment-assets{border-color:#bfdbfe;background:#eff6ff}
+    .asset-summary-card.purpose-assets{border-color:#fde68a;background:#fffbeb}
+    .asset-summary-card.unallocated-assets{border-color:#d8b4fe;background:#faf5ff}
+    .asset-summary-note{grid-column:1/-1;padding:10px 12px;border-radius:13px;background:#f5f5f5;color:#57534e;font-size:10px;font-weight:800;line-height:1.6}
+
     .account-list{display:grid;gap:12px}
+    .asset-type-strip{display:grid;gap:8px}
+    .asset-type-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:15px;background:#fff}
+    .asset-type-main{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;align-items:start}
+    .asset-type-dot{width:16px;height:16px;border-radius:50%;margin-top:2px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
+    .asset-type-dot.deposit{background:#3b82f6}
+    .asset-type-dot.investment{background:#f59e0b}
+    .asset-type-dot.pension{background:#06b6d4}
+    .asset-type-name{font-size:14px;font-weight:900}
+    .asset-type-note{margin-top:2px;color:var(--muted);font-size:10px;font-weight:700;line-height:1.5}
+    .asset-type-sub{margin-top:4px;color:#475569;font-size:10px;font-weight:800;line-height:1.5}
+    .asset-type-amount{font-size:18px;font-weight:950;white-space:nowrap;text-align:right}
+    .asset-type-count{margin-top:2px;color:var(--muted);font-size:10px;font-weight:800;text-align:right}
+    .asset-type-guide{margin-top:10px;padding:10px 12px;border-radius:13px;background:#fafafa;color:#57534e;font-size:10px;font-weight:800;line-height:1.7}
+
+    .purpose-master-help{margin-bottom:10px;color:#475569;font-size:11px;font-weight:700;line-height:1.6}
+    .purpose-master-list{display:grid;gap:9px}
+    .purpose-master-item{padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:#fff}
+    .purpose-master-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+    .purpose-master-name{font-size:14px;font-weight:900}
+    .purpose-master-accounts{margin-top:2px;color:var(--main-dark);font-size:10px;font-weight:800}
+    .purpose-master-meta{margin-top:3px;color:var(--muted);font-size:10px;font-weight:700;line-height:1.5}
+    .purpose-master-amount{font-size:16px;font-weight:950;white-space:nowrap;text-align:right}
+
+    .asset-section-stack{display:grid;gap:10px}
+    .account-type-section{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#fff}
+    .account-type-section summary{list-style:none;cursor:pointer;padding:12px;background:#fafafa}
+    .account-type-section summary::-webkit-details-marker{display:none}
+    .account-type-summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+    .account-type-body{display:grid;gap:10px;padding:0 12px 12px}
+    .account-type-body .account-card{margin-top:10px}
+    .account-type-caption{margin:0 0 4px;color:#64748b;font-size:10px;font-weight:700;line-height:1.5}
+    .account-type-chip{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;background:#fff;color:#525252;font-size:9px;font-weight:900;border:1px solid #e5e7eb}
+
     .account-card{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:#fff}
-    .account-head{padding:13px;background:#fafafa;border-bottom:1px solid var(--line)}
+    .account-head{padding:13px;background:#fff;border-bottom:1px solid var(--line)}
     .account-title-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
     .account-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:var(--main-soft);font-size:21px}
     .account-name{font-size:15px;font-weight:900}
@@ -135,6 +175,16 @@
     .account-unallocated{font-size:11px;font-weight:900}
     .quick-purpose-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
     .quick-purpose{border:1px solid #fed7aa;border-radius:999px;padding:7px 10px;background:var(--main-soft);color:#9a3412;font-size:11px;font-weight:900}
+
+    .account-type-badge{display:inline-flex;align-items:center;margin-top:4px;padding:3px 7px;border-radius:999px;font-size:9px;font-weight:900}
+    .account-type-badge.deposit{background:#dcfce7;color:#166534}
+    .account-type-badge.investment{background:#dbeafe;color:#1d4ed8}
+    .account-type-badge.pension{background:#ede9fe;color:#6d28d9}
+    .account-card.investment-card{border-color:#bfdbfe}
+    .account-card.pension-card{border-color:#d8b4fe}
+    .investment-exclusion{padding:16px 12px;text-align:center;color:#475569;font-size:11px;font-weight:800;line-height:1.7;background:#f8fafc}
+    .investment-footer{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fff}
+    .excluded-label{color:#2563eb;font-size:10px;font-weight:900}
 
     
     .routine-card{border:2px solid #fb923c;background:linear-gradient(180deg,#fff,#fff7ed)}
@@ -1525,8 +1575,8 @@
 
     <div class="card">
       <div class="title-row">
-        <h2 class="title">資産の内訳</h2>
-        <span id="accountCount" class="small"></span>
+        <h2 class="title">資産の種類別・目的別</h2>
+        <span id="accountCount" class="small">まずここだけ見ればOK</span>
       </div>
       <div id="accountList" class="account-list"></div>
     </div>
@@ -7910,8 +7960,9 @@ function renderAssets(){
 
   data.bankAccounts.forEach(account=>{
     account.accountType=detectAccountType(account.name,account.accountType);
+    if(!Array.isArray(account.purposes))account.purposes=[];
 
-    if(!account.icon||["🏦","📮"].includes(account.icon)&&account.accountType!=="deposit"){
+    if(!account.icon||(["🏦","📮"].includes(account.icon)&&account.accountType!=="deposit")){
       account.icon=accountTypeIcon(account.accountType);
     }
   });
@@ -7937,6 +7988,45 @@ function renderAssets(){
     return sum+(account.purposes||[]).reduce((purposeSum,purpose)=>purposeSum+normalize(purpose.target),0);
   },0);
 
+  const purposeIcon=name=>{
+    const text=normalizedCategory(name);
+    if(/教育|学費|大学|学校|進学/.test(text))return "🎓";
+    if(/家電|テレビ|洗濯機|冷蔵庫|エアコン/.test(text))return "📺";
+    if(/生活防衛|緊急|予備/.test(text))return "🛟";
+    if(/車|自動車|セレナ|エブリィ|エブリイ/.test(text))return "🚗";
+    if(/外壁|屋根|修繕|住宅/.test(text))return "🏠";
+    if(/旅行/.test(text))return "✈️";
+    return "💰";
+  };
+
+  const purposeSummaryMap=new Map();
+
+  depositAccounts.forEach(account=>{
+    (account.purposes||[]).forEach(purpose=>{
+      const key=String(purpose.name||"未設定").trim()||"未設定";
+
+      if(!purposeSummaryMap.has(key)){
+        purposeSummaryMap.set(key,{
+          name:key,
+          amount:0,
+          target:0,
+          accounts:new Set(),
+          linkedCount:0
+        });
+      }
+
+      const row=purposeSummaryMap.get(key);
+      row.amount+=normalize(purpose.amount);
+      row.target+=normalize(purpose.target);
+      row.accounts.add(account.name||"口座");
+      if(purpose.bigExpenseId)row.linkedCount+=1;
+    });
+  });
+
+  const purposeSummary=[...purposeSummaryMap.values()].sort((a,b)=>{
+    return b.amount-a.amount||b.target-a.target||String(a.name).localeCompare(String(b.name),"ja");
+  });
+
   assetSummary.innerHTML=`
     <div class="asset-summary-card total-assets">
       <span>総資産</span>
@@ -7953,23 +8043,51 @@ function renderAssets(){
       <strong>${yen(investmentTotal)}</strong>
     </div>
 
+    <div class="asset-summary-card purpose-assets">
+      <span>目的別に分けた金額</span>
+      <strong>${yen(totalAllocated)}</strong>
+    </div>
+
     <div class="asset-summary-card unallocated-assets">
-      <span>未振分（預金のみ）</span>
+      <span>まだ未振分（預金のみ）</span>
       <strong class="${totalUnallocated>=0?"positive":"negative"}">${yen(totalUnallocated)}</strong>
     </div>
 
     <div class="asset-summary-note">
-      目的別確保済み ${yen(totalAllocated)}・目標合計 ${yen(totalTarget)}<br>
-      証券・iDeCoは総資産には含みますが、未振分金額には含めません。
+      預金・現金だけを「子どもの学費」「家電買い替え」「生活防衛費」などに振り分けます。<br>
+      証券・iDeCoは総資産には含みますが、未振分の計算には含めません。
     </div>
   `;
 
-  accountCount.textContent=`${data.bankAccounts.length}件`;
+  accountCount.textContent=data.bankAccounts.length?`${data.bankAccounts.length}資産を管理中`:"まだ資産未登録";
 
   if(!data.bankAccounts.length){
-    accountList.innerHTML='<div class="empty">口座や投資資産を追加すると、資産全体を管理できます。</div>';
+    accountList.innerHTML=`
+      <div class="card">
+        <div class="empty">まだ資産がありません。<br>「資産残高を更新」か「口座・資産を追加／編集」から登録してください。</div>
+      </div>
+    `;
+    save();
     return;
   }
+
+  const typeRow=(type,label,amount,note,subText,count)=>`
+    <div class="asset-type-item">
+      <div class="asset-type-main">
+        <span class="asset-type-dot ${esc(type)}"></span>
+        <div>
+          <div class="asset-type-name">${esc(label)}</div>
+          <div class="asset-type-note">${note}</div>
+          ${subText?`<div class="asset-type-sub">${subText}</div>`:""}
+        </div>
+      </div>
+
+      <div>
+        <div class="asset-type-amount">${yen(amount)}</div>
+        <div class="asset-type-count">${count}件</div>
+      </div>
+    </div>
+  `;
 
   const renderAccountCard=account=>{
     const type=account.accountType;
@@ -7991,7 +8109,7 @@ function renderAssets(){
               <div class="purpose-top">
                 <div>
                   <div class="purpose-name">
-                    ・${esc(purpose.name)}
+                    ${purposeIcon(purpose.name)} ${esc(purpose.name)}
                     ${linkedBigExpense?'<span class="linked-plan-badge">大きな出費と連携</span>':""}
                   </div>
                   <div class="purpose-meta">${target?`目標 ${yen(target)}・達成 ${pct(rate)}`:"目標金額なし"}</div>
@@ -8011,9 +8129,9 @@ function renderAssets(){
             </div>
           `;
         }).join("")
-        :'<div class="empty">目的別の金額はまだありません。</div>')
+        :'<div class="empty">この口座にはまだ目的別の金額がありません。</div>')
       :`<div class="investment-exclusion">
-          ${type==="pension"?"老後資金として運用中の資産です。":"運用中の投資資産です。"}<br>
+          ${type==="pension"?"老後資金として運用中の資産です。":"運用中の資産です。"}<br>
           目的別振分と未振分金額の計算には含めません。
         </div>`;
 
@@ -8032,7 +8150,7 @@ function renderAssets(){
             <div>
               <div class="account-name">${esc(account.name)}</div>
               <span class="account-type-badge ${esc(type)}">${esc(accountTypeLabel(type))}</span>
-              <div class="account-meta">${account.memo?esc(account.memo):(isDeposit?`${(account.purposes||[]).length}目的`:"評価額・残高")}</div>
+              <div class="account-meta">${account.memo?esc(account.memo):(isDeposit?`${(account.purposes||[]).length}目的を設定中`:"評価額・残高")}</div>
             </div>
 
             <div class="account-balance">${yen(account.balance)}</div>
@@ -8060,42 +8178,131 @@ function renderAssets(){
     `;
   };
 
-  const groups=[];
+  const renderTypeSection=(type,label,caption,accounts,total,open=false)=>{
+    if(!accounts.length)return "";
+    return `
+      <details class="account-type-section"${open?" open":""}>
+        <summary class="account-type-summary">
+          <div class="asset-type-main">
+            <span class="asset-type-dot ${esc(type)}"></span>
+            <div>
+              <div class="asset-type-name">${esc(label)}</div>
+              <div class="asset-type-note">${caption}</div>
+            </div>
+          </div>
 
-  if(depositAccounts.length){
-    groups.push(`
-      <div class="asset-group-heading">
-        <span class="asset-group-title">🏦 預金・現金</span>
-        <span class="asset-group-total">${yen(depositBalance)}</span>
+          <div>
+            <div class="asset-type-amount">${yen(total)}</div>
+            <div class="asset-type-count">${accounts.length}件</div>
+          </div>
+        </summary>
+
+        <div class="account-type-body">
+          <p class="account-type-caption">${caption}</p>
+          ${accounts.map(renderAccountCard).join("")}
+        </div>
+      </details>
+    `;
+  };
+
+  const typeOverviewHtml=`
+    <div class="card">
+      <div class="title-row">
+        <h2 class="title">資産の種類別</h2>
+        <span class="small">家計簿アプリ風に一覧表示</span>
       </div>
-      <div class="asset-group-note">目的別に分ける資金。未振分金額の計算対象です。</div>
-      ${depositAccounts.map(renderAccountCard).join("")}
-    `);
-  }
 
-  if(investmentAccounts.length){
-    groups.push(`
-      <div class="asset-group-heading">
-        <span class="asset-group-title">📈 証券・投資</span>
-        <span class="asset-group-total">${yen(investmentBalance)}</span>
+      <div class="asset-type-strip">
+        ${typeRow(
+          "deposit",
+          "預金・現金",
+          depositBalance,
+          "生活防衛費・教育費・家電費用などに振り分けるお金",
+          `目的別 ${yen(totalAllocated)} / 未振分 <span class="${totalUnallocated>=0?"positive":"negative"}">${yen(totalUnallocated)}</span>`,
+          depositAccounts.length
+        )}
+
+        ${typeRow(
+          "investment",
+          "証券・投資",
+          investmentBalance,
+          "NISA・投資信託などの運用資産",
+          "総資産には含む / 未振分の計算からは除外",
+          investmentAccounts.length
+        )}
+
+        ${typeRow(
+          "pension",
+          "iDeCo・年金",
+          pensionBalance,
+          "老後資金として育てる資産",
+          "総資産には含む / 未振分の計算からは除外",
+          pensionAccounts.length
+        )}
       </div>
-      <div class="asset-group-note">運用資産。未振分金額の計算対象外です。</div>
-      ${investmentAccounts.map(renderAccountCard).join("")}
-    `);
-  }
 
-  if(pensionAccounts.length){
-    groups.push(`
-      <div class="asset-group-heading">
-        <span class="asset-group-title">🧓 iDeCo・年金</span>
-        <span class="asset-group-total">${yen(pensionBalance)}</span>
+      <div class="asset-type-guide">
+        まずは「預金・現金」の未振分がマイナスになっていないかを見ます。<br>
+        次に「目的別の資金」で、子どもの学費・家電・車などが足りているか確認すればOKです。
       </div>
-      <div class="asset-group-note">老後資産。未振分金額の計算対象外です。</div>
-      ${pensionAccounts.map(renderAccountCard).join("")}
-    `);
-  }
+    </div>
+  `;
 
-  accountList.innerHTML=groups.join("");
+  const purposeSummaryHtml=`
+    <div class="card">
+      <div class="title-row">
+        <h2 class="title">目的別の資金</h2>
+        <span class="small">学費・家電・車など</span>
+      </div>
+
+      <div class="purpose-master-help">
+        預金・現金の中で、何のためのお金かをまとめて確認できます。<br>
+        証券・iDeCoはここには入れません。
+      </div>
+
+      <div class="purpose-master-list">
+        ${purposeSummary.length
+          ?purposeSummary.map(item=>{
+            const rate=item.target?Math.min(100,(item.amount/item.target)*100):0;
+            const accountNames=[...item.accounts];
+            const accountLabel=accountNames.length<=2
+              ?accountNames.join("・")
+              :`${accountNames[0]} ほか${accountNames.length-1}口座`;
+
+            return `
+              <div class="purpose-master-item">
+                <div class="purpose-master-top">
+                  <div>
+                    <div class="purpose-master-name">${purposeIcon(item.name)} ${esc(item.name)}</div>
+                    <div class="purpose-master-accounts">${esc(accountLabel||"口座未設定")}</div>
+                    <div class="purpose-master-meta">
+                      ${item.target?`目標 ${yen(item.target)}・達成 ${pct(rate)}`:"目標金額なし"}
+                      ${item.linkedCount?`・大きな出費と連携 ${item.linkedCount}件`:""}
+                    </div>
+                  </div>
+
+                  <div class="purpose-master-amount">${yen(item.amount)}</div>
+                </div>
+
+                ${item.target?`<div class="purpose-progress"><div class="purpose-progress-bar" style="width:${rate}%"></div></div>`:""}
+              </div>
+            `;
+          }).join("")
+          :'<div class="empty">まだ目的別の金額はありません。「預金の目的別設定」から、学費・家電・生活防衛費などを追加してください。</div>'
+        }
+      </div>
+    </div>
+  `;
+
+  const sectionsHtml=`
+    <div class="asset-section-stack">
+      ${renderTypeSection("deposit","預金・現金","ここに学費・家電・生活防衛費などを設定します。",depositAccounts,depositBalance,true)}
+      ${renderTypeSection("investment","証券・投資","運用資産として別管理します。目的別振分には含めません。",investmentAccounts,investmentBalance,false)}
+      ${renderTypeSection("pension","iDeCo・年金","老後資金として別管理します。目的別振分には含めません。",pensionAccounts,pensionBalance,false)}
+    </div>
+  `;
+
+  accountList.innerHTML=typeOverviewHtml+purposeSummaryHtml+sectionsHtml;
   save();
 }
 
@@ -8863,7 +9070,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:37,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:38,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);localStorage.setItem(SELECTED_MONTH_KEY,data.selectedMonth);save();resetForm();initRender();activate("home")}};
 
@@ -9450,6 +9657,19 @@ initRender();
 - 下部ナビはz-index70のまま維持し、互いのタップ領域が重ならない配置へ変更
 - v36のCSV取込後ホーム遷移修正を維持
 - ホーム・入力・資産・その他、大きな出費、将来プラン、収入8項目、CSV/OCR、月保持、予算、年間、バックアップを維持
+-->
+
+
+<!--
+変更履歴 v38
+- 資産画面を「マネーフォワードME風の見やすい一覧」に近づけて再設計
+- 資産を「預金・現金 / 証券・投資 / iDeCo・年金」の種類別に大きく表示
+- 預金の未振分、目的別確保済み、総資産が一目で分かるように整理
+- 「目的別の資金」一覧を追加し、子どもの学費・家電買い替え・生活防衛費・車などをまとめて確認可能に変更
+- 目的別一覧は口座横断で集計し、どの口座に入っているかも表示
+- 預金は目的別に、証券/iDeCoは総資産のみで未振分から除外するルールを維持
+- 資産の詳細は種類ごとの折りたたみ表示に変更し、預金→証券→年金の順で見やすく整理
+- 既存の資産OCR、口座追加編集、大きな出費連携、ライフプラン連携は維持
 -->
 
 </body>
