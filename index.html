@@ -630,9 +630,12 @@
     .asset-account-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
     .asset-account-actions .btn{padding:6px 8px;font-size:8px}
     .asset-purpose-mini-list{display:grid;gap:5px;margin-top:8px;padding-top:8px;border-top:1px dashed #e5e7eb}
-    .asset-purpose-mini{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;font-size:9px;font-weight:800}
-    .asset-purpose-mini span:first-child{color:#475569}
-    .asset-purpose-mini span:last-child{font-weight:950}
+    .asset-purpose-mini{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;padding:4px 0;font-size:9px;font-weight:800}
+    .asset-purpose-mini-name{min-width:0;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .asset-purpose-mini-amount{font-weight:950;white-space:nowrap}
+    .asset-purpose-edit-button{display:grid;place-items:center;width:28px;height:28px;padding:0;border:1px solid #dbeafe;border-radius:9px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:950}
+    .asset-purpose-mini:hover{background:#fafafa}
+    .purpose-edit-guide{margin-top:6px;color:#2563eb;font-size:8px;font-weight:800}
     .asset-unallocated-line{margin-top:6px;color:#166534;font-size:9px;font-weight:900}
     .asset-transfer-card{border:2px solid #c4b5fd;background:linear-gradient(180deg,#fff,#f5f3ff)}
     .asset-transfer-example{margin-bottom:11px;padding:9px 10px;border-radius:11px;background:#fff;color:#5b21b6;font-size:9px;font-weight:800;line-height:1.6}
@@ -2327,7 +2330,8 @@ const DEFAULT={
     lastCsvImportBackup:null,
     lastScreenshotImportBackup:null,
     lastAccountScreenshotImportBackup:null,
-    bigExpenseMigrationV30Done:false
+    bigExpenseMigrationV30Done:false,
+    purposeQuickEditV41Done:false
   }
 };
 let data=load();
@@ -6532,6 +6536,48 @@ function migratePurposePlansToBigExpenses(){
   data.usage.bigExpenseMigrationV30Done=true;
 }
 
+function applyPurposeQuickEditV41Migration(){
+  if(!data.usage)data.usage=clone(DEFAULT.usage);
+  if(data.usage.purposeQuickEditV41Done)return;
+
+  let changed=false;
+
+  (data.bankAccounts||[]).forEach(account=>{
+    (account.purposes||[]).forEach(purpose=>{
+      const normalized=String(purpose.name||"")
+        .replace(/\s/g,"")
+        .toLowerCase();
+
+      if(
+        normalized.includes("凛乃大学費用") ||
+        normalized.includes("凛乃大学") ||
+        normalized.includes("凛乃学費")
+      ){
+        purpose.name="凛乃大学費用";
+        purpose.amount=1000000;
+
+        if(purpose.bigExpenseId){
+          const expense=(data.bigExpenses||[]).find(item=>item.id===purpose.bigExpenseId);
+          if(expense){
+            expense.name="凛乃大学費用";
+            expense.reservedAmount=1000000;
+            expense.accountId=account.id;
+            expense.purposeId=purpose.id;
+          }
+        }
+
+        changed=true;
+      }
+    });
+  });
+
+  data.usage.purposeQuickEditV41Done=true;
+
+  if(changed){
+    syncBigExpenseLinks();
+  }
+}
+
 function matchingManualLifeEvent(expense){
   const year=bigExpenseTargetYear(expense);
   if(!year)return null;
@@ -7099,12 +7145,35 @@ function resetAccountForm(){
   cancelAccountEdit.classList.add("hidden");
 }
 
+function syncLinkedBigExpenseFromPurpose(account,purpose){
+  if(!purpose?.bigExpenseId)return;
+
+  const expense=(data.bigExpenses||[]).find(item=>item.id===purpose.bigExpenseId);
+  if(!expense)return;
+
+  expense.name=purpose.name;
+  expense.reservedAmount=normalize(purpose.amount);
+  expense.targetAmount=normalize(purpose.target)||normalize(expense.targetAmount);
+  expense.accountId=account.id;
+  expense.purposeId=purpose.id;
+  expense.icon=bigExpenseMeta({...expense,name:purpose.name}).icon;
+
+  const event=findLinkedLifeEvent(expense.id);
+  if(event){
+    event.name=expense.name;
+    if(normalize(expense.targetAmount)>0){
+      event.amount=normalize(expense.targetAmount);
+    }
+    event.icon=expense.icon;
+  }
+}
+
 function resetPurposeForm(){
   purposeEditId.value="";
   purposeName.value="";
   purposeAmount.value="";
   purposeTarget.value="";
-  savePurposeButton.textContent="目的を追加";
+  savePurposeButton.textContent="用途を保存";
   cancelPurposeEdit.classList.add("hidden");
 }
 
@@ -8118,10 +8187,27 @@ savePurposeButton.onclick=()=>{
       });
     }
 
+    const savedPurposeId=purposeEditId.value;
+    const savedAccountId=accountId;
+
+    if(savedPurposeId){
+      const savedAccount=data.bankAccounts.find(item=>item.id===savedAccountId);
+      const savedPurpose=savedAccount?.purposes.find(item=>item.id===savedPurposeId);
+
+      if(savedAccount&&savedPurpose){
+        syncLinkedBigExpenseFromPurpose(savedAccount,savedPurpose);
+      }
+    }
+
+    syncBigExpenseLinks();
     markAssetsUpdated();
     save();
     resetPurposeForm();
+    assetPurposeFormCard.classList.add("hidden");
     renderAssets();
+    renderBigExpenses();
+    renderLifePlan();
+    renderHome();
     renderUsageGuide();
   }finally{
     setTimeout(()=>{
@@ -8139,11 +8225,7 @@ function editPurpose(accountId,purposeId){
 
   if(!account||!purpose)return;
 
-  if(purpose.bigExpenseId){
-    openBigExpenseEditor(purpose.bigExpenseId);
-    return;
-  }
-
+  fillPurposeAccountOptions(account.id);
   purposeEditId.value=purpose.id;
   purposeAccountId.value=account.id;
   purposeName.value=purpose.name;
@@ -8151,7 +8233,16 @@ function editPurpose(accountId,purposeId){
   purposeTarget.value=purpose.target||"";
   savePurposeButton.textContent="変更を保存";
   cancelPurposeEdit.classList.remove("hidden");
-  purposeName.scrollIntoView({behavior:"smooth",block:"center"});
+
+  selectedPurposeAccountLabel.textContent=
+    `${account.name}｜残高 ${yen(account.balance)}｜未振分 ${yen(normalize(account.balance)-totalPurposeAmount(account))}`;
+
+  assetPurposeFormCard.classList.remove("hidden");
+
+  setTimeout(()=>{
+    assetPurposeFormCard.scrollIntoView({behavior:"smooth",block:"start"});
+    purposeName.focus({preventScroll:true});
+  },40);
 }
 
 function deletePurpose(accountId,purposeId){
@@ -8251,13 +8342,21 @@ function renderAssets(){
           ?`<div class="asset-purpose-mini-list">
               ${(account.purposes||[]).map(purpose=>`
                 <div class="asset-purpose-mini">
-                  <span>${purposeIconForName(purpose.name)} ${esc(purpose.name)}</span>
-                  <span>${yen(purpose.amount)}</span>
+                  <span class="asset-purpose-mini-name">${purposeIconForName(purpose.name)} ${esc(purpose.name)}</span>
+                  <span class="asset-purpose-mini-amount">${yen(purpose.amount)}</span>
+                  <button
+                    class="asset-purpose-edit-button"
+                    type="button"
+                    aria-label="${esc(purpose.name)}を編集"
+                    title="名前・金額を編集"
+                    onclick="event.stopPropagation();editPurpose('${esc(account.id)}','${esc(purpose.id)}')"
+                  >✎</button>
                 </div>
               `).join("")}
               <div class="asset-unallocated-line">
                 未振分 ${yen(normalize(account.balance)-totalPurposeAmount(account))}
               </div>
+              <div class="purpose-edit-guide">✎ を押すと名前・金額をすぐ変更できます</div>
             </div>`
           :"";
 
@@ -8276,7 +8375,7 @@ function renderAssets(){
 
             <div class="asset-account-actions">
               <button class="btn outline" type="button" onclick="editAccount('${esc(account.id)}');openAssetAccountEditor();">金額・名前を変更</button>
-              ${isDeposit?`<button class="btn outline" type="button" onclick="openPurposeForAccount('${esc(account.id)}')">用途を分ける</button>`:""}
+              ${isDeposit?`<button class="btn outline" type="button" onclick="openPurposeForAccount('${esc(account.id)}')">用途を追加</button>`:""}
               <button class="btn danger" type="button" onclick="deleteAccount('${esc(account.id)}')">削除</button>
             </div>
           </div>
@@ -9195,7 +9294,7 @@ function renderLifePlan(){
 }
 
 
-exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:40,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify({app:"household_detail",version:41,exportedAt:new Date().toISOString(),data},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`家計実績バックアップ_${currentMonth()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 importBtn.onclick=()=>importFile.click();importFile.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const p=JSON.parse(r.result),d=p.data||p;if(!Array.isArray(d.items)||!d.monthly)throw 0;if(confirm("現在のデータを復元内容で置き換えますか？")){data=migrate(d);save();initRender();alert("復元しました")}}catch{alert("復元に失敗しました")}e.target.value=""};r.readAsText(f)};
 resetBtn.onclick=()=>{if(confirm("すべてのデータを初期化しますか？")&&confirm("元に戻せません。本当に実行しますか？")){data=clone(DEFAULT);localStorage.setItem(SELECTED_MONTH_KEY,data.selectedMonth);save();resetForm();initRender();activate("home")}};
 
@@ -9238,6 +9337,7 @@ function initRender(){
   migrateInvestmentItems();
   cleanupEmptyDuplicateItems();
   migratePurposePlansToBigExpenses();
+  applyPurposeQuickEditV41Migration();
   syncBigExpenseLinks();
   save();
 
@@ -9832,6 +9932,22 @@ initRender();
 - 異なる資産種類への移動時は資産種類合計も同額移動し、総資産は変えない
 - 国債購入など将来の資産組替えを簡単に変更できるよう改善
 - 既存の家計入力、CSV/OCR、大きな出費、ライフプラン、予算、年間、バックアップを維持
+-->
+
+
+<!--
+変更履歴 v41
+- 資産の用途行すべてに「✎ 編集」ボタンを追加
+- 生活防衛費、車、家電、学費、修繕費など、どの用途も一覧から直接編集可能
+- 用途名と確保金額を同じ編集画面で簡単に変更可能
+- 大きな出費と連携済みの用途も資産画面から直接編集可能に変更
+- 連携用途を編集した場合、大きな出費の名前・確保額・目標額も自動同期
+- ライフプラン側の連携イベント名・金額も必要に応じて同期
+- 「凛乃大学費用」の確保額を1,000,000円へ初回自動修正
+- 凛乃大学費用が大きな出費と連携している場合も確保額1,000,000円へ同期
+- 用途編集画面を保存後に自動で閉じるよう改善
+- 保存後に資産・大きな出費・ライフプラン・ホームをまとめて再描画
+- v40の資産種類→口座→用途、月別スクショ、資産移動、国債対応、既存家計機能を維持
 -->
 
 </body>
